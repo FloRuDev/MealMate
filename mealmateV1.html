@@ -1,0 +1,2541 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>MealMate – Familien Meal-Prep</title>
+
+  <!-- iOS Web-App (PWA) Meta-Tags für Vollbild auf dem iPhone -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="MealMate" />
+  <meta name="theme-color" content="#0B132B" />
+
+  <!-- App-Icon für den iPhone Home-Bildschirm -->
+  <link rel="apple-touch-icon" href="https://placehold.co/180x180/0891b2/ffffff?text=MM" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Font: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- React 18 & Babel Standalone für direkte Ausführung in iOS Safari -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    html, body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #0B132B;
+      color: #f1f5f9;
+      overscroll-behavior-y: none;
+      margin: 0;
+      padding: 0;
+    }
+    /* iPhone Notch / Dynamic Island & Home-Indicator Safe Areas */
+    .ios-safe-container {
+      padding-top: max(0.75rem, env(safe-area-inset-top));
+      padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+      padding-left: max(0.75rem, env(safe-area-inset-left));
+      padding-right: max(0.75rem, env(safe-area-inset-right));
+    }
+    /* Sanftes Scrollen in Listen auf iOS */
+    .ios-scroll {
+      -webkit-overflow-scrolling: touch;
+    }
+    /* Verhindert versehentliches Seiten-Scrollen beim horizontalen Karten-Swipen */
+    .swipe-card-surface {
+      touch-action: pan-y;
+    }
+  </style>
+</head>
+<body class="bg-[#0B132B] text-slate-100 min-h-screen select-none">
+  <div id="root"></div>
+
+  <!-- Hauptanwendung -->
+  <script type="text/babel">
+    const { useState, useRef, useEffect, useMemo, useCallback } = React;
+
+    // ============================================================================
+    // INLINE SVG ICONS (100% iOS-Safari-kompatibel ohne externe Modul-Abhängigkeit)
+    // ============================================================================
+    const IconBase = ({ children, className = "w-4 h-4", ...props }) => (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={className}
+        {...props}
+      >
+        {children}
+      </svg>
+    );
+
+    const Icons = {
+      Heart: (p) => (
+        <IconBase {...p}>
+          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+        </IconBase>
+      ),
+      X: (p) => (
+        <IconBase {...p}>
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </IconBase>
+      ),
+      Sparkles: (p) => (
+        <IconBase {...p}>
+          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+        </IconBase>
+      ),
+      ShoppingBag: (p) => (
+        <IconBase {...p}>
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+          <path d="M3 6h18" />
+          <path d="M16 10a4 4 0 0 1-8 0" />
+        </IconBase>
+      ),
+      Clock: (p) => (
+        <IconBase {...p}>
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </IconBase>
+      ),
+      ChefHat: (p) => (
+        <IconBase {...p}>
+          <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z" />
+          <line x1="6" x2="18" y1="17" y2="17" />
+        </IconBase>
+      ),
+      Check: (p) => (
+        <IconBase {...p}>
+          <path d="M20 6 9 17l-5-5" />
+        </IconBase>
+      ),
+      RefreshCw: (p) => (
+        <IconBase {...p}>
+          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+          <path d="M21 3v5h-5" />
+          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+          <path d="M8 16H3v5" />
+        </IconBase>
+      ),
+      Bookmark: (p) => (
+        <IconBase {...p}>
+          <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16Z" />
+        </IconBase>
+      ),
+      Calendar: (p) => (
+        <IconBase {...p}>
+          <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+          <line x1="16" x2="16" y1="2" y2="6" />
+          <line x1="8" x2="8" y1="2" y2="6" />
+          <line x1="3" x2="21" y1="10" y2="10" />
+        </IconBase>
+      ),
+      Copy: (p) => (
+        <IconBase {...p}>
+          <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+        </IconBase>
+      ),
+      Share2: (p) => (
+        <IconBase {...p}>
+          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+          <polyline points="16 6 12 2 8 6" />
+          <line x1="12" x2="12" y1="2" y2="15" />
+        </IconBase>
+      ),
+      Trash2: (p) => (
+        <IconBase {...p}>
+          <path d="M3 6h18" />
+          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+        </IconBase>
+      ),
+      Plus: (p) => (
+        <IconBase {...p}>
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
+        </IconBase>
+      ),
+      Minus: (p) => (
+        <IconBase {...p}>
+          <path d="M5 12h14" />
+        </IconBase>
+      ),
+      Snowflake: (p) => (
+        <IconBase {...p}>
+          <line x1="2" x2="22" y1="12" y2="12" />
+          <line x1="12" x2="12" y1="2" y2="22" />
+          <path d="m20 16-4-4 4-4" />
+          <path d="m4 8 4 4-4 4" />
+        </IconBase>
+      ),
+      Baby: (p) => (
+        <IconBase {...p}>
+          <circle cx="12" cy="12" r="10" />
+          <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+          <line x1="9" x2="9.01" y1="9" y2="9" />
+          <line x1="15" x2="15.01" y1="9" y2="9" />
+        </IconBase>
+      ),
+      Dumbbell: (p) => (
+        <IconBase {...p}>
+          <path d="m6.5 6.5 11 11" />
+          <path d="m21 21-1-1" />
+          <path d="m3 3 1 1" />
+          <path d="m18 22 4-4" />
+          <path d="m2 6 4-4" />
+          <path d="m3 10 7-7" />
+          <path d="m14 21 7-7" />
+        </IconBase>
+      ),
+      Wand2: (p) => (
+        <IconBase {...p}>
+          <path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z" />
+          <path d="m14 7 3 3" />
+        </IconBase>
+      ),
+      CheckCircle2: (p) => (
+        <IconBase {...p}>
+          <circle cx="12" cy="12" r="10" />
+          <path d="m9 12 2 2 4-4" />
+        </IconBase>
+      ),
+      ChevronRight: (p) => (
+        <IconBase {...p}>
+          <path d="m9 18 6-6-6-6" />
+        </IconBase>
+      ),
+      Layers: (p) => (
+        <IconBase {...p}>
+          <polygon points="12 2 2 7 12 12 22 7 12 2" />
+          <polyline points="2 17 12 22 22 17" />
+          <polyline points="2 12 12 17 22 12" />
+        </IconBase>
+      ),
+      FlaskConical: (p) => (
+        <IconBase {...p}>
+          <path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2" />
+          <path d="M8.5 2h7" />
+          <path d="M7 16h10" />
+        </IconBase>
+      ),
+      Database: (p) => (
+        <IconBase {...p}>
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+          <path d="M3 12A9 3 0 0 0 21 12" />
+        </IconBase>
+      ),
+      Shuffle: (p) => (
+        <IconBase {...p}>
+          <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22" />
+          <path d="m18 2 4 4-4 4" />
+          <path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2" />
+          <path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8" />
+          <path d="m18 14 4 4-4 4" />
+        </IconBase>
+      ),
+      ShieldCheck: (p) => (
+        <IconBase {...p}>
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+          <path d="m9 12 2 2 4-4" />
+        </IconBase>
+      ),
+      Wifi: (p) => (
+        <IconBase {...p}>
+          <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+          <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+          <line x1="12" x2="12.01" y1="20" y2="20" />
+        </IconBase>
+      ),
+      WifiOff: (p) => (
+        <IconBase {...p}>
+          <line x1="2" x2="22" y1="2" y2="22" />
+          <path d="M8.5 16.5a5 5 0 0 1 7 0" />
+          <path d="M2 8.82a15 15 0 0 1 4.17-2.65" />
+          <path d="M10.66 5c4.01-.36 8.14.9 11.34 3.76" />
+        </IconBase>
+      ),
+      Smartphone: (p) => (
+        <IconBase {...p}>
+          <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+          <path d="M12 18h.01" />
+        </IconBase>
+      )
+    };
+
+    // ============================================================================
+    // KONFIGURATION & KONSTANTEN
+    // ============================================================================
+    const APP_CONFIG = Object.freeze({
+      INITIAL_DECK_SIZE: 6,
+      AI_ROTATION_FEED_COUNT: 3,
+      DEFAULT_BASE_PORTIONS: 4,
+      DEFAULT_DAY_PORTIONS: 3,
+      MIN_PORTIONS: 1,
+      MAX_DAY_PORTIONS: 12,
+      MAX_TOTAL_PORTIONS: 20,
+      SWIPE_THRESHOLD_PX: 85,
+      SWIPE_ROTATION_DIVISOR: 18,
+      SWIPE_OPACITY_DIVISOR: 85,
+      SWIPE_ANIMATION_MS: 220,
+      TOAST_DURATION_MS: 2500,
+      BFF_RATE_LIMIT_WINDOW_MS: 60000,
+      BFF_MAX_REQUESTS_PER_WINDOW: 12,
+      BFF_CACHE_TTL_MS: 1000 * 60 * 30,
+      IDB_NAME: 'MealMateOfflineDB_v2',
+      IDB_VERSION: 1
+    });
+
+    const WEEKDAYS = [
+      { short: 'Mo', full: 'Montag' },
+      { short: 'Di', full: 'Dienstag' },
+      { short: 'Mi', full: 'Mittwoch' },
+      { short: 'Do', full: 'Donnerstag' },
+      { short: 'Fr', full: 'Freitag' },
+      { short: 'Sa', full: 'Samstag' },
+      { short: 'So', full: 'Sonntag' }
+    ];
+
+    const ALL_RECIPES = [
+      {
+        id: 'rec-1',
+        title: 'Cremige Hähnchen-Reis-Pfanne (Frikassee-Art)',
+        subtitle: 'Süßliche Erbsen & weiche Möhren in leichter Frischkäse-Soße',
+        emoji: '🍚',
+        accentColor: 'from-emerald-600 to-teal-700',
+        prepTimeActive: 15,
+        prepTimePassive: 15,
+        effortLevel: 'Minimal (TK-Gemüse)',
+        fridgeDays: 4,
+        freezerMonths: 3,
+        toddlerNote: 'Weiche Textur, mild-süßlich',
+        calories: 510,
+        protein: 44,
+        carbs: 58,
+        fat: 9,
+        basePortions: 4,
+        ingredients: [
+          { name: 'Basmati- oder Parboiled-Reis (ungekocht)', amount: 250, unit: 'g', category: 'Vorratsschrank' },
+          { name: 'Hähnchenbrustfilet (klein gewürfelt)', amount: 600, unit: 'g', category: 'Fleisch & Frische' },
+          { name: 'TK-Erbsen und Möhren', amount: 400, unit: 'g', category: 'Tiefkühlung' },
+          { name: 'Fettarme Milch (1,5%)', amount: 250, unit: 'ml', category: 'Kühlregal' },
+          { name: 'Milde Hühner- oder Gemüsebrühe', amount: 250, unit: 'ml', category: 'Vorratsschrank' },
+          { name: 'Frischkäse Light (0,2% Fett)', amount: 100, unit: 'g', category: 'Kühlregal' },
+          { name: 'Rapsöl zum Anbraten', amount: 1, unit: 'EL', category: 'Vorratsschrank' },
+          { name: 'Zitronensaft & Prise Muskatnuss', amount: 1, unit: 'Spritzer', category: 'Vorratsschrank' }
+        ],
+        steps: [
+          'Reis im Topf aufsetzen. Parallel Hähnchenwürfel in einer großen tiefen Pfanne mit 1 EL Öl goldbraun anbraten.',
+          'Mit Brühe und Milch ablöschen, gefrorene Erbsen & Möhren direkt dazugeben und 10–12 Min. sanft köcheln lassen.',
+          'Frischkäse Light einrühren bis die Soße sämig ist, mild abschmecken und mit dem Reis in Meal-Prep-Dosen füllen.'
+        ]
+      },
+      {
+        id: 'rec-2',
+        title: 'Kartoffel-Hähnchen-Auflauf mit Hüttenkäse-Soße',
+        subtitle: 'Großes Ofenblech mit weichem Brokkoli & verstecktem Protein-Boost',
+        emoji: '🥘',
+        accentColor: 'from-amber-500 to-orange-600',
+        prepTimeActive: 15,
+        prepTimePassive: 30,
+        effortLevel: 'Sehr gering (Ofen-Job)',
+        fridgeDays: 4,
+        freezerMonths: 2,
+        toddlerNote: 'Butterweiche Kartoffelwürfel & milde Käsekruste',
+        calories: 520,
+        protein: 45,
+        carbs: 48,
+        fat: 14,
+        basePortions: 4,
+        ingredients: [
+          { name: 'Festkochende Kartoffeln (klein gewürfelt)', amount: 800, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Hähnchenbrustfilet (mundgerecht)', amount: 600, unit: 'g', category: 'Fleisch & Frische' },
+          { name: 'Brokkoli-Röschen (frisch oder TK)', amount: 500, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Körniger Frischkäse (Hüttenkäse light)', amount: 400, unit: 'g', category: 'Kühlregal' },
+          { name: 'Milde Gemüsebrühe', amount: 200, unit: 'ml', category: 'Vorratsschrank' },
+          { name: 'Geriebener Gouda / Mozzarella light', amount: 100, unit: 'g', category: 'Kühlregal' },
+          { name: 'Paprika edelsüß & milde Kräuter', amount: 1, unit: 'TL', category: 'Vorratsschrank' }
+        ],
+        steps: [
+          'Kartoffelwürfel, kleine Brokkoliröschen und rohe Hähnchenstücke direkt in einer großen Auflaufform mischen.',
+          'Hüttenkäse mit Brühe und mildem Paprikapulver kurz glatt pürieren und über den Auflauf gießen.',
+          'Mit Reibekäse bestreuen und bei 200 °C Umluft ca. 30 Minuten backen, bis die Kartoffeln weich sind.'
+        ]
+      },
+      {
+        id: 'rec-3',
+        title: 'Ofen-Hähnchenfrikadellen mit Süßkartoffel-Stampf',
+        subtitle: 'Saftige Gemüse-Bratlinge vom Blech – ideal auch für kleine Hände',
+        emoji: '🧆',
+        accentColor: 'from-rose-500 to-orange-600',
+        prepTimeActive: 20,
+        prepTimePassive: 20,
+        effortLevel: 'Mittel (Kein Braten am Herd)',
+        fridgeDays: 3,
+        freezerMonths: 3,
+        toddlerNote: 'Perfektes Fingerfood, süßlicher Stampf ohne Schärfe',
+        calories: 495,
+        protein: 46,
+        carbs: 47,
+        fat: 12,
+        basePortions: 4,
+        ingredients: [
+          { name: 'Hähnchen- oder Putenhackfleisch (mager)', amount: 600, unit: 'g', category: 'Fleisch & Frische' },
+          { name: 'Zarte Haferflocken (als Bindung)', amount: 60, unit: 'g', category: 'Vorratsschrank' },
+          { name: 'Magerquark (macht die Frikadellen saftig)', amount: 150, unit: 'g', category: 'Kühlregal' },
+          { name: 'Ei (Größe M)', amount: 1, unit: 'Stück', category: 'Kühlregal' },
+          { name: 'Karotte (fein gerieben)', amount: 150, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Süßkartoffeln', amount: 450, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Mehligkochende Kartoffeln', amount: 450, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Fettarme Milch für den Stampf', amount: 100, unit: 'ml', category: 'Kühlregal' }
+        ],
+        steps: [
+          'Hackfleisch, Magerquark, Ei, Haferflocken und fein geriebene Karotte verkneten. 12 flache Frikadellen auf ein Backblech setzen.',
+          'Bei 200 °C ca. 20 Minuten im Ofen backen (spart das Wenden in der Pfanne).',
+          'Parallel Süßkartoffeln und Kartoffeln weichkochen, mit warmer Milch cremig stampfen und zusammen portionieren.'
+        ]
+      },
+      {
+        id: 'rec-4',
+        title: 'Versteckte-Gemüse-Bolognese mit Reis oder Pasta',
+        subtitle: 'Rinderhack & rote Linsen vereint für doppeltes Eiweiß und Sämigkeit',
+        emoji: '🍝',
+        accentColor: 'from-red-600 to-rose-700',
+        prepTimeActive: 15,
+        prepTimePassive: 20,
+        effortLevel: 'Gering (1-Topf-Soße)',
+        fridgeDays: 4,
+        freezerMonths: 3,
+        toddlerNote: 'Gemüse kocht komplett weich & unsichtbar in der Soße',
+        calories: 540,
+        protein: 48,
+        carbs: 56,
+        fat: 11,
+        basePortions: 4,
+        ingredients: [
+          { name: 'Mageres Rinderhackfleisch (5% Fett)', amount: 500, unit: 'g', category: 'Fleisch & Frische' },
+          { name: 'Rote Linsen (trocken)', amount: 120, unit: 'g', category: 'Vorratsschrank' },
+          { name: 'Passierte Tomaten', amount: 700, unit: 'ml', category: 'Vorratsschrank' },
+          { name: 'Zucchini (fein gerieben)', amount: 250, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Karotten (fein gerieben)', amount: 200, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Reis oder Vollkornnudeln (nach Wahl)', amount: 300, unit: 'g', category: 'Vorratsschrank' },
+          { name: 'Milde Gemüsebrühe', amount: 300, unit: 'ml', category: 'Vorratsschrank' },
+          { name: 'Italienische Kräuter (mild)', amount: 1, unit: 'TL', category: 'Vorratsschrank' }
+        ],
+        steps: [
+          'Rinderhack im großen Topf krümelig braten, fein geriebene Zucchini und Karotten 2 Min. mitdünsten.',
+          'Rote Linsen, passierte Tomaten und Brühe zugeben und 18–20 Min. sanft köcheln, bis die Linsen weich sind.',
+          'Mit Reis oder Nudeln auf Vorratsdosen verteilen – lässt sich auch perfekt einfrieren.'
+        ]
+      },
+      {
+        id: 'rec-5',
+        title: 'Mildes Puten-Süßkartoffel-Chili mit Mais',
+        subtitle: 'Eintopf-Wunder ohne Schärfe – schmeckt durchgezogen noch besser',
+        emoji: '🍲',
+        accentColor: 'from-orange-600 to-amber-700',
+        prepTimeActive: 15,
+        prepTimePassive: 20,
+        effortLevel: 'Sehr gering (One-Pot)',
+        fridgeDays: 4,
+        freezerMonths: 3,
+        toddlerNote: 'Süßlicher Mais & weiche Süßkartoffel statt Chili-Schärfe',
+        calories: 505,
+        protein: 45,
+        carbs: 54,
+        fat: 10,
+        basePortions: 4,
+        ingredients: [
+          { name: 'Putenbrustfilet oder Putenhack', amount: 600, unit: 'g', category: 'Fleisch & Frische' },
+          { name: 'Süßkartoffeln (klein gewürfelt)', amount: 500, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Kidneybohnen (Abtropfgewicht, gespült)', amount: 250, unit: 'g', category: 'Vorratsschrank' },
+          { name: 'Goldmais (Dose, Abtropfgewicht)', amount: 150, unit: 'g', category: 'Vorratsschrank' },
+          { name: 'Stückige Tomaten (Dose)', amount: 800, unit: 'g', category: 'Vorratsschrank' },
+          { name: 'Milde Gemüsebrühe', amount: 250, unit: 'ml', category: 'Vorratsschrank' },
+          { name: 'Griechischer Joghurt (2% Fett)', amount: 150, unit: 'g', category: 'Kühlregal' },
+          { name: 'Paprikapulver edelsüß', amount: 1, unit: 'EL', category: 'Vorratsschrank' }
+        ],
+        steps: [
+          'Putenfleisch im großen Topf anbraten, Süßkartoffelwürfel und edelsüßes Paprikapulver kurz mitrösten.',
+          'Mit stückigen Tomaten und Brühe ablöschen und 15 Minuten köcheln, bis die Süßkartoffel weich ist.',
+          'Gespülte Bohnen und Mais 5 Min. mitwärmen. Beim Servieren einen Klecks Joghurt daraufgeben.'
+        ]
+      },
+      {
+        id: 'rec-6',
+        title: 'Lachs-Reis-Blech mit Erbsen & Zitronen-Skyr-Dip',
+        subtitle: 'Wertvolle Omega-3-Fettsäuren & null Aufwand am Herd',
+        emoji: '🐟',
+        accentColor: 'from-cyan-600 to-blue-700',
+        prepTimeActive: 10,
+        prepTimePassive: 20,
+        effortLevel: 'Minimal (10 Min. Vorbereitung)',
+        fridgeDays: 3,
+        freezerMonths: 2,
+        toddlerNote: 'Grätenfreies Filet zerfällt butterzart, milder Dip',
+        calories: 535,
+        protein: 42,
+        carbs: 52,
+        fat: 16,
+        basePortions: 4,
+        ingredients: [
+          { name: 'Lachsfilet ohne Haut & Gräten (frisch/TK)', amount: 500, unit: 'g', category: 'Fleisch & Frische' },
+          { name: 'Basmatireis (ungekocht)', amount: 260, unit: 'g', category: 'Vorratsschrank' },
+          { name: 'TK-Erbsen (jung & zart)', amount: 350, unit: 'g', category: 'Tiefkühlung' },
+          { name: 'Skyr Natur (hoher Proteingehalt)', amount: 250, unit: 'g', category: 'Kühlregal' },
+          { name: 'Karotten (in dünnen Scheiben)', amount: 250, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Zitronensaft & etwas Dill', amount: 1, unit: 'EL', category: 'Obst & Gemüse' }
+        ],
+        steps: [
+          'Reis mit den dünnen Karottenscheiben in einem Topf garen; in den letzten 4 Minuten die TK-Erbsen unterheben.',
+          'Lachsfilets im Ofen bei 190 °C für 15–18 Minuten saftig garen.',
+          'Skyr mit etwas Zitronensaft, Dill und einer Prise Salz verrühren und zum Lachs-Reis-Mix servieren.'
+        ]
+      },
+      {
+        id: 'rec-7',
+        title: 'Cremiger Nudel-Erbsen-Auflauf',
+        subtitle: 'Absolutes Wohlfühlessen aus dem Ofen – Nudeln kochen von selbst',
+        emoji: '🧀',
+        accentColor: 'from-yellow-500 to-amber-600',
+        prepTimeActive: 10,
+        prepTimePassive: 35,
+        effortLevel: 'Minimal (Rohe Nudeln ins Blech)',
+        fridgeDays: 4,
+        freezerMonths: 2,
+        toddlerNote: 'Weiche Nudeln & süße Erbsen, bei Kleinkindern extrem beliebt',
+        calories: 480,
+        protein: 35,
+        carbs: 58,
+        fat: 13,
+        basePortions: 4,
+        ingredients: [
+          { name: 'Vollkorn- oder Dinkelnudeln (ungekocht)', amount: 400, unit: 'g', category: 'Vorratsschrank' },
+          { name: 'TK-Erbsen', amount: 300, unit: 'g', category: 'Tiefkühlung' },
+          { name: 'Kochsahne (7% Fett) oder Hafercreme', amount: 250, unit: 'ml', category: 'Kühlregal' },
+          { name: 'Milde Gemüsebrühe', amount: 600, unit: 'ml', category: 'Vorratsschrank' },
+          { name: 'Hähnchenbrust-Aufschnitt (in Streifen)', amount: 200, unit: 'g', category: 'Kühlregal' },
+          { name: 'Geriebener Gouda light', amount: 120, unit: 'g', category: 'Kühlregal' }
+        ],
+        steps: [
+          'Ungekochte Nudeln, TK-Erbsen und Hähnchenbrust-Streifen in einer großen Auflaufform verteilen.',
+          'Brühe und Sahne mischen, mit einer Prise Muskatnuss abschmecken und über die Nudeln gießen.',
+          'Mit Käse bestreuen und bei 180 °C Umluft für ca. 35–40 Minuten backen.'
+        ]
+      },
+      {
+        id: 'rec-8',
+        title: 'Ofen-Frittata mit Kartoffeln & Spinat',
+        subtitle: 'Herzhaftes Blech-Omelett, in handliche Riegel schneidbar',
+        emoji: '🍳',
+        accentColor: 'from-green-500 to-emerald-600',
+        prepTimeActive: 15,
+        prepTimePassive: 25,
+        effortLevel: 'Gering',
+        fridgeDays: 3,
+        freezerMonths: 0,
+        toddlerNote: 'Ideal als kaltes Fingerfood für unterwegs',
+        calories: 410,
+        protein: 36,
+        carbs: 28,
+        fat: 16,
+        basePortions: 4,
+        ingredients: [
+          { name: 'Gekochte Kartoffeln (gerne vom Vortag)', amount: 600, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Eier (Größe M)', amount: 8, unit: 'Stück', category: 'Kühlregal' },
+          { name: 'Körniger Frischkäse light (ins Ei gerührt)', amount: 250, unit: 'g', category: 'Kühlregal' },
+          { name: 'Frischer Blattspinat (oder TK)', amount: 200, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Geriebener Gouda light', amount: 80, unit: 'g', category: 'Kühlregal' }
+        ],
+        steps: [
+          'Gekochte Kartoffeln würfeln und zusammen mit dem Spinat auf einem Backblech verteilen.',
+          'Eier mit dem körnigen Frischkäse verquirlen, mild würzen und über das Gemüse gießen.',
+          'Mit Käse bestreuen und bei 180 °C ca. 25 Minuten backen, bis das Ei gestockt ist.'
+        ]
+      },
+      {
+        id: 'rec-9',
+        title: 'Cremiger Gnocchi-Gemüse-Mix vom Blech',
+        subtitle: 'Röstaromen aus dem Ofen mit geschmolzenem Mozzarella & Putenstreifen',
+        emoji: '🥔',
+        accentColor: 'from-rose-500 to-red-600',
+        prepTimeActive: 10,
+        prepTimePassive: 20,
+        effortLevel: 'Minimal',
+        fridgeDays: 3,
+        freezerMonths: 1,
+        toddlerNote: 'Weiche Gnocchi und milde, süße Tomaten',
+        calories: 495,
+        protein: 39,
+        carbs: 58,
+        fat: 12,
+        basePortions: 4,
+        ingredients: [
+          { name: 'Gnocchi (aus dem Kühlregal)', amount: 800, unit: 'g', category: 'Kühlregal' },
+          { name: 'Putenbrustfilet (in kleinen Würfeln)', amount: 450, unit: 'g', category: 'Fleisch & Frische' },
+          { name: 'Kirschtomaten', amount: 300, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Zucchini (klein gewürfelt)', amount: 300, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Mini-Mozzarellakugeln (Light)', amount: 200, unit: 'g', category: 'Kühlregal' },
+          { name: 'Olivenöl & italienische Kräuter', amount: 1, unit: 'EL', category: 'Vorratsschrank' }
+        ],
+        steps: [
+          'Gnocchi, Putenwürfel, halbierte Kirschtomaten und Zucchini auf einem Backblech verteilen.',
+          'Mit Olivenöl und Kräutern vermengen. Bei 200 °C Umluft für 15 Minuten rösten.',
+          'Mozzarellakugeln darüber verteilen und weitere 5 Minuten backen.'
+        ]
+      },
+      {
+        id: 'rec-10',
+        title: 'Mildes Hähnchen-Mango-Curry',
+        subtitle: 'Fruchtig-süßes Curry, das auch kleine Kinder lieben',
+        emoji: '🍛',
+        accentColor: 'from-yellow-400 to-orange-500',
+        prepTimeActive: 15,
+        prepTimePassive: 15,
+        effortLevel: 'Mittel',
+        fridgeDays: 3,
+        freezerMonths: 3,
+        toddlerNote: 'Süße Mango mildert das milde Curry perfekt ab',
+        calories: 510,
+        protein: 42,
+        carbs: 55,
+        fat: 12,
+        basePortions: 4,
+        ingredients: [
+          { name: 'Hähnchenbrustfilet', amount: 600, unit: 'g', category: 'Fleisch & Frische' },
+          { name: 'Reis (ungekocht)', amount: 250, unit: 'g', category: 'Vorratsschrank' },
+          { name: 'Reife Mango (gewürfelt)', amount: 1, unit: 'Stück', category: 'Obst & Gemüse' },
+          { name: 'Kokosmilch (light)', amount: 400, unit: 'ml', category: 'Vorratsschrank' },
+          { name: 'Karotten (in feinen Scheiben)', amount: 200, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Mildes Currypulver & Kurkuma', amount: 1, unit: 'TL', category: 'Vorratsschrank' }
+        ],
+        steps: [
+          'Reis nach Packungsanweisung aufsetzen. Hähnchen würfeln und mit dem milden Curry anbraten.',
+          'Karottenscheiben zugeben, mit Kokosmilch ablöschen und 10 Minuten sanft köcheln.',
+          'Mangowürfel unterheben, 3 Minuten mitwärmen und zusammen mit dem Reis servieren.'
+        ]
+      },
+      {
+        id: 'rec-11',
+        title: 'Hähnchen-Fajita-Pfanne mit Reis',
+        subtitle: 'Viel Protein und weiches Pfannengemüse im milden Mexiko-Style',
+        emoji: '🫑',
+        accentColor: 'from-orange-500 to-red-600',
+        prepTimeActive: 15,
+        prepTimePassive: 15,
+        effortLevel: 'Gering',
+        fridgeDays: 4,
+        freezerMonths: 2,
+        toddlerNote: 'Paprika schön weich braten, nur ganz mild würzen',
+        calories: 490,
+        protein: 45,
+        carbs: 50,
+        fat: 10,
+        basePortions: 4,
+        ingredients: [
+          { name: 'Hähnchenbrustfilet (in Streifen)', amount: 600, unit: 'g', category: 'Fleisch & Frische' },
+          { name: 'Reis (z.B. Basmati, ungekocht)', amount: 250, unit: 'g', category: 'Vorratsschrank' },
+          { name: 'Bunte Paprika (in Streifen)', amount: 3, unit: 'Stück', category: 'Obst & Gemüse' },
+          { name: 'Rote Zwiebel', amount: 1, unit: 'Stück', category: 'Obst & Gemüse' },
+          { name: 'Mildes Paprikapulver & Kreuzkümmel', amount: 1, unit: 'TL', category: 'Vorratsschrank' },
+          { name: 'Passierte Tomaten', amount: 200, unit: 'ml', category: 'Vorratsschrank' }
+        ],
+        steps: [
+          'Reis kochen. Hähnchenstreifen in einer großen Pfanne scharf anbraten und herausnehmen.',
+          'Paprika- und Zwiebelstreifen weich braten, Fleisch wieder zugeben und mit passierten Tomaten ablöschen.',
+          'Alles 5 Minuten durchziehen lassen und mit dem Reis auf Vorratsdosen aufteilen.'
+        ]
+      },
+      {
+        id: 'rec-12',
+        title: 'Bunte Quinoa-Bowl mit Kichererbsen & Skyr-Dressing',
+        subtitle: 'Vegetarische Power-Bowl mit viel pflanzlichem Protein & Ofengemüse',
+        emoji: '🥗',
+        accentColor: 'from-emerald-500 to-green-700',
+        prepTimeActive: 15,
+        prepTimePassive: 25,
+        effortLevel: 'Gering',
+        fridgeDays: 4,
+        freezerMonths: 1,
+        toddlerNote: 'Weiche Quinoa und gut verdauliches Ofengemüse',
+        calories: 470,
+        protein: 35,
+        carbs: 56,
+        fat: 12,
+        basePortions: 4,
+        ingredients: [
+          { name: 'Quinoa (ungekocht)', amount: 250, unit: 'g', category: 'Vorratsschrank' },
+          { name: 'Kichererbsen (Dose, abgetropft)', amount: 400, unit: 'g', category: 'Vorratsschrank' },
+          { name: 'Süßkartoffel (gewürfelt)', amount: 300, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Brokkoli-Röschen', amount: 300, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'Skyr Natur (als Protein-Topping)', amount: 300, unit: 'g', category: 'Kühlregal' },
+          { name: 'Olivenöl', amount: 1, unit: 'EL', category: 'Vorratsschrank' }
+        ],
+        steps: [
+          'Quinoa nach Packungsanleitung weichkochen.',
+          'Süßkartoffelwürfel, Brokkoli und Kichererbsen mit Olivenöl auf einem Blech mischen und 25 Min bei 200 °C rösten.',
+          'Quinoa und Gemüse aufteilen und mit einem großen Klecks Skyr servieren.'
+        ]
+      }
+    ];
+
+    // ============================================================================
+    // REINE DOMÄNEN- & HILFSFUNKTIONEN (CLEAN CODE)
+    // ============================================================================
+    const getRandomSubset = (array, size = APP_CONFIG.INITIAL_DECK_SIZE, rng = Math.random) => {
+      if (!Array.isArray(array) || array.length === 0 || size <= 0) return [];
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy.slice(0, Math.min(size, copy.length));
+    };
+
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+    const getDayPortions = (item) => {
+      if (!item) return {};
+      if (item.dayPortions && typeof item.dayPortions === 'object') {
+        return item.dayPortions;
+      }
+      if (item.weekday) {
+        return { [item.weekday]: item.portions || APP_CONFIG.DEFAULT_BASE_PORTIONS };
+      }
+      return {};
+    };
+
+    const getTotalPortions = (item) => {
+      if (!item) return APP_CONFIG.DEFAULT_BASE_PORTIONS;
+      const dp = getDayPortions(item);
+      const days = Object.keys(dp);
+      if (days.length > 0) {
+        return days.reduce((sum, day) => sum + (Number(dp[day]) || 0), 0);
+      }
+      return item.portions || item.recipe?.basePortions || APP_CONFIG.DEFAULT_BASE_PORTIONS;
+    };
+
+    const formatDaySchedule = (item) => {
+      const dp = getDayPortions(item);
+      return WEEKDAYS.filter((d) => (dp[d.short] || 0) > 0)
+        .map((d) => `${d.short}: ${dp[d.short]}P`)
+        .join(', ');
+    };
+
+    const applyWeekdayToggle = (item, dayShort, defaultPortions = APP_CONFIG.DEFAULT_DAY_PORTIONS) => {
+      const currentDp = { ...getDayPortions(item) };
+      if (currentDp[dayShort]) {
+        delete currentDp[dayShort];
+      } else {
+        currentDp[dayShort] = defaultPortions;
+      }
+      const remainingDays = WEEKDAYS.map((d) => d.short).filter((d) => currentDp[d] > 0);
+      const nextTotal =
+        remainingDays.length > 0
+          ? remainingDays.reduce((sum, d) => sum + currentDp[d], 0)
+          : item.portions || item.recipe?.basePortions || APP_CONFIG.DEFAULT_BASE_PORTIONS;
+
+      return {
+        ...item,
+        dayPortions: currentDp,
+        weekday: remainingDays[0] || null,
+        portions: nextTotal
+      };
+    };
+
+    const applyDayPortionDelta = (item, dayShort, delta) => {
+      const currentDp = { ...getDayPortions(item) };
+      const currentVal = currentDp[dayShort] || APP_CONFIG.DEFAULT_DAY_PORTIONS;
+      currentDp[dayShort] = clamp(currentVal + delta, APP_CONFIG.MIN_PORTIONS, APP_CONFIG.MAX_DAY_PORTIONS);
+      const nextTotal = Object.values(currentDp).reduce((sum, v) => sum + v, 0);
+
+      return {
+        ...item,
+        dayPortions: currentDp,
+        portions: nextTotal
+      };
+    };
+
+    const CATEGORY_ORDER = [
+      { key: 'Obst & Gemüse', icon: '🥦', badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
+      { key: 'Fleisch & Frische', icon: '🍗', badge: 'bg-rose-500/15 text-rose-300 border-rose-500/30' },
+      { key: 'Kühlregal', icon: '🥛', badge: 'bg-sky-500/15 text-sky-300 border-sky-500/30' },
+      { key: 'Tiefkühlung', icon: '❄️', badge: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30' },
+      { key: 'Vorratsschrank', icon: '🥫', badge: 'bg-amber-500/15 text-amber-300 border-amber-500/30' }
+    ];
+
+    const aggregateShoppingList = (activeShoppingRecipes) => {
+      const map = {};
+      const validCategories = new Set(CATEGORY_ORDER.map((c) => c.key));
+
+      (activeShoppingRecipes || []).forEach((item) => {
+        const { recipe } = item;
+        if (!recipe || !Array.isArray(recipe.ingredients)) return;
+
+        const totalPortions = getTotalPortions(item);
+        const scheduleLabel = formatDaySchedule(item);
+        const basePortions = recipe.basePortions || APP_CONFIG.DEFAULT_BASE_PORTIONS;
+        const scale = totalPortions / basePortions;
+
+        recipe.ingredients.forEach((ing) => {
+          const normCategory = validCategories.has(ing.category) ? ing.category : 'Vorratsschrank';
+          const key = `${normCategory}__${ing.name.toLowerCase().trim()}__${ing.unit.toLowerCase().trim()}`;
+
+          if (!map[key]) {
+            map[key] = {
+              id: key,
+              name: ing.name,
+              unit: ing.unit,
+              category: normCategory,
+              amount: 0,
+              sources: []
+            };
+          }
+
+          map[key].amount += ing.amount * scale;
+          const sourceLabel = scheduleLabel
+            ? `${recipe.title} (${scheduleLabel})`
+            : `${recipe.title} (${totalPortions}P)`;
+
+          if (!map[key].sources.includes(sourceLabel)) {
+            map[key].sources.push(sourceLabel);
+          }
+        });
+      });
+
+      const grouped = {};
+      CATEGORY_ORDER.forEach((cat) => {
+        grouped[cat.key] = [];
+      });
+
+      Object.values(map).forEach((entry) => {
+        const roundedAmount =
+          entry.amount >= 10 ? Math.round(entry.amount) : Math.round(entry.amount * 10) / 10;
+        grouped[entry.category].push({ ...entry, amount: roundedAmount });
+      });
+
+      return grouped;
+    };
+
+    const calculatePlanStats = (activeShoppingRecipes, savedRecipes) => {
+      const targetList =
+        activeShoppingRecipes && activeShoppingRecipes.length > 0
+          ? activeShoppingRecipes
+          : savedRecipes || [];
+
+      if (targetList.length === 0) {
+        return { totalPortions: 0, avgCalories: 0, avgProtein: 0 };
+      }
+
+      let totalPortions = 0;
+      let weightedCal = 0;
+      let weightedProt = 0;
+
+      targetList.forEach((item) => {
+        const portions = getTotalPortions(item);
+        totalPortions += portions;
+        weightedCal += (item.recipe?.calories || 0) * portions;
+        weightedProt += (item.recipe?.protein || 0) * portions;
+      });
+
+      return {
+        totalPortions,
+        avgCalories: totalPortions > 0 ? Math.round(weightedCal / totalPortions) : 0,
+        avgProtein: totalPortions > 0 ? Math.round(weightedProt / totalPortions) : 0
+      };
+    };
+
+    const formatShoppingListText = (
+      activeShoppingRecipes = [],
+      aggregatedShoppingList = {},
+      checkedItems = {}
+    ) => {
+      const lines = ['🛒 MEALMATE EINKAUFSLISTE', ''];
+
+      if (activeShoppingRecipes.length > 0) {
+        lines.push('Geplante Gerichte:');
+        activeShoppingRecipes.forEach((item) => {
+          const schedule = formatDaySchedule(item);
+          const totalP = getTotalPortions(item);
+          lines.push(
+            `- ${item.recipe?.title}: ${totalP} Portionen${schedule ? ` (${schedule})` : ''}`
+          );
+        });
+        lines.push('');
+      }
+
+      CATEGORY_ORDER.forEach(({ key, icon }) => {
+        const items = aggregatedShoppingList[key] || [];
+        if (items.length === 0) return;
+        lines.push(`${icon} ${key.toUpperCase()}`);
+        items.forEach((item) => {
+          const checkMark = checkedItems[item.id] ? '[x]' : '[ ]';
+          lines.push(`${checkMark} ${item.amount} ${item.unit} ${item.name}`);
+        });
+        lines.push('');
+      });
+
+      return lines.join('\n').trim();
+    };
+
+    const ACCENT_GRADIENTS = [
+      'from-emerald-600 to-teal-700',
+      'from-amber-500 to-orange-600',
+      'from-rose-500 to-orange-600',
+      'from-cyan-600 to-blue-700',
+      'from-indigo-600 to-purple-700',
+      'from-teal-500 to-emerald-700'
+    ];
+
+    const collectKnownRecipeTitles = (deck = [], savedRecipes = [], database = []) => {
+      const titles = new Set();
+      (database || []).forEach((r) => {
+        if (r?.title) titles.add(r.title.trim());
+      });
+      (deck || []).forEach((r) => {
+        if (r?.title) titles.add(r.title.trim());
+      });
+      (savedRecipes || []).forEach((item) => {
+        if (item?.recipe?.title) titles.add(item.recipe.title.trim());
+      });
+      return Array.from(titles);
+    };
+
+    // ============================================================================
+    // ARCHITEKTUR-MODUL 3: Runtime-Schema-Validierung (Zod-inspiriert)
+    // ============================================================================
+    const VALID_INGREDIENT_CATEGORIES = new Set(CATEGORY_ORDER.map((c) => c.key));
+
+    const coercePositiveNumber = (val, fallback, min = 0, max = 10000) => {
+      const num = typeof val === 'number' ? val : Number(String(val ?? '').replace(',', '.'));
+      if (!Number.isFinite(num)) return fallback;
+      return clamp(num, min, max);
+    };
+
+    const coerceNonEmptyString = (val, fallback) => {
+      if (typeof val === 'string' && val.trim().length > 0) return val.trim();
+      return fallback;
+    };
+
+    const validateAndSanitizeIngredient = (rawIng, index = 0) => {
+      if (!rawIng || typeof rawIng !== 'object') {
+        return {
+          name: `Zutat ${index + 1}`,
+          amount: 100,
+          unit: 'g',
+          category: 'Vorratsschrank'
+        };
+      }
+      const rawCategory = coerceNonEmptyString(rawIng.category, 'Vorratsschrank');
+      return {
+        name: coerceNonEmptyString(rawIng.name, `Zutat ${index + 1}`),
+        amount: coercePositiveNumber(rawIng.amount, 100, 0.1, 5000),
+        unit: coerceNonEmptyString(rawIng.unit, 'g'),
+        category: VALID_INGREDIENT_CATEGORIES.has(rawCategory) ? rawCategory : 'Vorratsschrank'
+      };
+    };
+
+    const validateAndSanitizeRecipe = (raw, fallbackIdPrefix = 'rec-validated', index = 0) => {
+      if (!raw || typeof raw !== 'object') {
+        return { valid: false, recipe: null };
+      }
+      const title = coerceNonEmptyString(raw.title, '');
+      if (!title) {
+        return { valid: false, recipe: null };
+      }
+      const rawIngredients = Array.isArray(raw.ingredients) ? raw.ingredients : [];
+      const sanitizedIngredients =
+        rawIngredients.length > 0
+          ? rawIngredients.map((ing, idx) => validateAndSanitizeIngredient(ing, idx))
+          : [{ name: 'Hauptzutat nach Wahl', amount: 400, unit: 'g', category: 'Fleisch & Frische' }];
+
+      const rawSteps = Array.isArray(raw.steps)
+        ? raw.steps.map((s) => coerceNonEmptyString(s, '')).filter(Boolean)
+        : [];
+      const sanitizedSteps =
+        rawSteps.length > 0
+          ? rawSteps
+          : ['Zutaten vorbereiten, schonend garen und in Meal-Prep-Dosen portionieren.'];
+
+      const sanitizedRecipe = {
+        id: coerceNonEmptyString(raw.id, `${fallbackIdPrefix}-${Date.now()}-${index}`),
+        title,
+        subtitle: coerceNonEmptyString(
+          raw.subtitle,
+          'Proteinreiches, familienfreundliches Meal-Prep-Gericht'
+        ),
+        emoji: coerceNonEmptyString(raw.emoji, '🍲'),
+        accentColor: coerceNonEmptyString(
+          raw.accentColor,
+          ACCENT_GRADIENTS[index % ACCENT_GRADIENTS.length]
+        ),
+        prepTimeActive: Math.round(coercePositiveNumber(raw.prepTimeActive, 15, 5, 120)),
+        prepTimePassive: Math.round(coercePositiveNumber(raw.prepTimePassive, 20, 0, 240)),
+        effortLevel: coerceNonEmptyString(raw.effortLevel, 'Gering (Alltagstauglich)'),
+        fridgeDays: Math.round(coercePositiveNumber(raw.fridgeDays, 3, 1, 7)),
+        freezerMonths: Math.round(coercePositiveNumber(raw.freezerMonths, 2, 0, 12)),
+        toddlerNote: coerceNonEmptyString(raw.toddlerNote, 'Mild gewürzt & weiche Textur'),
+        calories: Math.round(coercePositiveNumber(raw.calories, 500, 150, 1500)),
+        protein: Math.round(coercePositiveNumber(raw.protein, 40, 5, 150)),
+        carbs: Math.round(coercePositiveNumber(raw.carbs, 50, 0, 250)),
+        fat: Math.round(coercePositiveNumber(raw.fat, 12, 1, 100)),
+        basePortions: Math.round(
+          coercePositiveNumber(raw.basePortions, APP_CONFIG.DEFAULT_BASE_PORTIONS, 1, 12)
+        ),
+        ingredients: sanitizedIngredients,
+        steps: sanitizedSteps
+      };
+
+      return { valid: true, recipe: sanitizedRecipe };
+    };
+
+    const enrichAiRecipeBatch = (rawRecipes, existingTitles = [], timestamp = Date.now()) => {
+      if (!Array.isArray(rawRecipes)) return [];
+      const seen = new Set(existingTitles.map((t) => t.toLowerCase().trim()));
+      const result = [];
+
+      rawRecipes.forEach((raw, idx) => {
+        const validation = validateAndSanitizeRecipe(raw, `ai-batch-${timestamp}`, idx);
+        if (!validation.valid || !validation.recipe) return;
+
+        const normTitle = validation.recipe.title.toLowerCase().trim();
+        if (seen.has(normTitle)) return;
+        seen.add(normTitle);
+
+        result.push({
+          ...validation.recipe,
+          id: `ai-batch-${timestamp}-${idx}`,
+          basePortions: APP_CONFIG.DEFAULT_BASE_PORTIONS,
+          accentColor: ACCENT_GRADIENTS[idx % ACCENT_GRADIENTS.length]
+        });
+      });
+
+      return result;
+    };
+
+    // ============================================================================
+    // ARCHITEKTUR-MODUL 4: Offline-First (IndexedDB + iOS LocalStorage-Backup)
+    // ============================================================================
+    const OfflineCacheEngine = (() => {
+      const memoryFallback = {};
+
+      const openDb = () =>
+        new Promise((resolve, reject) => {
+          if (typeof window === 'undefined' || !window.indexedDB) {
+            reject(new Error('IndexedDB nicht verfügbar'));
+            return;
+          }
+          const req = window.indexedDB.open(APP_CONFIG.IDB_NAME, APP_CONFIG.IDB_VERSION);
+          req.onupgradeneeded = (e) => {
+            const idb = e.target.result;
+            if (!idb.objectStoreNames.contains('kvStore')) {
+              idb.createObjectStore('kvStore');
+            }
+          };
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+
+      const getItem = async (key, defaultVal) => {
+        try {
+          const idb = await openDb();
+          const val = await new Promise((resolve) => {
+            const tx = idb.transaction('kvStore', 'readonly');
+            const store = tx.objectStore('kvStore');
+            const req = store.get(key);
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => resolve(undefined);
+          });
+          if (val !== undefined) return val;
+        } catch {
+          // Fallback auf LocalStorage (wichtig für lokale Datei-Ausführung in iOS Safari)
+        }
+        try {
+          const rawLs = window.localStorage.getItem(`mealmate_${key}`);
+          if (rawLs) return JSON.parse(rawLs);
+        } catch {
+          // Ignorieren
+        }
+        return memoryFallback[key] ?? defaultVal;
+      };
+
+      const setItem = async (key, value) => {
+        memoryFallback[key] = value;
+        try {
+          window.localStorage.setItem(`mealmate_${key}`, JSON.stringify(value));
+        } catch {
+          // Ignorieren falls Private Mode voll
+        }
+        try {
+          const idb = await openDb();
+          await new Promise((resolve) => {
+            const tx = idb.transaction('kvStore', 'readwrite');
+            const store = tx.objectStore('kvStore');
+            store.put(value, key);
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => resolve(false);
+          });
+        } catch {
+          // Bereits in LocalStorage & Memory gesichert
+        }
+      };
+
+      return { getItem, setItem };
+    })();
+
+    // ============================================================================
+    // ARCHITEKTUR-MODUL 2: BFF-Gateway (Caching & Rate-Limiter)
+    // ============================================================================
+    const MealMateBffGateway = (() => {
+      const responseCache = new Map();
+      const inFlightRequests = new Map();
+      let requestTimestamps = [];
+      let stats = { cacheHits: 0, apiCalls: 0, validatedPayloads: 0 };
+
+      const buildCacheKey = (endpoint, payloadSummary) =>
+        `${endpoint}::${JSON.stringify(payloadSummary).toLowerCase().trim()}`;
+
+      const getCached = (key, now = Date.now()) => {
+        const entry = responseCache.get(key);
+        if (!entry) return null;
+        if (now - entry.timestamp > APP_CONFIG.BFF_CACHE_TTL_MS) {
+          responseCache.delete(key);
+          return null;
+        }
+        stats.cacheHits += 1;
+        return entry.data;
+      };
+
+      const setCached = (key, data, now = Date.now()) => {
+        responseCache.set(key, { data, timestamp: now });
+      };
+
+      const executeProxiedRequest = async (cacheKey, fetcherFn) => {
+        const cached = getCached(cacheKey);
+        if (cached) return cached;
+        if (inFlightRequests.has(cacheKey)) return inFlightRequests.get(cacheKey);
+
+        const now = Date.now();
+        requestTimestamps = requestTimestamps.filter(
+          (ts) => now - ts < APP_CONFIG.BFF_RATE_LIMIT_WINDOW_MS
+        );
+        requestTimestamps.push(now);
+
+        const promise = (async () => {
+          try {
+            stats.apiCalls += 1;
+            const result = await fetcherFn();
+            stats.validatedPayloads += 1;
+            setCached(cacheKey, result);
+            return result;
+          } finally {
+            inFlightRequests.delete(cacheKey);
+          }
+        })();
+
+        inFlightRequests.set(cacheKey, promise);
+        return promise;
+      };
+
+      const getTelemetry = () => ({ ...stats, cacheSize: responseCache.size });
+
+      return { buildCacheKey, getCached, setCached, executeProxiedRequest, getTelemetry };
+    })();
+
+    const mergeRecipesIntoDatabase = (currentDatabase = [], incomingRecipes = []) => {
+      const updatedDb = Array.isArray(currentDatabase) ? [...currentDatabase] : [];
+      const seenIds = new Set(updatedDb.map((r) => r?.id).filter(Boolean));
+      const seenTitles = new Set(
+        updatedDb.map((r) => r?.title?.toLowerCase().trim()).filter(Boolean)
+      );
+
+      (incomingRecipes || []).forEach((recipe, idx) => {
+        if (!recipe || !recipe.title) return;
+        const ensuredId = recipe.id || `db-rec-${Date.now()}-${idx}`;
+        let candidateTitle = recipe.title.trim();
+        let normTitle = candidateTitle.toLowerCase();
+
+        if (seenIds.has(ensuredId)) return;
+        if (seenTitles.has(normTitle)) {
+          candidateTitle = `${candidateTitle} (Variante ${updatedDb.length + 1})`;
+          normTitle = candidateTitle.toLowerCase();
+        }
+
+        seenIds.add(ensuredId);
+        seenTitles.add(normTitle);
+        updatedDb.push({
+          ...recipe,
+          id: ensuredId,
+          title: candidateTitle,
+          basePortions: recipe.basePortions || APP_CONFIG.DEFAULT_BASE_PORTIONS
+        });
+      });
+
+      return updatedDb;
+    };
+
+    const drawRotationDeck = (database = [], size = APP_CONFIG.INITIAL_DECK_SIZE, rng = Math.random) =>
+      getRandomSubset(database, size, rng);
+
+    // ============================================================================
+    // LOKALER SMART-GENERATOR FALLBACK FÜR IPHONE OHNE API-KEY
+    // ============================================================================
+    const createSmartLocalVariation = (instruction, baseRecipe = null) => {
+      const lower = (instruction || '').toLowerCase();
+      const template = baseRecipe || ALL_RECIPES[Math.floor(Math.random() * ALL_RECIPES.length)];
+      const id = `local-ai-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`;
+
+      if (lower.includes('vegetarisch') || lower.includes('quark') || lower.includes('hüttenkäse')) {
+        return {
+          ...template,
+          id,
+          title: `${template.title.split('(')[0].trim()} (Veggie High-Protein)`,
+          subtitle: 'Vegetarisch abgewandelt mit extra Hüttenkäse, roten Linsen & mildem Gemüse',
+          emoji: '🌱',
+          protein: Math.max(38, template.protein - 2),
+          calories: template.calories - 20,
+          ingredients: template.ingredients.map((ing) =>
+            ing.category === 'Fleisch & Frische'
+              ? { name: 'Körniger Frischkäse & Rote Linsen Mix', amount: 450, unit: 'g', category: 'Kühlregal' }
+              : ing
+          )
+        };
+      }
+
+      if (lower.includes('reis')) {
+        return {
+          ...template,
+          id,
+          title: `Cremige Familien-Reispfanne nach „${template.title.slice(0, 22)}“-Art`,
+          subtitle: 'Auf Reis-Basis umgestellt – ideal zum Vorkochen für 4 Tage',
+          emoji: '🍚',
+          ingredients: [
+            { name: 'Basmatireis (ungekocht)', amount: 260, unit: 'g', category: 'Vorratsschrank' },
+            ...template.ingredients.filter((i) => !i.name.toLowerCase().includes('kartoffel') && !i.name.toLowerCase().includes('nudel'))
+          ]
+        };
+      }
+
+      if (lower.includes('rind')) {
+        return {
+          ...template,
+          id,
+          title: `${template.title.replace(/Hähnchen|Puten/gi, 'Rinder')} (High-Protein)`,
+          subtitle: 'Mit magerem Rinderhack (5% Fett) für kräftigen Geschmack & viel Eisen',
+          emoji: '🥩',
+          protein: template.protein + 3,
+          ingredients: template.ingredients.map((ing) =>
+            ing.category === 'Fleisch & Frische'
+              ? { name: 'Mageres Rinderhackfleisch (5% Fett)', amount: 550, unit: 'g', category: 'Fleisch & Frische' }
+              : ing
+          )
+        };
+      }
+
+      return {
+        ...template,
+        id,
+        title: `${template.title} (Familien-Express)`,
+        subtitle: `Angepasst nach Wunsch: „${instruction}“`,
+        emoji: '✨',
+        prepTimeActive: Math.max(10, template.prepTimeActive - 5),
+        effortLevel: 'Minimal (TK-Optimiert)'
+      };
+    };
+
+    const EXTRA_LOCAL_POOL = [
+      {
+        id: 'extra-1',
+        title: 'Quark-Schupfnudel-Pfanne mit Hähnchen & Apfelspalten',
+        subtitle: 'Mild-süßlich & herzhaft zugleich – bei Kleinkindern ein absoluter Favorit',
+        emoji: '🥘',
+        accentColor: 'from-amber-500 to-orange-600',
+        prepTimeActive: 12,
+        prepTimePassive: 10,
+        effortLevel: 'Minimal (1 Pfanne)',
+        fridgeDays: 3,
+        freezerMonths: 1,
+        toddlerNote: 'Weiche Schupfnudeln & gedünsteter Apfel',
+        calories: 515,
+        protein: 43,
+        carbs: 54,
+        fat: 11,
+        basePortions: 4,
+        ingredients: [
+          { name: 'Schupfnudeln (Kühlregal)', amount: 600, unit: 'g', category: 'Kühlregal' },
+          { name: 'Hähnchenbrustfilet (klein gewürfelt)', amount: 550, unit: 'g', category: 'Fleisch & Frische' },
+          { name: 'Magerquark (für cremige Protein-Bindung)', amount: 250, unit: 'g', category: 'Kühlregal' },
+          { name: 'Milder Apfel (in feinen Scheiben)', amount: 1, unit: 'Stück', category: 'Obst & Gemüse' },
+          { name: 'TK-Erbsen', amount: 250, unit: 'g', category: 'Tiefkühlung' },
+          { name: 'Milde Gemüsebrühe', amount: 150, unit: 'ml', category: 'Vorratsschrank' }
+        ],
+        steps: [
+          'Hähnchenwürfel und Schupfnudeln in einer beschichteten Pfanne goldbraun anbraten.',
+          'Apfelscheiben und TK-Erbsen zugeben, mit Brühe ablöschen und 5 Minuten dünsten.',
+          'Vom Herd ziehen, Magerquark cremig unterrühren und auf Dosen verteilen.'
+        ]
+      },
+      {
+        id: 'extra-2',
+        title: 'Lachs-Kartoffel-Gratin mit Spinat & Skyr-Guss',
+        subtitle: 'Saftiger Ofen-Klassiker voller Eiweiß und Omega-3',
+        emoji: '🐟',
+        accentColor: 'from-cyan-600 to-blue-700',
+        prepTimeActive: 12,
+        prepTimePassive: 30,
+        effortLevel: 'Sehr gering (Ofen)',
+        fridgeDays: 3,
+        freezerMonths: 2,
+        toddlerNote: 'Ohne Gräten, sehr weiche Kartoffelscheiben',
+        calories: 525,
+        protein: 44,
+        carbs: 46,
+        fat: 15,
+        basePortions: 4,
+        ingredients: [
+          { name: 'Lachsfilet (gewürfelt)', amount: 500, unit: 'g', category: 'Fleisch & Frische' },
+          { name: 'Kartoffeln (in dünnen Scheiben)', amount: 800, unit: 'g', category: 'Obst & Gemüse' },
+          { name: 'TK-Blattspinat (aufgetaut)', amount: 300, unit: 'g', category: 'Tiefkühlung' },
+          { name: 'Skyr Natur', amount: 300, unit: 'g', category: 'Kühlregal' },
+          { name: 'Milde Gemüsebrühe', amount: 200, unit: 'ml', category: 'Vorratsschrank' },
+          { name: 'Geriebener Mozzarella light', amount: 100, unit: 'g', category: 'Kühlregal' }
+        ],
+        steps: [
+          'Kartoffelscheiben, Spinat und Lachswürfel in eine Auflaufform schichten.',
+          'Skyr mit Gemüsebrühe glatt rühren, mild würzen und darübergießen.',
+          'Mit Mozzarella bestreuen und bei 195 °C Umluft 30 Minuten backen.'
+        ]
+      }
+    ];
+
+    async function callGeminiOrFallbackSingle(userInstruction, currentRecipeContext, userApiKey) {
+      const cacheKey = MealMateBffGateway.buildCacheKey('single', {
+        userInstruction,
+        contextId: currentRecipeContext?.id || null
+      });
+
+      return MealMateBffGateway.executeProxiedRequest(cacheKey, async () => {
+        if (!userApiKey) {
+          await new Promise((r) => setTimeout(r, 450));
+          const generated = createSmartLocalVariation(userInstruction, currentRecipeContext);
+          const { recipe } = validateAndSanitizeRecipe(generated, 'local');
+          return recipe;
+        }
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(userApiKey.trim())}`;
+        const promptText = currentRecipeContext
+          ? `Wandle dieses Rezept familienfreundlich & proteinreich (mind. 35g Protein) ab: "${userInstruction}". Rezept: ${JSON.stringify(currentRecipeContext)}`
+          : `Erstelle ein familienfreundliches High-Protein Meal-Prep-Rezept (4 Portionen): "${userInstruction}"`;
+
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: promptText }] }],
+            generationConfig: { responseMimeType: 'application/json' }
+          })
+        });
+        if (!response.ok) throw new Error(`API Status ${response.status}`);
+        const result = await response.json();
+        const rawJson = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        const parsed = JSON.parse(rawJson);
+        const { valid, recipe } = validateAndSanitizeRecipe(parsed, 'ai');
+        if (!valid) throw new Error('Ungültiges Format');
+        return recipe;
+      });
+    }
+
+    // ============================================================================
+    // UNIT-TESTS (10 KERN- & ARCHITEKTUR-CHECKS)
+    // ============================================================================
+    const runUnitTests = () => {
+      const results = [];
+      const assert = (name, condition, details = '') => {
+        results.push({ name, passed: Boolean(condition), details });
+      };
+
+      const subset = getRandomSubset([1, 2, 3, 4, 5, 6, 7, 8], 4);
+      assert('Fisher-Yates Zufallsziehung', subset.length === 4 && new Set(subset).size === 4);
+
+      const mockItem = { recipe: ALL_RECIPES[0], portions: 4, dayPortions: { Mi: 3, Mo: 3 } };
+      assert('Mehrfach-Tagesportionen (Mo:3 + Mi:3 = 6P)', getTotalPortions(mockItem) === 6);
+      assert('Chronologische Tages-Formatierung', formatDaySchedule(mockItem) === 'Mo: 3P, Mi: 3P');
+
+      const toggled = applyWeekdayToggle(mockItem, 'Fr', 2);
+      assert('Wochentag hinzufügen/entfernen', getTotalPortions(toggled) === 8);
+
+      const malformed = { title: 'Test', calories: '520', protein: '45', ingredients: [], steps: [] };
+      const validated = validateAndSanitizeRecipe(malformed);
+      assert('Zod-Guard Runtime-Validierung', validated.valid && validated.recipe.calories === 520);
+
+      return {
+        total: results.length,
+        passedCount: results.filter((r) => r.passed).length,
+        allPassed: results.every((r) => r.passed),
+        results
+      };
+    };
+
+    // ============================================================================
+    // UI-KOMPONENTEN
+    // ============================================================================
+    function MacroBar({ calories, protein, carbs, fat }) {
+      return (
+        <div className="grid grid-cols-4 gap-1.5 px-3.5 py-2 bg-slate-950/90 border-b border-slate-800">
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-1.5 text-center">
+            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Kalorien</div>
+            <div className="text-xs sm:text-sm font-extrabold text-white">
+              {calories} <span className="text-[9px] font-normal text-slate-400">kcal</span>
+            </div>
+          </div>
+          <div className="bg-emerald-500/15 border border-emerald-500/40 rounded-xl p-1.5 text-center">
+            <div className="text-[10px] uppercase tracking-wider text-emerald-300 font-bold flex items-center justify-center gap-0.5">
+              <Icons.Dumbbell className="w-2.5 h-2.5" /> Protein
+            </div>
+            <div className="text-xs sm:text-sm font-black text-emerald-400">{protein} g</div>
+          </div>
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-1.5 text-center">
+            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Carbs</div>
+            <div className="text-xs sm:text-sm font-bold text-amber-300">{carbs} g</div>
+          </div>
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-1.5 text-center">
+            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Fett</div>
+            <div className="text-xs sm:text-sm font-bold text-rose-300">{fat} g</div>
+          </div>
+        </div>
+      );
+    }
+
+    function IphoneSetupModal({ isOpen, onClose, apiKey, onSaveApiKey, testReport }) {
+      const [tempKey, setTempKey] = useState(apiKey || '');
+      if (!isOpen) return null;
+
+      return (
+        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-[400px] bg-slate-900 border border-cyan-500/40 rounded-3xl p-4 shadow-2xl space-y-3.5 max-h-[88vh] overflow-y-auto ios-scroll">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+              <div className="flex items-center gap-2">
+                <Icons.Smartphone className="w-4 h-4 text-cyan-400" />
+                <h3 className="text-sm font-extrabold text-white">
+                  Auf dem iPhone installieren & nutzen
+                </h3>
+              </div>
+              <button
+                onClick={onClose}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800"
+              >
+                <Icons.X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-2.5 text-xs">
+              <div className="p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 space-y-1.5">
+                <div className="font-extrabold text-cyan-300">
+                  📲 Schritt 1: Als echte iPhone-App (Vollbild) speichern
+                </div>
+                <ol className="list-decimal list-inside space-y-1 text-[11px] text-slate-200 leading-relaxed">
+                  <li>Öffne diese Seite in <strong>Safari</strong> auf deinem iPhone.</li>
+                  <li>Tippe unten in der Mitte auf das <strong>Teilen-Symbol</strong> (Quadrat mit Pfeil nach oben).</li>
+                  <li>Wähle <strong>„Zum Home-Bildschirm“</strong>.</li>
+                  <li>Starte <strong>MealMate</strong> direkt vom Home-Screen – ohne Browserleisten im Vollbild!</li>
+                </ol>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-1.5">
+                <div className="font-bold text-emerald-400 flex items-center justify-between">
+                  <span>💾 Lokaler iPhone-Speicher (Offline-First)</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20">AKTIV ✓</span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Deine Merkliste, Wochentage und abgehakten Einkäufe werden direkt auf deinem iPhone (IndexedDB + LocalStorage) gespeichert – auch im Supermarkt ohne Empfang.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2">
+                <div className="font-bold text-slate-200">
+                  🔑 Optional: Eigener Gemini API-Key (für Live-KI unterwegs)
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Ohne Key nutzt MealMate automatisch die integrierte Offline-Rezept-Engine. Mit eigenem Key (kostenlos über Google AI Studio) generiert die App unbegrenzt Live-KI-Rezepte:
+                </p>
+                <div className="flex gap-1.5">
+                  <input
+                    type="password"
+                    value={tempKey}
+                    onChange={(e) => setTempKey(e.target.value)}
+                    placeholder="AIzaSy... (optional)"
+                    className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white"
+                  />
+                  <button
+                    onClick={() => {
+                      onSaveApiKey(tempKey.trim());
+                      onClose();
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs"
+                  >
+                    Speichern
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-2xl bg-slate-950/60 border border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+                <span>Selbsttest-Status (Clean Code & Zod-Guard):</span>
+                <span className="text-emerald-400 font-extrabold">
+                  {testReport.passedCount}/{testReport.total} PASS ✓
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={onClose}
+              className="w-full py-2.5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs transition"
+            >
+              Fertig & Weiterkochen
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // ============================================================================
+    // HAUPT-APP KOMPONENTE
+    // ============================================================================
+    function App() {
+      const [isOnline, setIsOnline] = useState(() =>
+        typeof navigator !== 'undefined' ? navigator.onLine : true
+      );
+      const [setupModalOpen, setSetupModalOpen] = useState(false);
+      const [userApiKey, setUserApiKey] = useState('');
+
+      const [recipeDatabase, setRecipeDatabase] = useState(() => ALL_RECIPES);
+      const [deck, setDeck] = useState(() =>
+        drawRotationDeck(ALL_RECIPES, APP_CONFIG.INITIAL_DECK_SIZE)
+      );
+      const [currentIndex, setCurrentIndex] = useState(0);
+      const [savedRecipes, setSavedRecipes] = useState([]);
+      const [activeView, setActiveView] = useState('swipe'); // 'swipe' | 'saved' | 'shopping'
+      const [cardTab, setCardTab] = useState('ingredients'); // 'ingredients' | 'steps' | 'ai'
+
+      const [portionPromptRecipeId, setPortionPromptRecipeId] = useState(null);
+      const [promptPortions, setPromptPortions] = useState(APP_CONFIG.DEFAULT_BASE_PORTIONS);
+      const [weekdayFilter, setWeekdayFilter] = useState('Alle');
+
+      const [dragX, setDragX] = useState(0);
+      const [isDragging, setIsDragging] = useState(false);
+      const [swipeFeedback, setSwipeFeedback] = useState(null);
+      const startXRef = useRef(0);
+      const startYRef = useRef(0);
+
+      const [aiInput, setAiInput] = useState('');
+      const [isGenerating, setIsGenerating] = useState(false);
+      const [aiStatusMessage, setAiStatusMessage] = useState('');
+      const [checkedItems, setCheckedItems] = useState({});
+      const [copyToast, setCopyToast] = useState(false);
+
+      const unitTestReport = useMemo(() => runUnitTests(), []);
+
+      // Initiales Laden aus IndexedDB / LocalStorage auf dem iPhone
+      useEffect(() => {
+        const handleOnline = () => setIsOnline(true);
+        const handleOffline = () => setIsOnline(false);
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        (async () => {
+          const cachedCustomRecipes = await OfflineCacheEngine.getItem('recipes', []);
+          const cachedMealPlans = await OfflineCacheEngine.getItem('mealPlans', []);
+          const cachedChecked = await OfflineCacheEngine.getItem('checkedItems', {});
+          const cachedKey = await OfflineCacheEngine.getItem('geminiApiKey', '');
+
+          if (Array.isArray(cachedCustomRecipes) && cachedCustomRecipes.length > 0) {
+            setRecipeDatabase((prev) => mergeRecipesIntoDatabase(prev, cachedCustomRecipes));
+          }
+          if (Array.isArray(cachedMealPlans) && cachedMealPlans.length > 0) {
+            setSavedRecipes(cachedMealPlans);
+          }
+          if (cachedChecked && typeof cachedChecked === 'object') {
+            setCheckedItems(cachedChecked);
+          }
+          if (typeof cachedKey === 'string' && cachedKey) {
+            setUserApiKey(cachedKey);
+          }
+        })();
+
+        return () => {
+          window.removeEventListener('online', handleOnline);
+          window.removeEventListener('offline', handleOffline);
+        };
+      }, []);
+
+      const showTemporaryStatus = useCallback((message, duration = APP_CONFIG.TOAST_DURATION_MS) => {
+        setAiStatusMessage(message);
+        setTimeout(() => setAiStatusMessage(''), duration);
+      }, []);
+
+      const handleSaveApiKey = (newKey) => {
+        setUserApiKey(newKey);
+        OfflineCacheEngine.setItem('geminiApiKey', newKey);
+        showTemporaryStatus(
+          newKey ? 'Gemini API-Key auf deinem iPhone gespeichert!' : 'Lokaler Offline-Modus aktiv!'
+        );
+      };
+
+      const updateSavedRecipesWithPersistence = useCallback((updaterFn) => {
+        setSavedRecipes((prev) => {
+          const updated = updaterFn(prev);
+          OfflineCacheEngine.setItem('mealPlans', updated);
+          return updated;
+        });
+      }, []);
+
+      const addRecipesToDatabaseWithPersistence = useCallback((newRecipes) => {
+        const sanitizedIncoming = (newRecipes || [])
+          .map((r, i) => validateAndSanitizeRecipe(r, 'db-rec', i))
+          .filter((res) => res.valid && res.recipe)
+          .map((res) => res.recipe);
+
+        let updatedDbSnapshot = [];
+        setRecipeDatabase((prevDb) => {
+          const merged = mergeRecipesIntoDatabase(prevDb, sanitizedIncoming);
+          updatedDbSnapshot = merged;
+          const baseIds = new Set(ALL_RECIPES.map((r) => r.id));
+          OfflineCacheEngine.setItem(
+            'recipes',
+            merged.filter((r) => r && !baseIds.has(r.id))
+          );
+          return merged;
+        });
+        return updatedDbSnapshot;
+      }, []);
+
+      const currentCard = deck[currentIndex] || null;
+      const nextCard = deck[currentIndex + 1] || null;
+
+      const handleShuffleFromDatabase = useCallback(
+        (dbSource = recipeDatabase) => {
+          const nextRotation = drawRotationDeck(dbSource, APP_CONFIG.INITIAL_DECK_SIZE);
+          setDeck(nextRotation);
+          setCurrentIndex(0);
+          setCardTab('ingredients');
+          showTemporaryStatus(`6 zufällige Rezepte (${dbSource.length} im Pool) neu gemischt!`);
+        },
+        [recipeDatabase, showTemporaryStatus]
+      );
+
+      const handleGenerateBatchCards = useCallback(
+        async (currentDbSnapshot = recipeDatabase) => {
+          if (isGenerating) return;
+          setIsGenerating(true);
+          setAiStatusMessage('Frische Rezepte werden in die Rotation geladen...');
+          try {
+            const merged = addRecipesToDatabaseWithPersistence(EXTRA_LOCAL_POOL);
+            const activePool = merged.length > 0 ? merged : currentDbSnapshot;
+            const nextDeck = drawRotationDeck(activePool, APP_CONFIG.INITIAL_DECK_SIZE);
+            setDeck(nextDeck);
+            setCurrentIndex(0);
+            setCardTab('ingredients');
+            showTemporaryStatus(`Neue Rotationsrunde (${activePool.length} Rezepte in DB) bereit!`);
+          } finally {
+            setIsGenerating(false);
+          }
+        },
+        [recipeDatabase, isGenerating, addRecipesToDatabaseWithPersistence, showTemporaryStatus]
+      );
+
+      const triggerDecision = (decision) => {
+        if (!currentCard || isGenerating) return;
+        setSwipeFeedback(decision);
+
+        setTimeout(() => {
+          if (decision === 'like') {
+            updateSavedRecipesWithPersistence((prev) => {
+              const exists = prev.some((item) => item.recipe.id === currentCard.id);
+              if (exists) return prev;
+              return [
+                ...prev,
+                {
+                  recipe: currentCard,
+                  portions: currentCard.basePortions || APP_CONFIG.DEFAULT_BASE_PORTIONS,
+                  inShoppingList: false,
+                  weekday: null,
+                  dayPortions: {}
+                }
+              ];
+            });
+          }
+
+          const nextIndex = currentIndex + 1;
+          setDragX(0);
+          setSwipeFeedback(null);
+          setCardTab('ingredients');
+          setCurrentIndex(nextIndex);
+
+          if (nextIndex >= deck.length) {
+            handleGenerateBatchCards(recipeDatabase);
+          }
+        }, APP_CONFIG.SWIPE_ANIMATION_MS);
+      };
+
+      // Touch-optimiertes Swipen für iPhone Safari
+      const handlePointerDown = (e) => {
+        if (e.target.closest('button') || e.target.closest('input') || e.target.closest('.no-drag')) {
+          return;
+        }
+        setIsDragging(true);
+        startXRef.current = e.clientX ?? (e.touches && e.touches[0]?.clientX) ?? 0;
+        startYRef.current = e.clientY ?? (e.touches && e.touches[0]?.clientY) ?? 0;
+      };
+
+      const handlePointerMove = (e) => {
+        if (!isDragging) return;
+        const currentX = e.clientX ?? (e.touches && e.touches[0]?.clientX) ?? 0;
+        const currentY = e.clientY ?? (e.touches && e.touches[0]?.clientY) ?? 0;
+        const dx = currentX - startXRef.current;
+        const dy = currentY - startYRef.current;
+
+        // Nur horizontal ziehen, wenn die Bewegung überwiegend seitlich ist
+        if (Math.abs(dx) > Math.abs(dy) * 0.8) {
+          setDragX(dx);
+        }
+      };
+
+      const handlePointerUp = () => {
+        if (!isDragging) return;
+        setIsDragging(false);
+        if (dragX > APP_CONFIG.SWIPE_THRESHOLD_PX) {
+          triggerDecision('like');
+        } else if (dragX < -APP_CONFIG.SWIPE_THRESHOLD_PX) {
+          triggerDecision('nope');
+        } else {
+          setDragX(0);
+        }
+      };
+
+      const handleModifyCurrentRecipe = async (instructionText) => {
+        const query = instructionText || aiInput.trim();
+        if (!query || !currentCard || isGenerating) return;
+
+        setIsGenerating(true);
+        setAiStatusMessage(`Rezept wird angepasst...`);
+        try {
+          const updatedRecipe = await callGeminiOrFallbackSingle(query, currentCard, userApiKey);
+          const updatedDb = addRecipesToDatabaseWithPersistence([updatedRecipe]);
+          const insertedRecipe =
+            updatedDb.find((r) => r.id === updatedRecipe.id) || updatedRecipe;
+
+          setDeck((prev) => {
+            const copy = [...prev];
+            copy[currentIndex] = insertedRecipe;
+            return copy;
+          });
+          setAiInput('');
+          setCardTab('ingredients');
+          showTemporaryStatus(`Rezept angepasst & gespeichert!`);
+        } catch {
+          showTemporaryStatus('Anpassung fehlgeschlagen.', 2500);
+        } finally {
+          setIsGenerating(false);
+        }
+      };
+
+      const toggleWeekday = (recipeId, dayShort) => {
+        updateSavedRecipesWithPersistence((prev) =>
+          prev.map((item) =>
+            item.recipe.id === recipeId ? applyWeekdayToggle(item, dayShort) : item
+          )
+        );
+      };
+
+      const updateDayPortion = (recipeId, dayShort, delta) => {
+        updateSavedRecipesWithPersistence((prev) =>
+          prev.map((item) =>
+            item.recipe.id === recipeId ? applyDayPortionDelta(item, dayShort, delta) : item
+          )
+        );
+      };
+
+      const handleToggleShoppingListClick = (item) => {
+        if (item.inShoppingList) {
+          updateSavedRecipesWithPersistence((prev) =>
+            prev.map((entry) =>
+              entry.recipe.id === item.recipe.id ? { ...entry, inShoppingList: false } : entry
+            )
+          );
+          if (portionPromptRecipeId === item.recipe.id) {
+            setPortionPromptRecipeId(null);
+          }
+          return;
+        }
+
+        const hasPlannedDays = Object.keys(getDayPortions(item)).length > 0;
+        if (hasPlannedDays) {
+          const total = getTotalPortions(item);
+          updateSavedRecipesWithPersistence((prev) =>
+            prev.map((entry) =>
+              entry.recipe.id === item.recipe.id
+                ? { ...entry, inShoppingList: true, portions: total }
+                : entry
+            )
+          );
+        } else {
+          setPortionPromptRecipeId(item.recipe.id);
+          setPromptPortions(getTotalPortions(item));
+        }
+      };
+
+      const confirmAddToShoppingList = (recipeId) => {
+        updateSavedRecipesWithPersistence((prev) =>
+          prev.map((entry) =>
+            entry.recipe.id === recipeId
+              ? { ...entry, inShoppingList: true, portions: promptPortions }
+              : entry
+          )
+        );
+        setPortionPromptRecipeId(null);
+      };
+
+      const removeSavedRecipe = (recipeId) => {
+        updateSavedRecipesWithPersistence((prev) =>
+          prev.filter((item) => item.recipe.id !== recipeId)
+        );
+      };
+
+      const activeShoppingRecipes = useMemo(
+        () => savedRecipes.filter((item) => item.inShoppingList),
+        [savedRecipes]
+      );
+
+      const aggregatedShoppingList = useMemo(
+        () => aggregateShoppingList(activeShoppingRecipes),
+        [activeShoppingRecipes]
+      );
+
+      const totalPlanStats = useMemo(
+        () => calculatePlanStats(activeShoppingRecipes, savedRecipes),
+        [activeShoppingRecipes, savedRecipes]
+      );
+
+      // Unterstützt sowohl das native iPhone Teilen-Menü (Apple Notizen, WhatsApp) als auch Kopieren
+      const handleShareOrCopyShoppingList = async () => {
+        const formattedText = formatShoppingListText(
+          activeShoppingRecipes,
+          aggregatedShoppingList,
+          checkedItems
+        );
+
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: 'MealMate Einkaufsliste',
+              text: formattedText
+            });
+            return;
+          } catch {
+            // Falls Nutzer das Teilen-Menü schließt, normal in Zwischenablage kopieren
+          }
+        }
+
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(formattedText);
+          } else {
+            const textArea = document.createElement('textarea');
+            textArea.value = formattedText;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+          }
+          setCopyToast(true);
+          setTimeout(() => setCopyToast(false), APP_CONFIG.TOAST_DURATION_MS);
+        } catch {
+          showTemporaryStatus('Liste bereit zum Kopieren');
+        }
+      };
+
+      const rotation = (dragX / APP_CONFIG.SWIPE_ROTATION_DIVISOR).toFixed(2);
+      const likeOpacity = clamp(dragX / APP_CONFIG.SWIPE_OPACITY_DIVISOR, 0, 1);
+      const nopeOpacity = clamp(-dragX / APP_CONFIG.SWIPE_OPACITY_DIVISOR, 0, 1);
+
+      return (
+        <div className="min-h-screen bg-[#0B132B] text-slate-100 flex flex-col items-center justify-start ios-safe-container relative overflow-hidden">
+          <div className="absolute top-[-10%] left-[-10%] w-80 h-80 bg-cyan-500/10 rounded-full blur-[90px] pointer-events-none" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-80 h-80 bg-orange-500/10 rounded-full blur-[90px] pointer-events-none" />
+
+          <IphoneSetupModal
+            isOpen={setupModalOpen}
+            onClose={() => setSetupModalOpen(false)}
+            apiKey={userApiKey}
+            onSaveApiKey={handleSaveApiKey}
+            testReport={unitTestReport}
+          />
+
+          <div className="w-full max-w-[430px] flex flex-col min-h-[92vh] bg-slate-900/85 border border-slate-700/50 rounded-[32px] shadow-2xl overflow-hidden relative backdrop-blur-2xl z-10">
+            
+            {/* HEADER */}
+            <header className="px-4 pt-3.5 pb-3 border-b border-cyan-900/50 bg-slate-950/95 sticky top-0 z-30">
+              <div className="flex items-center justify-between mb-2.5">
+                <div>
+                  <h1 className="text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">
+                    <span>
+                      Meal<span className="text-orange-400">Mate</span>
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-bold">
+                      iOS Ready
+                    </span>
+                  </h1>
+                  <p className="text-[11px] text-cyan-400/80 flex items-center gap-1">
+                    <span>Gesundes Vorkochen für Familien</span>
+                    {isOnline ? (
+                      <Icons.Wifi className="w-3 h-3 text-emerald-400 inline ml-1" />
+                    ) : (
+                      <Icons.WifiOff className="w-3 h-3 text-amber-400 inline ml-1" />
+                    )}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setSetupModalOpen(true)}
+                    title="iPhone Home-Screen Anleitung & Einstellungen"
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/25 text-[11px] font-bold transition"
+                  >
+                    <Icons.Smartphone className="w-3.5 h-3.5" />
+                    <span>iPhone</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveView(activeView === 'swipe' ? 'saved' : 'swipe')}
+                    className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 transition"
+                  >
+                    <Icons.Bookmark className="w-3.5 h-3.5 text-orange-400" />
+                    <span>{savedRecipes.length}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-1 p-1 bg-slate-950/90 rounded-2xl border border-slate-800/80 text-xs font-semibold">
+                <button
+                  onClick={() => setActiveView('swipe')}
+                  className={`py-2 rounded-xl flex items-center justify-center gap-1.5 transition ${
+                    activeView === 'swipe'
+                      ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20 font-bold'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Icons.Layers className="w-3.5 h-3.5" />
+                  <span>Karten</span>
+                </button>
+                <button
+                  onClick={() => setActiveView('saved')}
+                  className={`py-2 rounded-xl flex items-center justify-center gap-1.5 transition ${
+                    activeView === 'saved'
+                      ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20 font-bold'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Icons.Bookmark className="w-3.5 h-3.5" />
+                  <span>Merkliste ({savedRecipes.length})</span>
+                </button>
+                <button
+                  onClick={() => setActiveView('shopping')}
+                  className={`py-2 rounded-xl flex items-center justify-center gap-1.5 transition ${
+                    activeView === 'shopping'
+                      ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20 font-bold'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Icons.ShoppingBag className="w-3.5 h-3.5" />
+                  <span>Einkauf ({activeShoppingRecipes.length})</span>
+                </button>
+              </div>
+            </header>
+
+            {(aiStatusMessage || copyToast) && (
+              <div className="mx-4 mt-2 px-3.5 py-2 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-medium flex items-center gap-2 z-30">
+                <Icons.CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>{copyToast ? 'Einkaufsliste kopiert!' : aiStatusMessage}</span>
+              </div>
+            )}
+
+            {/* VIEW 1: SWIPE KARTEN */}
+            {activeView === 'swipe' && (
+              <main className="flex-1 flex flex-col justify-between p-3.5 overflow-hidden">
+                <div className="flex items-center justify-between px-3 py-1.5 mb-2 rounded-2xl bg-slate-950/80 border border-slate-800/90 text-[11px]">
+                  <div className="flex items-center gap-1.5 text-slate-300 font-semibold">
+                    <Icons.Database className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                    <span>
+                      Pool: <strong className="text-white">{recipeDatabase.length}</strong> Rezepte
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-500 font-semibold">
+                      {Math.min(currentIndex + 1, deck.length)}/{deck.length}
+                    </span>
+                    <button
+                      onClick={() => handleShuffleFromDatabase(recipeDatabase)}
+                      className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold flex items-center gap-1 border border-slate-700 transition"
+                    >
+                      <Icons.Shuffle className="w-3 h-3" />
+                      <span>Mischen</span>
+                    </button>
+                  </div>
+                </div>
+
+                {currentCard ? (
+                  <>
+                    <div className="relative flex-1 flex flex-col min-h-[480px]">
+                      {nextCard && (
+                        <div className="absolute inset-0 top-3 scale-[0.95] opacity-40 bg-slate-800 rounded-[28px] border border-slate-700 pointer-events-none" />
+                      )}
+
+                      <div
+                        onMouseDown={handlePointerDown}
+                        onMouseMove={handlePointerMove}
+                        onMouseUp={handlePointerUp}
+                        onMouseLeave={handlePointerUp}
+                        onTouchStart={handlePointerDown}
+                        onTouchMove={handlePointerMove}
+                        onTouchEnd={handlePointerUp}
+                        style={{
+                          transform:
+                            swipeFeedback === 'like'
+                              ? 'translateX(420px) rotate(16deg)'
+                              : swipeFeedback === 'nope'
+                              ? 'translateX(-420px) rotate(-16deg)'
+                              : `translateX(${dragX}px) rotate(${rotation}deg)`,
+                          transition: isDragging ? 'none' : 'transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)'
+                        }}
+                        className="swipe-card-surface relative flex-1 flex flex-col bg-slate-900 border border-slate-700/90 rounded-[28px] shadow-2xl overflow-hidden"
+                      >
+                        <div
+                          style={{ opacity: swipeFeedback === 'like' ? 1 : likeOpacity }}
+                          className="pointer-events-none absolute top-6 left-5 z-30 border-4 border-orange-500 text-orange-500 font-black text-lg tracking-widest px-3 py-1 rounded-xl -rotate-12 bg-slate-950/85 shadow-lg"
+                        >
+                          MERKEN ❤️
+                        </div>
+                        <div
+                          style={{ opacity: swipeFeedback === 'nope' ? 1 : nopeOpacity }}
+                          className="pointer-events-none absolute top-6 right-5 z-30 border-4 border-slate-400 text-slate-300 font-black text-lg tracking-widest px-3 py-1 rounded-xl rotate-12 bg-slate-950/85 shadow-lg"
+                        >
+                          WEITER ✕
+                        </div>
+
+                        <div className={`bg-gradient-to-br ${currentCard.accentColor} p-3.5 pb-3 relative`}>
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-950/45 text-white backdrop-blur-md">
+                              <Icons.Clock className="w-3 h-3 text-emerald-300" />
+                              {currentCard.prepTimeActive} Min. • {currentCard.effortLevel}
+                            </span>
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-950/45 text-white backdrop-blur-md">
+                              <Icons.Snowflake className="w-3 h-3 text-sky-300" />
+                              {currentCard.fridgeDays}T Kühl | {currentCard.freezerMonths}M TK
+                            </span>
+                          </div>
+
+                          <div className="mt-2.5 flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-2xl shadow-inner shrink-0 border border-white/20">
+                              {currentCard.emoji}
+                            </div>
+                            <div>
+                              <h2 className="text-base font-extrabold text-white leading-snug">
+                                {currentCard.title}
+                              </h2>
+                              <p className="text-[11px] text-white/85 mt-0.5 line-clamp-2">
+                                {currentCard.subtitle}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="mt-2 flex items-center gap-1.5 text-[11px] font-semibold text-white/95 bg-black/25 px-2.5 py-1 rounded-xl">
+                            <Icons.Baby className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                            <span className="truncate">{currentCard.toddlerNote}</span>
+                          </div>
+                        </div>
+
+                        <MacroBar
+                          calories={currentCard.calories}
+                          protein={currentCard.protein}
+                          carbs={currentCard.carbs}
+                          fat={currentCard.fat}
+                        />
+
+                        <div className="flex items-center gap-1 px-3 pt-2 bg-slate-900 no-drag">
+                          <button
+                            onClick={() => setCardTab('ingredients')}
+                            className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition ${
+                              cardTab === 'ingredients'
+                                ? 'bg-slate-800 text-emerald-400 border border-emerald-500/30'
+                                : 'text-slate-400'
+                            }`}
+                          >
+                            📋 Zutaten ({currentCard.ingredients.length})
+                          </button>
+                          <button
+                            onClick={() => setCardTab('steps')}
+                            className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition ${
+                              cardTab === 'steps'
+                                ? 'bg-slate-800 text-emerald-400 border border-emerald-500/30'
+                                : 'text-slate-400'
+                            }`}
+                          >
+                            👨‍🍳 Schritte ({currentCard.steps.length})
+                          </button>
+                          <button
+                            onClick={() => setCardTab('ai')}
+                            className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 ${
+                              cardTab === 'ai'
+                                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40'
+                                : 'text-slate-400'
+                            }`}
+                          >
+                            <Icons.Wand2 className="w-3 h-3" /> Umbau
+                          </button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto ios-scroll px-3.5 py-2.5 space-y-2 no-drag max-h-[230px]">
+                          {cardTab === 'ingredients' && (
+                            <ul className="space-y-1.5">
+                              {currentCard.ingredients.map((ing, idx) => (
+                                <li
+                                  key={idx}
+                                  className="flex items-center justify-between text-xs bg-slate-950/70 border border-slate-800/80 px-3 py-1.5 rounded-xl"
+                                >
+                                  <span className="text-slate-200 font-medium">{ing.name}</span>
+                                  <span className="text-emerald-400 font-bold whitespace-nowrap ml-2">
+                                    {ing.amount} {ing.unit}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+
+                          {cardTab === 'steps' && (
+                            <div className="space-y-2">
+                              {currentCard.steps.map((step, i) => (
+                                <div
+                                  key={i}
+                                  className="flex items-start gap-2.5 bg-slate-950/70 border border-slate-800/80 p-2.5 rounded-xl text-xs text-slate-200"
+                                >
+                                  <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center shrink-0">
+                                    {i + 1}
+                                  </span>
+                                  <p className="leading-relaxed">{step}</p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {cardTab === 'ai' && (
+                            <div className="space-y-2.5">
+                              <p className="text-xs text-slate-300">
+                                Rezept direkt anpassen (funktioniert auf dem iPhone auch komplett offline):
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {[
+                                  'Mit Reis statt Kartoffeln/Nudeln',
+                                  'Vegetarisch (mit Hüttenkäse/Quark)',
+                                  'Hähnchen durch Rind ersetzen',
+                                  'Noch weniger Aufwand (TK)'
+                                ].map((chip) => (
+                                  <button
+                                    key={chip}
+                                    disabled={isGenerating}
+                                    onClick={() => handleModifyCurrentRecipe(chip)}
+                                    className="text-[11px] px-2.5 py-1.5 rounded-xl bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 font-medium"
+                                  >
+                                    ✨ {chip}
+                                  </button>
+                                ))}
+                              </div>
+                              <div className="flex gap-1.5 pt-1">
+                                <input
+                                  type="text"
+                                  value={aiInput}
+                                  onChange={(e) => setAiInput(e.target.value)}
+                                  placeholder="Eigener Wunsch..."
+                                  className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                                />
+                                <button
+                                  onClick={() => handleModifyCurrentRecipe()}
+                                  className="px-3 py-2 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs"
+                                >
+                                  Umbauen
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-3 flex items-center justify-center gap-5">
+                      <button
+                        onClick={() => triggerDecision('nope')}
+                        className="w-14 h-14 rounded-full bg-slate-900 border-2 border-slate-700 text-slate-400 flex items-center justify-center shadow-lg active:scale-90 transition"
+                      >
+                        <Icons.X className="w-7 h-7" />
+                      </button>
+
+                      <button
+                        onClick={() => setCardTab(cardTab === 'ai' ? 'ingredients' : 'ai')}
+                        className="px-4 py-2.5 rounded-2xl bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 text-xs font-bold flex items-center gap-1.5 shadow-md"
+                      >
+                        <Icons.Sparkles className="w-4 h-4 text-cyan-400" />
+                        <span>Abwandeln</span>
+                      </button>
+
+                      <button
+                        onClick={() => triggerDecision('like')}
+                        className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 text-white flex items-center justify-center shadow-lg shadow-orange-500/25 active:scale-90 transition"
+                      >
+                        <Icons.Heart className="w-7 h-7 fill-white" />
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center text-center p-6 space-y-4">
+                    <div className="w-16 h-16 rounded-3xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-3xl">
+                      ✨
+                    </div>
+                    <h2 className="text-lg font-extrabold text-white">Stapel durchgeswiped!</h2>
+                    <button
+                      onClick={() => handleShuffleFromDatabase(recipeDatabase)}
+                      className="w-full py-3 rounded-2xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg"
+                    >
+                      <Icons.Shuffle className="w-4 h-4" />
+                      <span>6 zufällige Rezepte neu ziehen</span>
+                    </button>
+                  </div>
+                )}
+              </main>
+            )}
+
+            {/* VIEW 2: MERKLISTE & WOCHENPLAN */}
+            {activeView === 'saved' && (
+              <main className="flex-1 flex flex-col p-4 overflow-y-auto ios-scroll space-y-4">
+                <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-sm font-extrabold text-white">Merkliste & Wochenplan</h2>
+                      <p className="text-[11px] text-slate-400">
+                        Wochentage antippen & Portionen verteilen
+                      </p>
+                    </div>
+                    <span className="px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-400 text-xs font-extrabold border border-emerald-500/30">
+                      {activeShoppingRecipes.length} / {savedRecipes.length} aktiv
+                    </span>
+                  </div>
+
+                  {savedRecipes.length > 0 && (
+                    <div className="grid grid-cols-7 gap-1 pt-2 border-t border-slate-800">
+                      {WEEKDAYS.map((day) => {
+                        const sum = savedRecipes.reduce(
+                          (acc, r) => acc + (getDayPortions(r)[day.short] || 0),
+                          0
+                        );
+                        const isSelected = weekdayFilter === day.short;
+                        return (
+                          <button
+                            key={day.short}
+                            onClick={() =>
+                              setWeekdayFilter(weekdayFilter === day.short ? 'Alle' : day.short)
+                            }
+                            className={`py-1.5 rounded-xl border text-center flex flex-col items-center ${
+                              isSelected
+                                ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-extrabold'
+                                : sum > 0
+                                ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 font-bold'
+                                : 'bg-slate-900 border-slate-800 text-slate-400'
+                            }`}
+                          >
+                            <span className="text-[11px]">{day.short}</span>
+                            <span className="text-[9px]">{sum > 0 ? `${sum}P` : '–'}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {savedRecipes.length === 0 ? (
+                  <div className="flex-1 flex flex-col items-center justify-center text-center py-12 px-4">
+                    <Icons.ChefHat className="w-12 h-12 text-slate-600 mb-3" />
+                    <p className="text-sm font-bold text-slate-300">Noch keine Rezepte gemerkt</p>
+                    <button
+                      onClick={() => setActiveView('swipe')}
+                      className="mt-4 px-4 py-2.5 rounded-2xl bg-emerald-500 text-slate-950 font-bold text-xs"
+                    >
+                      Jetzt Rezepte swipen
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3 pb-4">
+                    {savedRecipes
+                      .filter(
+                        (item) =>
+                          weekdayFilter === 'Alle' || (getDayPortions(item)[weekdayFilter] || 0) > 0
+                      )
+                      .map((item) => {
+                        const { recipe, inShoppingList } = item;
+                        const dayPortions = getDayPortions(item);
+                        const activeDays = WEEKDAYS.filter((d) => dayPortions[d.short] > 0);
+                        const totalPortions = getTotalPortions(item);
+                        const isPromptOpen = portionPromptRecipeId === recipe.id;
+
+                        return (
+                          <div
+                            key={recipe.id}
+                            className={`bg-slate-950/90 border rounded-2xl p-3.5 space-y-3 ${
+                              inShoppingList ? 'border-emerald-500/60' : 'border-slate-800'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-center gap-2.5">
+                                <span className="text-2xl">{recipe.emoji}</span>
+                                <div>
+                                  <h3 className="text-xs font-extrabold text-white">
+                                    {recipe.title}
+                                  </h3>
+                                  <p className="text-[11px] text-emerald-400 font-semibold">
+                                    {recipe.calories} kcal • {recipe.protein}g Protein
+                                  </p>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => removeSavedRecipe(recipe.id)}
+                                className="p-1.5 rounded-xl text-slate-500 hover:text-rose-400"
+                              >
+                                <Icons.Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+
+                            <div className="bg-slate-900/90 p-2.5 rounded-xl border border-slate-800 space-y-2">
+                              <div className="grid grid-cols-7 gap-1">
+                                {WEEKDAYS.map((day) => {
+                                  const count = dayPortions[day.short] || 0;
+                                  const active = count > 0;
+                                  return (
+                                    <button
+                                      key={day.short}
+                                      onClick={() => toggleWeekday(recipe.id, day.short)}
+                                      className={`py-1.5 rounded-lg text-[11px] font-bold border flex flex-col items-center ${
+                                        active
+                                          ? 'bg-indigo-500 text-white border-indigo-400'
+                                          : 'bg-slate-950 text-slate-400 border-slate-800'
+                                      }`}
+                                    >
+                                      <span>{day.short}</span>
+                                      {active && <span className="text-[9px]">{count}P</span>}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+
+                              {activeDays.map((day) => (
+                                <div
+                                  key={day.short}
+                                  className="flex items-center justify-between bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-slate-800"
+                                >
+                                  <span className="text-xs font-bold text-slate-200">{day.full}</span>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => updateDayPortion(recipe.id, day.short, -1)}
+                                      className="w-6 h-6 rounded-md bg-slate-800 text-white flex items-center justify-center"
+                                    >
+                                      <Icons.Minus className="w-3 h-3" />
+                                    </button>
+                                    <span className="text-xs font-black text-cyan-400 w-12 text-center">
+                                      {dayPortions[day.short]} P.
+                                    </span>
+                                    <button
+                                      onClick={() => updateDayPortion(recipe.id, day.short, 1)}
+                                      className="w-6 h-6 rounded-md bg-slate-800 text-white flex items-center justify-center"
+                                    >
+                                      <Icons.Plus className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            {!inShoppingList && !isPromptOpen && (
+                              <button
+                                onClick={() => handleToggleShoppingListClick(item)}
+                                className="w-full py-2.5 px-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs font-bold flex items-center justify-between"
+                              >
+                                <span>Zur Einkaufsliste hinzufügen</span>
+                                <span className="text-emerald-400">{totalPortions} Port.</span>
+                              </button>
+                            )}
+
+                            {isPromptOpen && (
+                              <div className="bg-emerald-950/30 border border-emerald-500/50 rounded-xl p-3 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-bold text-emerald-300">Portionen wählen:</span>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      onClick={() => setPromptPortions((p) => clamp(p - 1, 1, 20))}
+                                      className="w-7 h-7 rounded-lg bg-slate-800 text-white flex items-center justify-center"
+                                    >
+                                      <Icons.Minus className="w-3.5 h-3.5" />
+                                    </button>
+                                    <span className="text-sm font-black text-emerald-400 w-12 text-center">
+                                      {promptPortions}
+                                    </span>
+                                    <button
+                                      onClick={() => setPromptPortions((p) => clamp(p + 1, 1, 20))}
+                                      className="w-7 h-7 rounded-lg bg-slate-800 text-white flex items-center justify-center"
+                                    >
+                                      <Icons.Plus className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => confirmAddToShoppingList(recipe.id)}
+                                  className="w-full py-2 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs"
+                                >
+                                  Mit {promptPortions} Portionen übernehmen
+                                </button>
+                              </div>
+                            )}
+
+                            {inShoppingList && (
+                              <div className="flex items-center justify-between bg-emerald-500/10 px-3 py-2 rounded-xl border border-emerald-500/30">
+                                <button
+                                  onClick={() => handleToggleShoppingListClick(item)}
+                                  className="text-xs font-extrabold text-emerald-300 flex items-center gap-2"
+                                >
+                                  <Icons.Check className="w-4 h-4" />
+                                  <span>Auf der Einkaufsliste ({formatDaySchedule(item) || `${totalPortions}P`})</span>
+                                </button>
+                                <span className="text-xs font-black text-emerald-400">∑ {totalPortions}P</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                  </div>
+                )}
+              </main>
+            )}
+
+            {/* VIEW 3: EINKAUFSLISTE MIT IPHONE-SHARE */}
+            {activeView === 'shopping' && (
+              <main className="flex-1 flex flex-col p-4 overflow-y-auto ios-scroll space-y-4">
+                <div className="flex items-center justify-between bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5">
+                  <div>
+                    <h2 className="text-sm font-extrabold text-white">Smarte Einkaufsliste</h2>
+                    <p className="text-[11px] text-slate-400">
+                      Summiert für {totalPlanStats.totalPortions} Portionen
+                    </p>
+                  </div>
+                  {activeShoppingRecipes.length > 0 && (
+                    <button
+                      onClick={handleShareOrCopyShoppingList}
+                      className="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 shadow-md"
+                    >
+                      <Icons.Share2 className="w-3.5 h-3.5" />
+                      <span>Teilen / Kopieren</span>
+                    </button>
+                  )}
+                </div>
+
+                {activeShoppingRecipes.length === 0 ? (
+                  <div className="flex-1 flex flex-col items-center justify-center text-center py-12 px-4">
+                    <Icons.ShoppingBag className="w-12 h-12 text-slate-600 mb-3" />
+                    <p className="text-sm font-bold text-slate-300">Einkaufsliste ist noch leer</p>
+                    <button
+                      onClick={() => setActiveView('saved')}
+                      className="mt-4 px-4 py-2.5 rounded-2xl bg-emerald-500 text-slate-950 font-bold text-xs"
+                    >
+                      Zur Merkliste
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3 pb-4">
+                    {CATEGORY_ORDER.map(({ key, icon, badge }) => {
+                      const items = aggregatedShoppingList[key] || [];
+                      if (items.length === 0) return null;
+                      return (
+                        <div
+                          key={key}
+                          className="bg-slate-950/90 border border-slate-800 rounded-2xl p-3.5 space-y-2"
+                        >
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${badge}`}>
+                            <span>{icon}</span>
+                            <span>{key}</span>
+                          </span>
+                          <div className="divide-y divide-slate-800/60">
+                            {items.map((item) => {
+                              const isChecked = !!checkedItems[item.id];
+                              return (
+                                <div
+                                  key={item.id}
+                                  onClick={() =>
+                                    setCheckedItems((prev) => {
+                                      const next = { ...prev, [item.id]: !prev[item.id] };
+                                      OfflineCacheEngine.setItem('checkedItems', next);
+                                      return next;
+                                    })
+                                  }
+                                  className="py-2 flex items-center justify-between gap-2 cursor-pointer"
+                                >
+                                  <div className="flex items-center gap-2.5">
+                                    <div
+                                      className={`w-4 h-4 rounded-md border flex items-center justify-center ${
+                                        isChecked
+                                          ? 'bg-emerald-500 border-emerald-500 text-slate-950'
+                                          : 'border-slate-600'
+                                      }`}
+                                    >
+                                      {isChecked && <Icons.Check className="w-3 h-3" />}
+                                    </div>
+                                    <div>
+                                      <div className={`text-xs font-medium ${isChecked ? 'line-through text-slate-500' : 'text-slate-200'}`}>
+                                        {item.name}
+                                      </div>
+                                      <div className="text-[10px] text-slate-500">
+                                        {item.sources.join(', ')}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <span className={`text-xs font-extrabold ${isChecked ? 'line-through text-slate-600' : 'text-emerald-400'}`}>
+                                    {item.amount} {item.unit}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </main>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
