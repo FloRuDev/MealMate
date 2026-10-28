@@ -151,6 +151,8 @@
       Snowflake: (p) => html`<${IconBase} ...${p}><line x1="2" x2="22" y1="12" y2="12" /><line x1="12" x2="12" y1="2" y2="22" /><path d="m20 16-4-4 4-4" /><path d="m4 8 4 4-4 4" /><//>`,
       Baby: (p) => html`<${IconBase} ...${p}><circle cx="12" cy="12" r="10" /><path d="M8 14s1.5 2 4 2 4-2 4-2" /><line x1="9" x2="9.01" y1="9" y2="9" /><line x1="15" x2="15.01" y1="9" y2="9" /><//>`,
       Dumbbell: (p) => html`<${IconBase} ...${p}><path d="m6.5 6.5 11 11" /><path d="m21 21-1-1" /><path d="m3 3 1 1" /><path d="m18 22 4-4" /><path d="m2 6 4-4" /><path d="m3 10 7-7" /><path d="m14 21 7-7" /><//>`,
+      Zap: (p) => html`<${IconBase} ...${p}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /><//>`,
+      Droplet: (p) => html`<${IconBase} ...${p}><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" /><//>`,
       Wand2: (p) => html`<${IconBase} ...${p}><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z" /><path d="m14 7 3 3" /><//>`,
       CheckCircle2: (p) => html`<${IconBase} ...${p}><circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" /><//>`,
       ChevronRight: (p) => html`<${IconBase} ...${p}><path d="m9 18 6-6-6-6" /><//>`,
@@ -1026,8 +1028,13 @@
       return updatedDb;
     };
 
-    const drawRotationDeck = (database = [], size = APP_CONFIG.INITIAL_DECK_SIZE, rng = Math.random) =>
-      getRandomSubset(database, size, rng);
+    const pickRandomRecipe = (database = [], excludeId = null, rng = Math.random) => {
+      if (!Array.isArray(database) || database.length === 0) return null;
+      if (database.length === 1) return database[0];
+      const candidates = excludeId ? database.filter((r) => r?.id !== excludeId) : database;
+      const pool = candidates.length > 0 ? candidates : database;
+      return pool[Math.floor(rng() * pool.length)];
+    };
 
     // ============================================================================
     // OFFLINE CACHE (INDEXED DB)
@@ -1192,16 +1199,16 @@
             <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Kalorien</div>
             <div className="text-sm font-extrabold text-white">${calories} <span className="text-[10px] font-normal text-slate-400">kcal</span></div>
           </div>
-          <div className="bg-emerald-500/15 border border-emerald-500/40 rounded-xl p-1.5 text-center">
-            <div className="text-[10px] uppercase tracking-wider text-emerald-300 font-bold flex items-center justify-center gap-0.5"><${Icons.Dumbbell} className="w-2.5 h-2.5" /> Protein</div>
-            <div className="text-sm font-black text-emerald-400">${protein} g</div>
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-1.5 text-center">
+            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold flex items-center justify-center gap-0.5"><${Icons.Dumbbell} className="w-2.5 h-2.5 text-emerald-400" /> Protein</div>
+            <div className="text-sm font-bold text-emerald-400">${protein} g</div>
           </div>
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-1.5 text-center">
-            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Carbs</div>
+            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold flex items-center justify-center gap-0.5"><${Icons.Zap} className="w-2.5 h-2.5 text-amber-300" /> Carbs</div>
             <div className="text-sm font-bold text-amber-300">${carbs} g</div>
           </div>
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-1.5 text-center">
-            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Fett</div>
+            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold flex items-center justify-center gap-0.5"><${Icons.Droplet} className="w-2.5 h-2.5 text-rose-300" /> Fett</div>
             <div className="text-sm font-bold text-rose-300">${fat} g</div>
           </div>
         </div>
@@ -1248,8 +1255,7 @@
         const cached = OfflineCacheEngine.getSyncItem('recipes', []);
         return cached.length > 0 ? mergeRecipesIntoDatabase(ALL_RECIPES, cached) : ALL_RECIPES;
       });
-      const [deck, setDeck] = useState(() => drawRotationDeck(ALL_RECIPES, APP_CONFIG.INITIAL_DECK_SIZE));
-      const [currentIndex, setCurrentIndex] = useState(0);
+      const [currentCard, setCurrentCard] = useState(() => pickRandomRecipe(ALL_RECIPES));
       const [savedRecipes, setSavedRecipes] = useState(() => OfflineCacheEngine.getSyncItem('mealPlans', []));
       const [activeView, setActiveView] = useState('swipe');
       const [cardTab, setCardTab] = useState('ingredients');
@@ -1305,40 +1311,6 @@
         return updatedDb;
       }, []);
 
-      const currentCard = deck[currentIndex] || null;
-      const nextCard = deck[currentIndex + 1] || null;
-
-      // Hybrider Ansatz: Zieht in 0ms 6 neue Zufallsrezepte aus den 300 Standardrezepten
-      const handleDrawNextStandardRound = useCallback((currentDbSnapshot = recipeDatabase) => {
-        setDeck(drawRotationDeck(currentDbSnapshot, APP_CONFIG.INITIAL_DECK_SIZE));
-        setCurrentIndex(0);
-        setCardTab('ingredients');
-        showTemporaryStatus(`6 neue Rezepte aus ${currentDbSnapshot.length} Standardrezepten gemischt!`);
-      }, [recipeDatabase, showTemporaryStatus]);
-
-      const handleGenerateBatchCards = useCallback(async (currentDbSnapshot = recipeDatabase) => {
-        if (!userApiKey) {
-          handleDrawNextStandardRound(currentDbSnapshot);
-          return;
-        }
-        if (isGenerating) return;
-        setIsGenerating(true);
-        setAiStatusMessage('KI generiert 6 neue Rezepte...');
-        try {
-          const knownTitles = collectKnownRecipeTitles(deck, savedRecipes, currentDbSnapshot);
-          const newBatch = await callGeminiRecipeBatchAgent(APP_CONFIG.AI_ROTATION_FEED_COUNT, knownTitles, userApiKey);
-          addRecipesToDatabaseWithPersistence(newBatch);
-          setDeck(newBatch);
-          setCurrentIndex(0);
-          showTemporaryStatus(`+${newBatch.length} neue KI-Rezepte geladen!`);
-        } catch (error) {
-          handleDrawNextStandardRound(currentDbSnapshot);
-        } finally {
-          setIsGenerating(false);
-          setCardTab('ingredients');
-        }
-      }, [deck, savedRecipes, recipeDatabase, isGenerating, userApiKey, addRecipesToDatabaseWithPersistence, handleDrawNextStandardRound, showTemporaryStatus]);
-
       const triggerDecision = (decision) => {
         if (!currentCard || isGenerating) return;
         setSwipeFeedback(decision);
@@ -1349,9 +1321,10 @@
               return [...prev, { recipe: currentCard, portions: currentCard.basePortions || APP_CONFIG.DEFAULT_BASE_PORTIONS, inShoppingList: false, dayPortions: {} }];
             });
           }
-          const nextIndex = currentIndex + 1;
-          setDragX(0); setSwipeFeedback(null); setCardTab('ingredients'); setCurrentIndex(nextIndex);
-          if (nextIndex >= deck.length) handleDrawNextStandardRound(recipeDatabase);
+          setDragX(0);
+          setSwipeFeedback(null);
+          setCardTab('ingredients');
+          setCurrentCard((prevCard) => pickRandomRecipe(recipeDatabase, prevCard?.id));
         }, APP_CONFIG.SWIPE_ANIMATION_MS);
       };
 
@@ -1386,14 +1359,14 @@
           }
           const updatedDb = addRecipesToDatabaseWithPersistence([newRecipe]);
           const insertedRecipe = updatedDb.find((r) => r.id === newRecipe.id) || newRecipe;
-          setDeck((prev) => { const copy = [...prev]; copy[currentIndex] = insertedRecipe; return copy; });
+          setCurrentCard(insertedRecipe);
           setAiInput(''); setCardTab('ingredients');
           showTemporaryStatus(userApiKey ? 'Rezept per KI angepasst!' : 'Rezept lokal angepasst (Offline-Modus)!');
         } catch {
           const fallbackRecipe = applyLocalRecipeVariation(currentCard, query);
           const updatedDb = addRecipesToDatabaseWithPersistence([fallbackRecipe]);
           const insertedRecipe = updatedDb.find((r) => r.id === fallbackRecipe.id) || fallbackRecipe;
-          setDeck((prev) => { const copy = [...prev]; copy[currentIndex] = insertedRecipe; return copy; });
+          setCurrentCard(insertedRecipe);
           setAiInput(''); setCardTab('ingredients');
           showTemporaryStatus('Rezept mit lokalem Baukasten angepasst!');
         } finally { setIsGenerating(false); }
@@ -1484,15 +1457,11 @@
               <main className="flex-1 flex flex-col justify-between p-3.5 overflow-hidden">
                 <div className="flex items-center justify-between px-3 py-1.5 mb-2 rounded-2xl bg-slate-950/80 border border-slate-800/90 text-[11px]">
                   <div className="flex items-center gap-1.5 text-slate-300 font-semibold"><${Icons.Database} className="w-3.5 h-3.5 text-cyan-400" /><span>Datenbank: <strong className="text-white">${recipeDatabase.length}</strong> Rezepte</span></div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-slate-500 font-semibold">Karte ${Math.min(currentIndex + 1, deck.length)}/${deck.length}</span>
-                    <button onClick=${() => { setDeck(drawRotationDeck(recipeDatabase)); setCurrentIndex(0); setCardTab('ingredients'); }} disabled=${isGenerating} className="px-2 py-1 rounded-lg bg-slate-800 text-cyan-300 font-bold flex items-center gap-1"><${Icons.Shuffle} className="w-3 h-3" />Neu mischen</button>
-                  </div>
                 </div>
 
                 ${currentCard ? html`
                   <div className="relative flex-1 flex flex-col min-h-[520px]">
-                    ${nextCard ? html`<div className="absolute inset-0 top-3 scale-[0.95] opacity-40 bg-slate-800 rounded-[28px] border border-slate-700 pointer-events-none"></div>` : ''}
+                    <div className="absolute inset-0 top-3 scale-[0.95] opacity-40 bg-slate-800 rounded-[28px] border border-slate-700 pointer-events-none"></div>
                     <div onMouseDown=${handlePointerDown} onMouseMove=${handlePointerMove} onMouseUp=${handlePointerUp} onMouseLeave=${handlePointerUp} onTouchStart=${handlePointerDown} onTouchMove=${handlePointerMove} onTouchEnd=${handlePointerUp} style=${{ transform: swipeFeedback === 'like' ? 'translateX(420px) rotate(16deg)' : swipeFeedback === 'nope' ? 'translateX(-420px) rotate(-16deg)' : `translateX(${dragX}px) rotate(${rotation}deg)`, transition: isDragging ? 'none' : 'transform 0.25s' }} className="relative flex-1 flex flex-col bg-slate-900 border border-slate-700/90 rounded-[28px] shadow-2xl overflow-hidden cursor-grab active:cursor-grabbing">
                       <div style=${{ opacity: swipeFeedback === 'like' ? 1 : likeOpacity }} className="pointer-events-none absolute top-6 left-5 z-30 border-4 border-orange-500 text-orange-500 font-black text-xl tracking-widest px-3 py-1 rounded-xl -rotate-12 bg-slate-950/80 shadow-lg">MERKEN ❤️</div>
                       <div style=${{ opacity: swipeFeedback === 'nope' ? 1 : nopeOpacity }} className="pointer-events-none absolute top-6 right-5 z-30 border-4 border-slate-500 text-slate-500 font-black text-xl tracking-widest px-3 py-1 rounded-xl rotate-12 bg-slate-950/80 shadow-lg">WEITER ✕</div>
@@ -1551,18 +1520,7 @@
                     <button onClick=${() => triggerDecision('nope')} disabled=${isGenerating} className="w-14 h-14 rounded-full bg-slate-900 border-2 border-slate-700 text-slate-400 flex items-center justify-center active:scale-90 transition"><${Icons.X} className="w-7 h-7 stroke-[2.5]" /></button>
                     <button onClick=${() => triggerDecision('like')} disabled=${isGenerating} className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 text-white flex items-center justify-center active:scale-90 transition"><${Icons.Heart} className="w-7 h-7 fill-white stroke-[2]" /></button>
                   </div>
-                ` : html`
-                  <div className="flex-1 flex flex-col items-center justify-center text-center p-6 space-y-4">
-                    ${isGenerating ? html`<${Icons.RefreshCw} className="w-8 h-8 text-cyan-400 animate-spin" />` : html`
-                      <div className="w-16 h-16 rounded-3xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-3xl">✨</div>
-                      <h2 className="text-lg font-extrabold text-white">Runde durchgeswiped!</h2>
-                      <div className="w-full space-y-2">
-                        <button disabled=${isGenerating} onClick=${() => { setDeck(drawRotationDeck(recipeDatabase)); setCurrentIndex(0); setCardTab('ingredients'); }} className="w-full py-3 rounded-2xl bg-slate-800 text-cyan-300 font-extrabold text-xs flex items-center justify-center gap-2"><${Icons.Shuffle} className="w-4 h-4" />6 zufällige Rezepte aus DB ziehen</button>
-                        <button disabled=${isGenerating || !userApiKey} onClick=${() => handleGenerateBatchCards(recipeDatabase)} className="w-full py-3 rounded-2xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 disabled:opacity-50"><${Icons.Sparkles} className="w-4 h-4" />KI-Rezepte generieren</button>
-                      </div>
-                    `}
-                  </div>
-                `}
+                ` : ''}
               </main>
             ` : ''}
 
