@@ -156,6 +156,7 @@
       Wand2: (p) => html`<${IconBase} ...${p}><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z" /><path d="m14 7 3 3" /><//>`,
       CheckCircle2: (p) => html`<${IconBase} ...${p}><circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" /><//>`,
       ChevronRight: (p) => html`<${IconBase} ...${p}><path d="m9 18 6-6-6-6" /><//>`,
+      ArrowLeft: (p) => html`<${IconBase} ...${p}><path d="m15 18-6-6 6-6" /><//>`,
       Layers: (p) => html`<${IconBase} ...${p}><polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" /><//>`,
       FlaskConical: (p) => html`<${IconBase} ...${p}><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2" /><path d="M8.5 2h7" /><path d="M7 16h10" /><//>`,
       Database: (p) => html`<${IconBase} ...${p}><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M3 5V19A9 3 0 0 0 21 19V5" /><path d="M3 12A9 3 0 0 0 21 12" /><//>`,
@@ -203,7 +204,9 @@
       'from-rose-500 to-orange-600',
       'from-cyan-600 to-blue-700',
       'from-indigo-600 to-purple-700',
-      'from-teal-500 to-emerald-700'
+      'from-teal-500 to-emerald-700',
+      'from-red-600 to-rose-700',
+      'from-orange-600 to-amber-700'
     ];
 
     const BASE_SIGNATURE_RECIPES = [
@@ -313,515 +316,21 @@
           'Das Kochwasser abgießen, die Kartoffeln kurz ausdampfen lassen und die fettarme Milch leicht erwärmen.',
           'Die warme Milch zu den Kartoffeln geben, alles mit einem Kartoffelstampfer zu einem feinen, cremigen Püree stampfen und zusammen mit den warmen Ofen-Frikadellen servieren.'
         ]
-      },
-      {
-        id: 'rec-4',
-        title: 'Versteckte-Gemüse-Bolognese mit Reis oder Pasta',
-        subtitle: 'Rinderhack & rote Linsen vereint für doppeltes Eiweiß und Sämigkeit',
-        emoji: '🍝',
-        accentColor: 'from-red-600 to-rose-700',
-        prepTimeActive: 15,
-        prepTimePassive: 20,
-        effortLevel: 'Gering (1-Topf-Soße)',
-        fridgeDays: 4,
-        freezerMonths: 3,
-        toddlerNote: 'Gemüse kocht komplett weich & unsichtbar in der Soße',
-        calories: 540,
-        protein: 48,
-        carbs: 56,
-        fat: 11,
-        basePortions: 4,
-        ingredients: [
-          { name: 'Mageres Rinderhackfleisch (5% Fett)', amount: 500, unit: 'g', category: 'Fleisch & Frische' },
-          { name: 'Rote Linsen (trocken)', amount: 120, unit: 'g', category: 'Vorratsschrank' },
-          { name: 'Passierte Tomaten', amount: 700, unit: 'ml', category: 'Vorratsschrank' },
-          { name: 'Zucchini (fein gerieben)', amount: 250, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Karotten (fein gerieben)', amount: 200, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Reis oder Vollkornnudeln (nach Wahl)', amount: 300, unit: 'g', category: 'Vorratsschrank' },
-          { name: 'Milde Gemüsebrühe', amount: 300, unit: 'ml', category: 'Vorratsschrank' },
-          { name: 'Italienische Kräuter (mild)', amount: 1, unit: 'TL', category: 'Vorratsschrank' }
-        ],
-        steps: [
-          'Die Zucchini waschen und die Karotten schälen. Beides auf der feinen Seite einer Küchenreibe raspeln, damit das Gemüse später beim Kochen fast unsichtbar mit der Soße verschmilzt.',
-          'Einen großen Topf oder eine tiefe Pfanne erhitzen und das magere Rinderhackfleisch darin bei kräftiger Hitze 5 Minuten krümelig anbraten.',
-          'Die fein geriebenen Zucchini und Karotten sowie die italienischen Kräuter zum Hackfleisch geben und unter Rühren 2–3 Minuten weich dünsten.',
-          'Die trockenen roten Linsen in einem Sieb kalt abspülen, mit in den Topf geben und sofort mit den passierten Tomaten und der milden Gemüsebrühe ablöschen.',
-          'Die Bolognese bei aufgelegtem Deckel auf kleiner bis mittlerer Stufe 18–20 Minuten sanft köcheln lassen und gelegentlich umrühren, bis die Linsen komplett weich sind und die Soße sämig bindet.',
-          'Parallel die Vollkornnudeln oder den Reis nach Packungsanweisung in Salzwasser garen, abgießen und mit der warmen Linsen-Gemüse-Bolognese servieren.'
-        ]
-      },
-      {
-        id: 'rec-5',
-        title: 'Mildes Puten-Süßkartoffel-Chili mit Mais',
-        subtitle: 'Eintopf-Wunder ohne Schärfe – schmeckt durchgezogen noch besser',
-        emoji: '🍲',
-        accentColor: 'from-orange-600 to-amber-700',
-        prepTimeActive: 15,
-        prepTimePassive: 20,
-        effortLevel: 'Sehr gering (One-Pot)',
-        fridgeDays: 4,
-        freezerMonths: 3,
-        toddlerNote: 'Süßlicher Mais & weiche Süßkartoffel statt Chili-Schärfe',
-        calories: 505,
-        protein: 45,
-        carbs: 54,
-        fat: 10,
-        basePortions: 4,
-        ingredients: [
-          { name: 'Putenbrustfilet oder Putenhack', amount: 600, unit: 'g', category: 'Fleisch & Frische' },
-          { name: 'Süßkartoffeln (klein gewürfelt)', amount: 500, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Kidneybohnen (Abtropfgewicht, gespült)', amount: 250, unit: 'g', category: 'Vorratsschrank' },
-          { name: 'Goldmais (Dose, Abtropfgewicht)', amount: 150, unit: 'g', category: 'Vorratsschrank' },
-          { name: 'Stückige Tomaten (Dose)', amount: 800, unit: 'g', category: 'Vorratsschrank' },
-          { name: 'Milde Gemüsebrühe', amount: 250, unit: 'ml', category: 'Vorratsschrank' },
-          { name: 'Griechischer Joghurt (2% Fett)', amount: 150, unit: 'g', category: 'Kühlregal' },
-          { name: 'Paprikapulver edelsüß', amount: 1, unit: 'EL', category: 'Vorratsschrank' }
-        ],
-        steps: [
-          'Die Süßkartoffeln schälen und in kleine, mundgerechte Würfel (ca. 1,5 cm) schneiden. Das Putenbrustfilet ebenfalls klein würfeln (oder Putenhack bereitstellen).',
-          'In einem großen Topf das Putenfleisch bei mittlerer bis hoher Hitze 4 Minuten rundherum anbraten.',
-          'Die Süßkartoffelwürfel und das edelsüße Paprikapulver dazugeben und unter Rühren 1–2 Minuten kurz mitrösten, damit sich ein mildes Aroma entwickelt.',
-          'Mit den stückigen Tomaten und der milden Gemüsebrühe ablöschen, einmal aufkochen und abgedeckt bei schwacher Hitze ca. 15 Minuten köcheln lassen, bis die Süßkartoffelwürfel weich sind.',
-          'Währenddessen die Kidneybohnen und den Goldmais in ein Sieb geben, unter fließendem kaltem Wasser gründlich abspülen und abtropfen lassen.',
-          'Bohnen und Mais in den letzten 5 Minuten unter den Eintopf heben, sanft mitwärmen und das fertige Chili mit einem Klecks griechischem Joghurt anrichten.'
-        ]
-      },
-      {
-        id: 'rec-6',
-        title: 'Lachs-Reis-Blech mit Erbsen & Zitronen-Skyr-Dip',
-        subtitle: 'Wertvolle Omega-3-Fettsäuren & null Aufwand am Herd',
-        emoji: '🐟',
-        accentColor: 'from-cyan-600 to-blue-700',
-        prepTimeActive: 10,
-        prepTimePassive: 20,
-        effortLevel: 'Minimal (10 Min. Vorbereitung)',
-        fridgeDays: 3,
-        freezerMonths: 2,
-        toddlerNote: 'Grätenfreies Filet zerfällt butterzart, milder Dip',
-        calories: 535,
-        protein: 42,
-        carbs: 52,
-        fat: 16,
-        basePortions: 4,
-        ingredients: [
-          { name: 'Lachsfilet ohne Haut & Gräten (frisch/TK)', amount: 500, unit: 'g', category: 'Fleisch & Frische' },
-          { name: 'Basmatireis (ungekocht)', amount: 260, unit: 'g', category: 'Vorratsschrank' },
-          { name: 'TK-Erbsen (jung & zart)', amount: 350, unit: 'g', category: 'Tiefkühlung' },
-          { name: 'Skyr Natur (hoher Proteingehalt)', amount: 250, unit: 'g', category: 'Kühlregal' },
-          { name: 'Karotten (in dünnen Scheiben)', amount: 250, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Zitronensaft & etwas Dill', amount: 1, unit: 'EL', category: 'Obst & Gemüse' }
-        ],
-        steps: [
-          'Den Backofen auf 190 °C Umluft vorheizen. Die Karotten schälen und in sehr dünne, gleichmäßige Scheiben schneiden.',
-          'Den Basmatireis zusammen mit den Karottenscheiben und der doppelten Menge leicht gesalzenem Wasser in einem Topf aufkochen und abgedeckt bei kleiner Hitze 12–15 Minuten quellen lassen.',
-          'In den letzten 4 Minuten der Garzeit die tiefgekühlten jungen Erbsen direkt auf den Reis geben, den Deckel wieder auflegen und die Erbsen im Dampf zart garen.',
-          'Während der Reis kocht, die grätenfreien Lachsfilets trocken tupfen, auf ein mit Backpapier belegtes Blech legen und im vorgeheizten Ofen 15–18 Minuten saftig garen.',
-          'Für den Dip den Skyr Natur in einer Schüssel mit dem Zitronensaft, 2 EL Wasser, fein gehacktem Dill und einer kleinen Prise Salz glatt rühren.',
-          'Den fertigen Erbsen-Karotten-Reis mit einer Gabel auflockern, den zarten Ofenlachs darauflegen und mit dem Zitronen-Skyr-Dip servieren.'
-        ]
-      },
-      {
-        id: 'rec-7',
-        title: 'Cremiger Nudel-Erbsen-Auflauf',
-        subtitle: 'Absolutes Wohlfühlessen aus dem Ofen – Nudeln kochen von selbst',
-        emoji: '🧀',
-        accentColor: 'from-yellow-500 to-amber-600',
-        prepTimeActive: 10,
-        prepTimePassive: 35,
-        effortLevel: 'Minimal (Rohe Nudeln ins Blech)',
-        fridgeDays: 4,
-        freezerMonths: 2,
-        toddlerNote: 'Weiche Nudeln & süße Erbsen, bei Kleinkindern extrem beliebt',
-        calories: 480,
-        protein: 35,
-        carbs: 58,
-        fat: 13,
-        basePortions: 4,
-        ingredients: [
-          { name: 'Vollkorn- oder Dinkelnudeln (ungekocht)', amount: 400, unit: 'g', category: 'Vorratsschrank' },
-          { name: 'TK-Erbsen', amount: 300, unit: 'g', category: 'Tiefkühlung' },
-          { name: 'Kochsahne (7% Fett) oder Hafercreme', amount: 250, unit: 'ml', category: 'Kühlregal' },
-          { name: 'Milde Gemüsebrühe', amount: 600, unit: 'ml', category: 'Vorratsschrank' },
-          { name: 'Hähnchenbrust-Aufschnitt (in Streifen)', amount: 200, unit: 'g', category: 'Kühlregal' },
-          { name: 'Geriebener Gouda light', amount: 120, unit: 'g', category: 'Kühlregal' }
-        ],
-        steps: [
-          'Den Backofen auf 180 °C Umluft (200 °C Ober-/Unterhitze) vorheizen. Den Hähnchenbrust-Aufschnitt in feine, mundgerechte Streifen schneiden.',
-          'Die ungekochten Vollkorn- oder Dinkelnudeln direkt in eine große, tiefe Auflaufform geben und mit den gefrorenen TK-Erbsen sowie den Hähnchenstreifen gleichmäßig vermischen.',
-          'In einem Messbecher die milde Gemüsebrühe mit der Kochsahne (oder Hafercreme) und einer Prise Muskatnuss gründlich verrühren.',
-          'Die Flüssigkeit vollständig über die Nudel-Gemüse-Mischung gießen und die Nudeln mit einem Löffel leicht nach unten drücken, sodass möglichst alle Nudeln mit Soße bedeckt sind.',
-          'Den geriebenen Gouda Light gleichmäßig darüberstreuen und die Form auf der mittleren Schiene in den Ofen schieben.',
-          'Den Auflauf 35–40 Minuten backen, bis die Nudeln die Flüssigkeit aufgesogen haben, weich gegart sind und die Käsekruste goldgelb geschmolzen ist.'
-        ]
-      },
-      {
-        id: 'rec-8',
-        title: 'Ofen-Frittata mit Kartoffeln & Spinat',
-        subtitle: 'Herzhaftes Blech-Omelett, in handliche Riegel schneidbar',
-        emoji: '🍳',
-        accentColor: 'from-green-500 to-emerald-600',
-        prepTimeActive: 15,
-        prepTimePassive: 25,
-        effortLevel: 'Gering',
-        fridgeDays: 3,
-        freezerMonths: 0,
-        toddlerNote: 'Ideal als kaltes Fingerfood für unterwegs',
-        calories: 410,
-        protein: 36,
-        carbs: 28,
-        fat: 16,
-        basePortions: 4,
-        ingredients: [
-          { name: 'Gekochte Kartoffeln (gerne vom Vortag)', amount: 600, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Eier (Größe M)', amount: 8, unit: 'Stück', category: 'Kühlregal' },
-          { name: 'Körniger Frischkäse light (ins Ei gerührt)', amount: 250, unit: 'g', category: 'Kühlregal' },
-          { name: 'Frischer Blattspinat (oder TK)', amount: 200, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Geriebener Gouda light', amount: 80, unit: 'g', category: 'Kühlregal' }
-        ],
-        steps: [
-          'Den Backofen auf 180 °C Umluft vorheizen und eine große Auflaufform oder ein tiefes Backblech mit Backpapier auslegen.',
-          'Die bereits gekochten Kartoffeln pellen (falls nötig) und in kleine, mundgerechte Würfel (ca. 1,5 cm) schneiden.',
-          'Den frischen Blattspinat waschen und trocken schleudern (bei TK-Blattspinat diesen vorher auftauen und das überschüssige Wasser gut ausdrücken).',
-          'Kartoffelwürfel und Spinat gleichmäßig auf dem Blech bzw. in der Form verteilen.',
-          'Die Eier in einer großen Schüssel zusammen mit dem körnigen Frischkäse und einer milden Prise Salz und Muskatnuss kräftig verquirlen und gleichmäßig über das Gemüse gießen.',
-          'Mit dem geriebenen Gouda Light bestreuen und im Ofen ca. 25 Minuten backen, bis die Eimasse bis zur Mitte vollständig gestockt und leicht goldbraun ist.'
-        ]
-      },
-      {
-        id: 'rec-9',
-        title: 'Cremiger Gnocchi-Gemüse-Mix vom Blech',
-        subtitle: 'Röstaromen aus dem Ofen mit geschmolzenem Mozzarella & Putenstreifen',
-        emoji: '🥔',
-        accentColor: 'from-rose-500 to-red-600',
-        prepTimeActive: 10,
-        prepTimePassive: 20,
-        effortLevel: 'Minimal',
-        fridgeDays: 3,
-        freezerMonths: 1,
-        toddlerNote: 'Weiche Gnocchi und milde, süße Tomaten',
-        calories: 495,
-        protein: 39,
-        carbs: 58,
-        fat: 12,
-        basePortions: 4,
-        ingredients: [
-          { name: 'Gnocchi (aus dem Kühlregal)', amount: 800, unit: 'g', category: 'Kühlregal' },
-          { name: 'Putenbrustfilet (in kleinen Würfeln)', amount: 450, unit: 'g', category: 'Fleisch & Frische' },
-          { name: 'Kirschtomaten', amount: 300, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Zucchini (klein gewürfelt)', amount: 300, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Mini-Mozzarellakugeln (Light)', amount: 200, unit: 'g', category: 'Kühlregal' },
-          { name: 'Olivenöl & italienische Kräuter', amount: 1, unit: 'EL', category: 'Vorratsschrank' }
-        ],
-        steps: [
-          'Den Backofen auf 200 °C Umluft vorheizen und ein großes Backblech mit Backpapier belegen.',
-          'Die Zucchini waschen und in kleine, mundgerechte Würfel schneiden. Die Kirschtomaten waschen und halbieren.',
-          'Das Putenbrustfilet trocken tupfen und in kleine, gleichmäßige Würfel (ca. 2 cm) schneiden, damit es zeitgleich mit den Gnocchi gar wird.',
-          'Die gekühlten Gnocchi direkt aus der Packung zusammen mit den Putenwürfeln, Zucchiniwürfeln und halbierten Kirschtomaten auf das Blech geben.',
-          'Alles mit dem Olivenöl und den italienischen Kräutern gründlich vermengen, flach auf dem Backblech verteilen und im heißen Ofen zunächst 15 Minuten rösten.',
-          'Die abgetropften Mini-Mozzarellakugeln zwischen dem Gemüse verteilen und weitere 5–7 Minuten backen, bis der Käse weich geschmolzen und das Fleisch durchgegart ist.'
-        ]
-      },
-      {
-        id: 'rec-10',
-        title: 'Mildes Hähnchen-Mango-Curry',
-        subtitle: 'Fruchtig-süßes Curry, das auch kleine Kinder lieben',
-        emoji: '🍛',
-        accentColor: 'from-yellow-400 to-orange-500',
-        prepTimeActive: 15,
-        prepTimePassive: 15,
-        effortLevel: 'Mittel',
-        fridgeDays: 3,
-        freezerMonths: 3,
-        toddlerNote: 'Süße Mango mildert das milde Curry perfekt ab',
-        calories: 510,
-        protein: 42,
-        carbs: 55,
-        fat: 12,
-        basePortions: 4,
-        ingredients: [
-          { name: 'Hähnchenbrustfilet', amount: 600, unit: 'g', category: 'Fleisch & Frische' },
-          { name: 'Reis (ungekocht)', amount: 250, unit: 'g', category: 'Vorratsschrank' },
-          { name: 'Reife Mango (gewürfelt)', amount: 1, unit: 'Stück', category: 'Obst & Gemüse' },
-          { name: 'Kokosmilch (light)', amount: 400, unit: 'ml', category: 'Vorratsschrank' },
-          { name: 'Karotten (in feinen Scheiben)', amount: 200, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Mildes Currypulver & Kurkuma', amount: 1, unit: 'TL', category: 'Vorratsschrank' }
-        ],
-        steps: [
-          'Den Reis in einem Sieb kalt abspülen und nach Packungsanweisung in leicht gesalzenem Wasser bei kleiner Hitze locker garen.',
-          'Die Karotten schälen und in sehr feine Scheiben schneiden. Die reife Mango schälen, das Fruchtfleisch vom Stein schneiden und fein würfeln.',
-          'Das Hähnchenbrustfilet in mundgerechte Stücke würfeln und in einer großen, tiefen Pfanne bei mittlerer Hitze 3–4 Minuten rundherum hell anbraten.',
-          'Das milde Currypulver und Kurkuma sowie die dünnen Karottenscheiben dazugeben und unter Rühren 1 Minute sanft mitdünsten.',
-          'Mit der leichten Kokosmilch ablöschen, einmal aufkochen und abgedeckt bei schwacher Hitze ca. 10 Minuten sanft köcheln lassen, bis die Karotten weich sind.',
-          'Die süßen Mangowürfel unter die Soße heben, noch 3 Minuten ziehen lassen, bis die Mango weich und warm ist, und zusammen mit dem Reis servieren.'
-        ]
-      },
-      {
-        id: 'rec-11',
-        title: 'Hähnchen-Fajita-Pfanne mit Reis',
-        subtitle: 'Viel Protein und weiches Pfannengemüse im milden Mexiko-Style',
-        emoji: '🫑',
-        accentColor: 'from-orange-500 to-red-600',
-        prepTimeActive: 15,
-        prepTimePassive: 15,
-        effortLevel: 'Gering',
-        fridgeDays: 4,
-        freezerMonths: 2,
-        toddlerNote: 'Paprika schön weich braten, nur ganz mild würzen',
-        calories: 490,
-        protein: 45,
-        carbs: 50,
-        fat: 10,
-        basePortions: 4,
-        ingredients: [
-          { name: 'Hähnchenbrustfilet (in Streifen)', amount: 600, unit: 'g', category: 'Fleisch & Frische' },
-          { name: 'Reis (z.B. Basmati, ungekocht)', amount: 250, unit: 'g', category: 'Vorratsschrank' },
-          { name: 'Bunte Paprika (in Streifen)', amount: 3, unit: 'Stück', category: 'Obst & Gemüse' },
-          { name: 'Rote Zwiebel', amount: 1, unit: 'Stück', category: 'Obst & Gemüse' },
-          { name: 'Mildes Paprikapulver & Kreuzkümmel', amount: 1, unit: 'TL', category: 'Vorratsschrank' },
-          { name: 'Passierte Tomaten', amount: 200, unit: 'ml', category: 'Vorratsschrank' }
-        ],
-        steps: [
-          'Den Basmatireis nach Packungsanweisung in leicht gesalzenem Wasser aufsetzen und bei schwacher Hitze abgedeckt garen.',
-          'Die bunten Paprikaschoten entkernen und in schmale, mundgerechte Streifen schneiden. Die rote Zwiebel schälen und in feine Streifen schneiden.',
-          'Das Hähnchenbrustfilet ebenfalls in zarte Streifen schneiden und in einer großen, beschichteten Pfanne bei kräftiger Hitze 4–5 Minuten rundherum goldbraun anbraten, anschließend kurz herausnehmen.',
-          'In derselben Pfanne die Paprika- und Zwiebelstreifen mit 2–3 EL Wasser bei mittlerer Hitze 8–10 Minuten dünsten, bis das Gemüse schön weich und süßlich ist.',
-          'Die gebratenen Hähnchenstreifen wieder zurück zum Gemüse geben, mit mildem Paprikapulver sowie einer Prise Kreuzkümmel bestäuben und kurz durchschwenken.',
-          'Mit den passierten Tomaten ablöschen, alles 5 Minuten bei kleiner Hitze sämig einköcheln lassen und zusammen mit dem lockeren Reis servieren.'
-        ]
-      },
-      {
-        id: 'rec-12',
-        title: 'Bunte Quinoa-Bowl mit Kichererbsen & Skyr-Dressing',
-        subtitle: 'Vegetarische Power-Bowl mit viel pflanzlichem Protein & Ofengemüse',
-        emoji: '🥗',
-        accentColor: 'from-emerald-500 to-green-700',
-        prepTimeActive: 15,
-        prepTimePassive: 25,
-        effortLevel: 'Gering',
-        fridgeDays: 4,
-        freezerMonths: 1,
-        toddlerNote: 'Weiche Quinoa und gut verdauliches Ofengemüse',
-        calories: 470,
-        protein: 35,
-        carbs: 56,
-        fat: 12,
-        basePortions: 4,
-        ingredients: [
-          { name: 'Quinoa (ungekocht)', amount: 250, unit: 'g', category: 'Vorratsschrank' },
-          { name: 'Kichererbsen (Dose, abgetropft)', amount: 400, unit: 'g', category: 'Vorratsschrank' },
-          { name: 'Süßkartoffel (gewürfelt)', amount: 300, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Brokkoli-Röschen', amount: 300, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Skyr Natur (als Protein-Topping)', amount: 300, unit: 'g', category: 'Kühlregal' },
-          { name: 'Olivenöl', amount: 1, unit: 'EL', category: 'Vorratsschrank' }
-        ],
-        steps: [
-          'Den Backofen auf 200 °C Umluft vorheizen. Die Quinoa in einem feinen Sieb unter fließendem heißem Wasser gründlich abspülen (entfernt Bitterstoffe) und nach Packungsanweisung ca. 15 Minuten weich kochen.',
-          'Die Süßkartoffel schälen und in kleine Würfel (ca. 1,5 cm) schneiden. Den Brokkoli in kleine, mundgerechte Röschen teilen.',
-          'Die Kichererbsen aus der Dose in ein Sieb geben, kalt abspülen und gut abtropfen lassen.',
-          'Süßkartoffelwürfel, Brokkoliröschen und Kichererbsen auf einem Backblech mit dem Olivenöl und milden Kräutern vermengen und im heißen Ofen ca. 22–25 Minuten rösten, bis die Süßkartoffeln weich sind.',
-          'Währenddessen den Skyr Natur mit 2–3 EL kaltem Wasser, einer Prise Salz und optional etwas Zitronensaft zu einem glatten, cremigen Dressing verrühren.',
-          'Die gegarte Quinoa mit einer Gabel auflockern, das warme Ofengemüse samt Kichererbsen darauf anrichten und das Skyr-Dressing darübergeben.'
-        ]
       }
     ];
 
-    // Fallback-Generator, falls die index.html einzeln in einer Vorschau ohne rezepte.js geöffnet wird
     const buildStandalone300Recipes = () => {
       if (Array.isArray(window.MEALMATE_RECIPES) && window.MEALMATE_RECIPES.length >= 300) {
         return window.MEALMATE_RECIPES;
       }
-      const proteins = [
-        { short: 'Hähnchen', ingName: 'Hähnchenbrustfilet (mundgerecht gewürfelt)', amount: 600, unit: 'g', category: 'Fleisch & Frische', prot: 36, cal: 165, fat: 3, emoji: '🍗' },
-        { short: 'Puten', ingName: 'Putenbrustfilet (zart geschnitten)', amount: 600, unit: 'g', category: 'Fleisch & Frische', prot: 36, cal: 160, fat: 2, emoji: '🦃' },
-        { short: 'Mageres Rinderhack', ingName: 'Mageres Rinderhackfleisch (5% Fett)', amount: 550, unit: 'g', category: 'Fleisch & Frische', prot: 34, cal: 185, fat: 7, emoji: '🥩' },
-        { short: 'Lachs', ingName: 'Lachsfilet ohne Gräten (gewürfelt)', amount: 500, unit: 'g', category: 'Fleisch & Frische', prot: 30, cal: 210, fat: 11, emoji: '🐟' },
-        { short: 'Veggie-Linsen & Hüttenkäse', ingName: 'Rote Linsen & Hüttenkäse Light Mix', amount: 450, unit: 'g', category: 'Kühlregal', prot: 28, cal: 175, fat: 4, emoji: '🌱' },
-        { short: 'Kichererbsen & Halloumi Light', ingName: 'Kichererbsen & Grillkäse Light (gewürfelt)', amount: 480, unit: 'g', category: 'Kühlregal', prot: 27, cal: 195, fat: 8, emoji: '🧀' }
-      ];
-      const carbs = [
-        { short: 'Basmatireis', ingName: 'Basmatireis (ungekocht)', amount: 260, unit: 'g', category: 'Vorratsschrank', carbs: 48, prot: 5, cal: 220 },
-        { short: 'Vollkorn-Penne', ingName: 'Vollkorn-Penne oder Spirelli', amount: 300, unit: 'g', category: 'Vorratsschrank', carbs: 50, prot: 9, cal: 245 },
-        { short: 'Drillingskartoffeln', ingName: 'Festkochende Kartoffeln (gewürfelt)', amount: 800, unit: 'g', category: 'Obst & Gemüse', carbs: 34, prot: 4, cal: 155 },
-        { short: 'Frische Gnocchi', ingName: 'Frische Kartoffel-Gnocchi (Kühlregal)', amount: 750, unit: 'g', category: 'Kühlregal', carbs: 52, prot: 7, cal: 250 },
-        { short: 'Süßkartoffel-Würfel', ingName: 'Süßkartoffeln (geschält & gewürfelt)', amount: 700, unit: 'g', category: 'Obst & Gemüse', carbs: 38, prot: 3, cal: 165 },
-        { short: 'Gold-Hirse & Quinoa', ingName: 'Milde Goldhirse-Quinoa-Mischung', amount: 260, unit: 'g', category: 'Vorratsschrank', carbs: 45, prot: 8, cal: 230 },
-        { short: 'Eierspätzle', ingName: 'Pfannen-Spätzle aus dem Kühlregal', amount: 650, unit: 'g', category: 'Kühlregal', carbs: 49, prot: 9, cal: 255 },
-        { short: 'Schupfnudeln', ingName: 'Frische Schupfnudeln (Kühlregal)', amount: 650, unit: 'g', category: 'Kühlregal', carbs: 47, prot: 6, cal: 240 }
-      ];
-      const styles = [
-        { styleName: 'Rahm-Pfanne mit Brokkoli & Karotten', subtitle: 'Schnelle 1-Pfannen-Mahlzeit in milder Frischkäse-Kräuter-Soße', method: 'pan', prepActive: 15, prepPassive: 15, effort: 'Gering (1-Pfannen-Gericht)', fridge: 4, freezer: 3, toddler: 'Kleine Röschen & weiche Möhrenscheiben, ganz ohne Schärfe', veggies: [{ name: 'Brokkoli-Röschen (frisch oder TK)', amount: 400, unit: 'g', category: 'Obst & Gemüse' }, { name: 'Junge Karotten (fein geschnitten)', amount: 250, unit: 'g', category: 'Obst & Gemüse' }], sauce: [{ name: 'Frischkäse Light (Kräuter oder Natur)', amount: 150, unit: 'g', category: 'Kühlregal' }, { name: 'Milde Gemüsebrühe', amount: 250, unit: 'ml', category: 'Vorratsschrank' }], extraCal: 75, extraProt: 5, extraFat: 3 },
-        { styleName: 'Ofen-Auflauf mit Blumenkohl & Käsekruste', subtitle: 'Bequemes Blechgericht mit saftigem Hüttenkäse-Guss aus dem Backofen', method: 'oven', prepActive: 12, prepPassive: 30, effort: 'Sehr gering (Ofen arbeitet)', fridge: 4, freezer: 2, toddler: 'Butterweicher Blumenkohl unter milder Mozzarella-Kruste', veggies: [{ name: 'Blumenkohl-Röschen (TK oder frisch)', amount: 450, unit: 'g', category: 'Tiefkühlung' }, { name: 'TK-Erbsen (zart)', amount: 200, unit: 'g', category: 'Tiefkühlung' }], sauce: [{ name: 'Körniger Frischkäse Light', amount: 300, unit: 'g', category: 'Kühlregal' }, { name: 'Geriebener Mozzarella Light', amount: 100, unit: 'g', category: 'Kühlregal' }, { name: 'Milde Gemüsebrühe', amount: 200, unit: 'ml', category: 'Vorratsschrank' }], extraCal: 95, extraProt: 11, extraFat: 4 },
-        { styleName: 'Tomaten-Ricotta-Topf mit Zucchini', subtitle: 'Fruchtig-milde Familiensoße mit verstecktem Gemüse & viel Eiweiß', method: 'stew', prepActive: 15, prepPassive: 20, effort: 'Minimal (One-Pot)', fridge: 4, freezer: 3, toddler: 'Fruchtig-süßliche Tomate, fein geriebene Zucchini kaum sichtbar', veggies: [{ name: 'Zucchini (fein gewürfelt oder gerieben)', amount: 350, unit: 'g', category: 'Obst & Gemüse' }, { name: 'Rote Paprika (mundgerecht)', amount: 250, unit: 'g', category: 'Obst & Gemüse' }], sauce: [{ name: 'Passierte Tomaten', amount: 500, unit: 'ml', category: 'Vorratsschrank' }, { name: 'Ricotta oder Magerquark (zum Verfeinern)', amount: 200, unit: 'g', category: 'Kühlregal' }], extraCal: 80, extraProt: 7, extraFat: 3 },
-        { styleName: 'Goldener Kurkuma-Kokos-Topf mit Spinat & Mais', subtitle: 'Wärmendes, absolut schärfefreies Familiencurry mit zartem Gemüse', method: 'curry', prepActive: 15, prepPassive: 18, effort: 'Gering (1 Topf)', fridge: 4, freezer: 3, toddler: 'Süßlicher Goldmais & cremige Kokosmilch – sehr beliebt bei Kindern', veggies: [{ name: 'TK-Blattspinat (portioniert)', amount: 300, unit: 'g', category: 'Tiefkühlung' }, { name: 'Süßer Goldmais (Dose, abgetropft)', amount: 180, unit: 'g', category: 'Vorratsschrank' }], sauce: [{ name: 'Kokosmilch Light', amount: 350, unit: 'ml', category: 'Vorratsschrank' }, { name: 'Skyr Natur (für extra Cremigkeit & Protein)', amount: 150, unit: 'g', category: 'Kühlregal' }], extraCal: 90, extraProt: 6, extraFat: 5 },
-        { styleName: 'Ofenblech-Röstgemüse mit Kräuter-Quark-Dip', subtitle: 'Alles von einem Backblech – minimaler Abwasch & tolle Röstaromen', method: 'sheet', prepActive: 10, prepPassive: 25, effort: 'Minimal (Nur 1 Backblech)', fridge: 4, freezer: 1, toddler: 'Ideales Fingerfood vom Blech mit mildem Kräuter-Quark zum Dippen', veggies: [{ name: 'Bunte Paprika & Karottensticks', amount: 450, unit: 'g', category: 'Obst & Gemüse' }, { name: 'Kirschtomaten (halbiert)', amount: 250, unit: 'g', category: 'Obst & Gemüse' }], sauce: [{ name: 'Magerquark (als cremiger Dip)', amount: 300, unit: 'g', category: 'Kühlregal' }, { name: 'Raps- oder Olivenöl & milde Gartenkräuter', amount: 1, unit: 'EL', category: 'Vorratsschrank' }], extraCal: 85, extraProt: 9, extraFat: 3 },
-        { styleName: 'Schlemmer-Pfanne mit Kaisergemüse & Skyr-Rahm', subtitle: 'Blitzschnelles Vorrats-Gericht mit knackig-zartem TK-Gemüse', method: 'pan', prepActive: 12, prepPassive: 15, effort: 'Minimal (TK-Vorteil)', fridge: 4, freezer: 3, toddler: 'Kein Schnippeln nötig, sehr weich gedünstetes Kaisergemüse', veggies: [{ name: 'TK-Kaisergemüse (Brokkoli, Blumenkohl, Karotte)', amount: 500, unit: 'g', category: 'Tiefkühlung' }, { name: 'TK-Erbsen', amount: 150, unit: 'g', category: 'Tiefkühlung' }], sauce: [{ name: 'Skyr Natur', amount: 250, unit: 'g', category: 'Kühlregal' }, { name: 'Kochsahne Light (7% Fett)', amount: 150, unit: 'ml', category: 'Kühlregal' }, { name: 'Milde Gemüsebrühe', amount: 200, unit: 'ml', category: 'Vorratsschrank' }], extraCal: 85, extraProt: 8, extraFat: 3 }
-      ];
-
-      const buildFallbackSteps = (method, protein, carb, style) => {
-        const isBoiledGrainOrPasta = ['Basmatireis', 'Vollkorn-Penne', 'Gold-Hirse & Quinoa'].includes(carb.short);
-        const isRawPotatoOrSweetPotato = ['Drillingskartoffeln', 'Süßkartoffel-Würfel'].includes(carb.short);
-        const isLachs = protein.short === 'Lachs';
-        const isHack = protein.short === 'Mageres Rinderhack';
-        const isLinsen = protein.short.includes('Veggie-Linsen');
-        const isHalloumi = protein.short.includes('Kichererbsen');
-
-        if (method === 'oven') {
-          return [
-            isBoiledGrainOrPasta
-              ? `Den Backofen auf 195 °C Umluft vorheizen. ${carb.ingName} in kochendem, leicht gesalzenem Wasser ca. 8–10 Minuten bissfest vorkochen, abgießen und in eine große Auflaufform geben.`
-              : isRawPotatoOrSweetPotato
-              ? `Den Backofen auf 195 °C Umluft vorheizen. ${carb.ingName} schälen bzw. waschen, in kleine Würfel (ca. 1,5 cm) schneiden und 8 Minuten in Salzwasser vorkochen, damit sie im Auflauf butterweich werden.`
-              : `Den Backofen auf 195 °C Umluft vorheizen. ${carb.ingName} direkt aus der Packung nehmen und ohne Vorkochen in einer großen Auflaufform verteilen.`,
-            `Die Blumenkohl-Röschen (größere Röschen halbieren) und die tiefgekühlten Erbsen gleichmäßig dazugeben.`,
-            isHack
-              ? `Das magere Rinderhackfleisch in einer heißen Pfanne 4 Minuten krümelig anbraten und anschließend unter das Gemüse und die Beilage in der Form mischen.`
-              : isLinsen
-              ? `Die roten Linsen in einem Sieb kalt abspülen und direkt unter die Zutaten in der Auflaufform mischen.`
-              : isHalloumi
-              ? `Die Kichererbsen in einem Sieb kalt abspülen, den Grillkäse Light in kleine Würfel schneiden und beides unter das Gemüse mischen.`
-              : `Das ${protein.ingName.split('(')[0].trim()} trocken tupfen, in mundgerechte Würfel (ca. 2 cm) schneiden und gleichmäßig zwischen Gemüse und Beilage in der Form verteilen.`,
-            `Für den Soßen-Guss den körnigen Frischkäse Light zusammen mit der warmen Gemüsebrühe${isLinsen ? ', 100 ml extra Wasser' : ''} und milden Kräutern glatt rühren (oder kurz pürieren), über den Auflauf gießen und mit dem geriebenen Mozzarella Light bestreuen.`,
-            `Im vorgeheizten Ofen auf mittlerer Schiene ca. ${style.prepPassive} Minuten goldbraun backen, bis das Gemüse weich und der Käse geschmolzen ist. Vor dem Servieren 5 Minuten ruhen lassen.`
-          ];
-        }
-        if (method === 'sheet') {
-          return [
-            `Den Backofen auf 200 °C Umluft vorheizen und ein großes Backblech mit Backpapier auslegen. Die bunte Paprika und die Karotten in mundgerechte, schmale Sticks schneiden und die Kirschtomaten halbieren.`,
-            isBoiledGrainOrPasta
-              ? `${carb.ingName} separat in einem Topf mit leicht gesalzenem Wasser nach Packungsanweisung ca. 12–15 Minuten weich kochen und abtropfen lassen.`
-              : isRawPotatoOrSweetPotato
-              ? `${carb.ingName} gründlich waschen bzw. schälen, in kleine mundgerechte Würfel (ca. 1,5 cm) schneiden und direkt zu den Gemüsesticks auf das Backblech geben.`
-              : `${carb.ingName} direkt aus dem Kühlregal zusammen mit den Paprika- und Karottensticks auf dem Backblech verteilen.`,
-            isLachs
-              ? `Das Gemüse (und ggf. die Beilage) auf dem Blech mit 1 EL Öl und milden Gartenkräutern vermengen und im heißen Ofen 12 Minuten vorrösten. Dann die grätenfreien Lachswürfel und die halbierten Kirschtomaten dazugeben und weitere 12–13 Minuten saftig garen.`
-              : isHack
-              ? `Aus dem mageren Rinderhackfleisch kleine, mundgerechte Bällchen (ca. 2,5 cm) formen, mit dem Gemüse und 1 EL Öl auf dem Blech verteilen und ca. ${style.prepPassive} Minuten goldbraun rösten (die Kirschtomaten in den letzten 10 Minuten dazugeben).`
-              : isLinsen
-              ? `Das Gemüse auf dem Blech mit 1 EL Öl und milden Kräutern ca. ${style.prepPassive} Minuten im Ofen rösten (Kirschtomaten in den letzten 10 Minuten zugeben). Parallel die roten Linsen in leicht gesalzenem Wasser 12 Minuten weich kochen, abgießen und mit dem Hüttenkäse Light vermengen.`
-              : `${protein.ingName} zusammen mit dem Gemüse auf dem Blech verteilen, mit 1 EL Öl und milden Gartenkräutern mischen und im heißen Ofen ca. ${style.prepPassive} Minuten goldbraun rösten (die halbierten Kirschtomaten in den letzten 10 Minuten mitrösten).`,
-            `Während das Blech im Ofen röstet, den Magerquark in einer Schüssel mit 2–3 EL Wasser oder Milch, einem Spritzer Zitronensaft, einer Prise Salz und feinen Gartenkräutern glatt und cremig rühren.`,
-            `Das fertige Röstgemüse vom Blech nehmen${isBoiledGrainOrPasta ? `, mit ${carb.short} anrichten` : ''} und zusammen mit dem kühlen Kräuter-Quark-Dip servieren.`
-          ];
-        }
-        if (method === 'stew') {
-          return [
-            isBoiledGrainOrPasta || isRawPotatoOrSweetPotato
-              ? `${carb.ingName} ${isRawPotatoOrSweetPotato ? 'schälen, in 1,5 cm große Würfel schneiden und ' : ''}in einem Topf mit leicht gesalzenem Wasser ca. 12–15 Minuten weich garen. Parallel die Zucchini fein würfeln (oder reiben) und die rote Paprika in kleine Stücke schneiden.`
-              : `Die Zucchini fein würfeln (oder grob raspeln) und die rote Paprika in kleine, mundgerechte Stücke schneiden. ${carb.ingName} aus dem Kühlregal bereitstellen.`,
-            isLinsen
-              ? `In einem großen Topf die Zucchini- und Paprikawürfel 3 Minuten sanft dünsten. Die roten Linsen in einem Sieb kalt abspülen und direkt mit in den Topf geben.`
-              : isLachs
-              ? `Das grätenfreie Lachsfilet in mundgerechte Würfel schneiden und beiseitestellen. In einem großen Topf zuerst die Zucchini- und Paprikastücke 3 Minuten sanft dünsten.`
-              : `${protein.ingName} in einem großen Topf bei mittlerer bis hoher Hitze 4–5 Minuten rundherum anbraten, dann die Zucchini- und Paprikawürfel 2 Minuten mitdünsten.`,
-            `Mit den passierten Tomaten und 100 ml Wasser (oder milder Brühe) ablöschen, einmal aufkochen und abgedeckt bei kleiner Hitze ca. ${style.prepPassive} Minuten sanft köcheln lassen, bis das Gemüse schön weich ist.${isLachs ? ' In den letzten 8 Minuten die Lachswürfel in die Soße legen und sanft gar ziehen lassen.' : ''}`,
-            `Den Topf auf niedrige Stufe schalten und den Ricotta bzw. Magerquark${isLinsen ? ' sowie den Hüttenkäse Light' : ''} einrühren, bis eine sämige, fruchtig-milde Tomatensoße entsteht.`,
-            isBoiledGrainOrPasta || isRawPotatoOrSweetPotato
-              ? `Die gegarte Beilage (${carb.short}) abgießen, unter den cremigen Tomaten-Ricotta-Topf heben oder zusammen warm servieren.`
-              : `${carb.ingName} direkt in die heiße Tomaten-Ricotta-Soße geben, 4–5 Minuten sanft darin ziehen lassen, bis sie warm und weich sind, und servieren.`
-          ];
-        }
-        if (method === 'curry') {
-          return [
-            isBoiledGrainOrPasta || isRawPotatoOrSweetPotato
-              ? `${carb.ingName} ${isRawPotatoOrSweetPotato ? 'schälen, in kleine Würfel schneiden und ' : ''}in leicht gesalzenem Wasser ca. 12–15 Minuten weich kochen. Den süßen Goldmais in einem Sieb abtropfen lassen.`
-              : `Den süßen Goldmais in einem Sieb gut abtropfen lassen und ${carb.ingName} aus der Kühlung bereitstellen.`,
-            isLinsen
-              ? `Die roten Linsen kalt abspülen und in einem großen Topf mit einer milden Prise Kurkuma 1 Minute kurz anschwitzen.`
-              : isLachs
-              ? `Das grätenfreie Lachsfilet in mundgerechte Würfel schneiden und für später beiseitestellen, damit es zart bleibt.`
-              : `${protein.ingName} in einem großen Topf bei mittlerer Hitze 4 Minuten rundherum anbraten und mit einer milden Prise Kurkuma bestäuben.`,
-            `Mit der leichten Kokosmilch (und bei Linsen 100 ml Wasser) ablöschen, den tiefgekühlten Blattspinat dazugeben und abgedeckt bei schwacher Hitze ca. ${style.prepPassive} Minuten sanft köcheln lassen, bis der Spinat aufgetaut und zusammenfällt.`,
-            `Den abgetropften Goldmais${isLachs ? ' sowie die Lachswürfel' : ''}${!(isBoiledGrainOrPasta || isRawPotatoOrSweetPotato) ? ` und ${carb.ingName}` : ''} in den letzten 6–8 Minuten unter das Curry heben und sanft gar ziehen lassen.`,
-            `Den Topf vom Herd nehmen, den Skyr Natur${isLinsen ? ' sowie den Hüttenkäse Light' : ''} für extra Cremigkeit und Protein glatt einrühren (nicht mehr kochen lassen) und ${isBoiledGrainOrPasta || isRawPotatoOrSweetPotato ? `zusammen mit ${carb.short}` : 'warm'} servieren.`
-          ];
-        }
-
-        const isKaisergemuese = style.styleName.includes('Kaisergemüse');
-        return [
-          isKaisergemuese
-            ? `Das tiefgekühlte Kaisergemüse und die TK-Erbsen bereitstellen. ${
-                isBoiledGrainOrPasta || isRawPotatoOrSweetPotato
-                  ? `${carb.ingName} ${isRawPotatoOrSweetPotato ? 'schälen, klein würfeln und ' : ''}in einem Topf mit Salzwasser ca. 12–15 Minuten weich garen.`
-                  : `${carb.ingName} aus dem Kühlregal nehmen.`
-              }`
-            : `Die jungen Karotten schälen und in sehr feine Scheiben schneiden, den Brokkoli in kleine, mundgerechte Röschen teilen. ${
-                isBoiledGrainOrPasta || isRawPotatoOrSweetPotato
-                  ? `Parallel ${carb.ingName} ${isRawPotatoOrSweetPotato ? 'schälen, klein würfeln und ' : ''}in leicht gesalzenem Wasser ca. 12–15 Minuten weich kochen.`
-                  : `${carb.ingName} griffbereit stellen.`
-              }`,
-          isLinsen
-            ? `Die roten Linsen kalt abspülen${!(isBoiledGrainOrPasta || isRawPotatoOrSweetPotato) ? `, ${carb.ingName} in einer großen, tiefen Pfanne 3 Minuten leicht goldbraun anbraten` : ''} und die Linsen kurz in der Pfanne anschwitzen.`
-            : isLachs
-            ? `Das grätenfreie Lachsfilet in mundgerechte Würfel schneiden, in einer großen, tiefen Pfanne 2 Minuten sanft anbraten und kurz auf einen Teller legen.`
-            : `${protein.ingName} in einer großen, tiefen Pfanne bei mittlerer bis hoher Hitze 4–5 Minuten rundherum goldbraun anbraten${!(isBoiledGrainOrPasta || isRawPotatoOrSweetPotato) ? ` (${carb.short} die letzten 3 Minuten direkt mitbraten)` : ''}.`,
-          isKaisergemuese
-            ? `Das TK-Kaisergemüse und die TK-Erbsen mit in die Pfanne geben, mit der milden Gemüsebrühe und der leichten Kochsahne ablöschen und abgedeckt ca. ${style.prepPassive} Minuten sanft köcheln lassen, bis das Gemüse butterzart ist.`
-            : `Brokkoliröschen und Karottenscheiben in die Pfanne geben, mit der milden Gemüsebrühe ablöschen und bei aufgelegtem Deckel ca. ${style.prepPassive} Minuten sanft dünsten, bis das Gemüse weich ist.`,
-          isKaisergemuese
-            ? `Die Hitze auf kleinste Stufe reduzieren und den Skyr Natur${isLinsen ? ' sowie den Hüttenkäse Light' : ''} glatt in die warme Rahmsoße einrühren.`
-            : `Die Pfanne auf niedrige Stufe schalten und den Frischkäse Light${isLinsen ? ' sowie den Hüttenkäse Light' : ''} gleichmäßig einrühren, bis eine sämige, milde Rahmsoße entsteht.`,
-          `${isLachs ? 'Die Lachswürfel wieder vorsichtig in die Soße legen und 2 Minuten gar ziehen lassen. ' : ''}${
-            isBoiledGrainOrPasta || isRawPotatoOrSweetPotato
-              ? `Die gegarte Beilage (${carb.short}) abgießen, direkt unter die Pfanne heben oder zusammen warm anrichten.`
-              : `Alles noch 2 Minuten in der cremigen Soße ziehen lassen und warm servieren.`
-          }`
-        ];
-      };
-
-      const catalog = [...BASE_SIGNATURE_RECIPES];
-      let idx = catalog.length + 1;
-      for (const p of proteins) {
-        for (const c of carbs) {
-          for (const s of styles) {
-            if (catalog.length >= 300) break;
-            catalog.push({
-              id: `rec-${idx}`,
-              title: `${p.short}-${s.styleName} & ${c.short}`,
-              subtitle: s.subtitle,
-              emoji: p.emoji,
-              accentColor: ACCENT_GRADIENTS[idx % ACCENT_GRADIENTS.length],
-              prepTimeActive: s.prepActive,
-              prepTimePassive: s.prepPassive,
-              effortLevel: s.effort,
-              fridgeDays: s.fridge,
-              freezerMonths: s.freezer,
-              toddlerNote: s.toddler,
-              calories: Math.round(p.cal + c.cal + s.extraCal),
-              protein: Math.round(p.prot + c.prot + s.extraProt),
-              carbs: Math.round(c.carbs + 8),
-              fat: Math.round(p.fat + s.extraFat + 2),
-              basePortions: 4,
-              ingredients: [
-                { name: p.ingName, amount: p.amount, unit: p.unit, category: p.category },
-                { name: c.ingName, amount: c.amount, unit: c.unit, category: c.category },
-                ...s.veggies,
-                ...s.sauce
-              ],
-              steps: buildFallbackSteps(s.method, p, c, s)
-            });
-            idx++;
-          }
-        }
-      }
-      return catalog;
+      return BASE_SIGNATURE_RECIPES;
     };
 
-    // Lädt primär die 300 Rezepte aus der externen rezepte.js (oder nutzt den identischen Fallback)
     const ALL_RECIPES = buildStandalone300Recipes();
 
     // ============================================================================
     // REINE DOMÄNEN-FUNKTIONEN
     // ============================================================================
-    const getRandomSubset = (array, size = APP_CONFIG.INITIAL_DECK_SIZE, rng = Math.random) => {
-      if (!Array.isArray(array) || array.length === 0 || size <= 0) return [];
-      const copy = [...array];
-      for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(rng() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
-      }
-      return copy.slice(0, Math.min(size, copy.length));
-    };
-
     const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
     const getDayPortions = (item) => {
@@ -864,6 +373,12 @@
       return { ...item, dayPortions: currentDp, portions: nextTotal };
     };
 
+    const applyBasePortionDelta = (item, delta) => {
+      const currentPortions = item.portions || item.recipe?.basePortions || APP_CONFIG.DEFAULT_BASE_PORTIONS;
+      const nextPortions = clamp(currentPortions + delta, APP_CONFIG.MIN_PORTIONS, APP_CONFIG.MAX_TOTAL_PORTIONS);
+      return { ...item, portions: nextPortions };
+    };
+
     const CATEGORY_ORDER = [
       { key: 'Obst & Gemüse', icon: '🥦', badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
       { key: 'Fleisch & Frische', icon: '🍗', badge: 'bg-rose-500/15 text-rose-300 border-rose-500/30' },
@@ -872,10 +387,10 @@
       { key: 'Vorratsschrank', icon: '🥫', badge: 'bg-amber-500/15 text-amber-300 border-amber-500/30' }
     ];
 
-    const aggregateShoppingList = (activeShoppingRecipes) => {
+    const aggregateShoppingList = (planRecipes) => {
       const map = {};
       const validCategories = new Set(CATEGORY_ORDER.map((c) => c.key));
-      (activeShoppingRecipes || []).forEach((item) => {
+      (planRecipes || []).forEach((item) => {
         const { recipe } = item;
         if (!recipe || !Array.isArray(recipe.ingredients)) return;
         const totalPortions = getTotalPortions(item);
@@ -901,8 +416,8 @@
       return grouped;
     };
 
-    const calculatePlanStats = (activeShoppingRecipes, savedRecipes) => {
-      const targetList = activeShoppingRecipes && activeShoppingRecipes.length > 0 ? activeShoppingRecipes : savedRecipes || [];
+    const calculatePlanStats = (planItems) => {
+      const targetList = planItems || [];
       if (targetList.length === 0) return { totalPortions: 0, avgCalories: 0, avgProtein: 0 };
       let totalPortions = 0, weightedCal = 0, weightedProt = 0;
       targetList.forEach((item) => {
@@ -911,14 +426,18 @@
         weightedCal += (item.recipe?.calories || 0) * portions;
         weightedProt += (item.recipe?.protein || 0) * portions;
       });
-      return { totalPortions, avgCalories: totalPortions > 0 ? Math.round(weightedCal / totalPortions) : 0, avgProtein: totalPortions > 0 ? Math.round(weightedProt / totalPortions) : 0 };
+      return {
+        totalPortions,
+        avgCalories: totalPortions > 0 ? Math.round(weightedCal / totalPortions) : 0,
+        avgProtein: totalPortions > 0 ? Math.round(weightedProt / totalPortions) : 0
+      };
     };
 
-    const formatShoppingListText = (activeShoppingRecipes = [], aggregatedShoppingList = {}, checkedItems = {}) => {
-      const lines = ['🛒 MEALMATE EINKAUFSLISTE', ''];
-      if (activeShoppingRecipes.length > 0) {
+    const formatShoppingListText = (planName = 'Wochenplan', planRecipes = [], aggregatedShoppingList = {}, checkedItems = {}) => {
+      const lines = [`🛒 MEALMATE EINKAUFSLISTE – ${planName.toUpperCase()}`, ''];
+      if (planRecipes.length > 0) {
         lines.push('Geplante Gerichte:');
-        activeShoppingRecipes.forEach((item) => {
+        planRecipes.forEach((item) => {
           const schedule = formatDaySchedule(item);
           lines.push(`- ${item.recipe?.title}: ${getTotalPortions(item)} Portionen${schedule ? ` (${schedule})` : ''}`);
         });
@@ -932,14 +451,6 @@
         lines.push('');
       });
       return lines.join('\n').trim();
-    };
-
-    const collectKnownRecipeTitles = (deck = [], savedRecipes = [], database = []) => {
-      const titles = new Set();
-      (database || []).forEach((r) => r?.title && titles.add(r.title.trim()));
-      (deck || []).forEach((r) => r?.title && titles.add(r.title.trim()));
-      (savedRecipes || []).forEach((item) => item?.recipe?.title && titles.add(item.recipe.title.trim()));
-      return Array.from(titles);
     };
 
     const coercePositiveNumber = (val, fallback, min = 0, max = 10000) => {
@@ -994,26 +505,6 @@
       };
     };
 
-    const enrichAiRecipeBatch = (rawRecipes, existingTitles = [], timestamp = Date.now()) => {
-      if (!Array.isArray(rawRecipes)) return [];
-      const seen = new Set(existingTitles.map((t) => t.toLowerCase().trim()));
-      const result = [];
-      const shortBatchId = String(timestamp).slice(-4);
-      rawRecipes.forEach((raw, idx) => {
-        const validation = validateAndSanitizeRecipe(
-          { ...raw, id: raw?.id || `ki-${shortBatchId}-${idx + 1}` },
-          `ki-${shortBatchId}`,
-          idx
-        );
-        if (!validation.valid || !validation.recipe) return;
-        const normTitle = validation.recipe.title.toLowerCase().trim();
-        if (seen.has(normTitle)) return;
-        seen.add(normTitle);
-        result.push(validation.recipe);
-      });
-      return result;
-    };
-
     const mergeRecipesIntoDatabase = (currentDatabase = [], incomingRecipes = []) => {
       const updatedDb = [...currentDatabase];
       const seenIds = new Set(updatedDb.map((r) => r?.id).filter(Boolean));
@@ -1037,7 +528,7 @@
     };
 
     // ============================================================================
-    // OFFLINE CACHE (INDEXED DB)
+    // OFFLINE CACHE (INDEXED DB + LOCALSTORAGE)
     // ============================================================================
     const OfflineCacheEngine = (() => {
       const memoryFallback = {};
@@ -1090,23 +581,6 @@
     // ============================================================================
     // API CALLS (BFF GATEWAY SIMULATION)
     // ============================================================================
-    async function callGeminiRecipeBatchAgent(count, excludedTitles, userApiKey) {
-      if (!userApiKey) throw new Error('Kein API Key');
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(userApiKey.trim())}`;
-      const systemPrompt = `Du bist ein KI-Kochassistent. Erstelle ${count} Familien-Meal-Prep-Rezepte. Format JSON. ${excludedTitles.length > 0 ? `Vermeide: ${excludedTitles.join(', ')}.` : ''}`;
-
-      const payload = {
-        contents: [{ parts: [{ text: `Generiere ${count} Rezeptkarten.` }] }],
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        generationConfig: { responseMimeType: 'application/json', responseSchema: { type: 'OBJECT', properties: { recipes: { type: 'ARRAY', items: { type: 'OBJECT', properties: { title: { type: 'STRING' }, subtitle: { type: 'STRING' }, emoji: { type: 'STRING' }, prepTimeActive: { type: 'INTEGER' }, prepTimePassive: { type: 'INTEGER' }, effortLevel: { type: 'STRING' }, fridgeDays: { type: 'INTEGER' }, freezerMonths: { type: 'INTEGER' }, toddlerNote: { type: 'STRING' }, calories: { type: 'INTEGER' }, protein: { type: 'INTEGER' }, carbs: { type: 'INTEGER' }, fat: { type: 'INTEGER' }, ingredients: { type: 'ARRAY', items: { type: 'OBJECT', properties: { name: { type: 'STRING' }, amount: { type: 'NUMBER' }, unit: { type: 'STRING' }, category: { type: 'STRING' } } } }, steps: { type: 'ARRAY', items: { type: 'STRING' } } } } } } } }
-      };
-
-      const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const result = await response.json();
-      return enrichAiRecipeBatch(JSON.parse(result?.candidates?.[0]?.content?.parts?.[0]?.text)?.recipes || [], excludedTitles);
-    }
-
     async function callGeminiRecipeAgent(userInstruction, currentRecipeContext, userApiKey) {
       if (!userApiKey) throw new Error('Kein API Key');
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(userApiKey.trim())}`;
@@ -1160,16 +634,15 @@
       return recipe;
     }
 
-    // Lokaler Smart-Umbau, falls kein API-Key hinterlegt ist (Hybrider Ansatz)
     function applyLocalRecipeVariation(recipe, instructionText) {
       const lower = (instructionText || '').toLowerCase();
       const cloned = JSON.parse(JSON.stringify(recipe));
       cloned.id = `${recipe.id || 'rec'}-umbau`;
 
       if (lower.includes('reis')) {
-        cloned.title = `${recipe.title.split('&')[0].trim()} & Basmatireis`;
+        cloned.title = `${recipe.title.split('dazu')[0].split('&')[0].trim()} dazu Basmatireis`;
         cloned.ingredients = cloned.ingredients.map((ing) =>
-          /kartoffel|nudel|gnocchi|spätzle/i.test(ing.name)
+          /kartoffel|nudel|gnocchi|spätzle|penne/i.test(ing.name)
             ? { name: 'Basmatireis (ungekocht)', amount: 260, unit: 'g', category: 'Vorratsschrank' }
             : ing
         );
@@ -1247,6 +720,139 @@
       `;
     }
 
+    // Rezeptkarten-Ansicht zum Nachkochen innerhalb eines gespeicherten Wochenplans in MyPrep
+    function CookRecipeModal({ item, onClose }) {
+      const [cookTab, setCookTab] = useState('steps');
+      const [scaleToPlanned, setScaleToPlanned] = useState(true);
+      if (!item || !item.recipe) return null;
+
+      const { recipe } = item;
+      const plannedPortions = getTotalPortions(item);
+      const basePortions = recipe.basePortions || APP_CONFIG.DEFAULT_BASE_PORTIONS;
+      const activePortions = scaleToPlanned ? plannedPortions : basePortions;
+      const scaleFactor = activePortions / basePortions;
+      const scheduleText = formatDaySchedule(item);
+
+      return html`
+        <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3">
+          <div className="w-full max-w-[415px] max-h-[90vh] bg-slate-900 border border-slate-700 rounded-[28px] shadow-2xl overflow-hidden flex flex-col">
+            <div className=${`bg-gradient-to-br ${recipe.accentColor || 'from-emerald-600 to-teal-700'} p-4 pb-3.5 relative shrink-0`}>
+              <div className="flex items-center justify-between gap-2 mb-2.5">
+                <button
+                  onClick=${onClose}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-950/75 text-white hover:bg-slate-950 border border-white/20 backdrop-blur-md transition"
+                >
+                  <${Icons.ArrowLeft} className="w-3.5 h-3.5" />
+                  <span>Zurück zum Plan</span>
+                </button>
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-mono font-extrabold bg-slate-950/70 text-cyan-300 border border-cyan-400/40">
+                    ID: ${recipe.id}
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-950/45 text-white">
+                    <${Icons.Clock} className="w-3 h-3 text-emerald-300" />${recipe.prepTimeActive} Min.
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-3xl shadow-inner shrink-0 border border-white/20">
+                  ${recipe.emoji}
+                </div>
+                <div>
+                  <h2 className="text-base font-extrabold text-white leading-snug">${recipe.title}</h2>
+                  <p className="text-xs text-white/85 mt-0.5 line-clamp-2">${recipe.subtitle}</p>
+                </div>
+              </div>
+
+              <div className="mt-2.5 flex items-center justify-between gap-2 text-[11px] font-semibold text-white/95 bg-black/25 px-2.5 py-1.5 rounded-xl">
+                <span className="flex items-center gap-1.5 truncate">
+                  <${Icons.Baby} className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                  <span className="truncate">${recipe.toddlerNote || 'Familienfreundlich & mild'}</span>
+                </span>
+                ${scheduleText ? html`
+                  <span className="px-2 py-0.5 rounded-full bg-indigo-500/80 text-white text-[10px] font-extrabold shrink-0">
+                    📅 ${scheduleText}
+                  </span>
+                ` : ''}
+              </div>
+            </div>
+
+            <${MacroBar} calories=${recipe.calories} protein=${recipe.protein} carbs=${recipe.carbs} fat=${recipe.fat} />
+
+            <div className="flex items-center gap-1.5 px-3.5 pt-2.5 bg-slate-900 shrink-0">
+              <button
+                onClick=${() => setCookTab('steps')}
+                className=${`flex-1 py-2 rounded-xl text-xs font-bold transition ${cookTab === 'steps' ? 'bg-slate-800 text-emerald-400 border border-emerald-500/30' : 'text-slate-400'}`}
+              >
+                👨‍🍳 Ablauf (${recipe.steps.length} Schritte)
+              </button>
+              <button
+                onClick=${() => setCookTab('ingredients')}
+                className=${`flex-1 py-2 rounded-xl text-xs font-bold transition ${cookTab === 'ingredients' ? 'bg-slate-800 text-emerald-400 border border-emerald-500/30' : 'text-slate-400'}`}
+              >
+                📋 Zutaten (${activePortions} Port.)
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-3.5 py-3 space-y-2.5 ios-scroll">
+              ${cookTab === 'ingredients' ? html`
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl text-[11px]">
+                    <span className="text-slate-300">Mengen berechnet für:</span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick=${() => setScaleToPlanned(true)}
+                        className=${`px-2 py-0.5 rounded-lg font-bold transition ${scaleToPlanned ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'}`}
+                      >
+                        Plan (${plannedPortions}P)
+                      </button>
+                      <button
+                        onClick=${() => setScaleToPlanned(false)}
+                        className=${`px-2 py-0.5 rounded-lg font-bold transition ${!scaleToPlanned ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'}`}
+                      >
+                        Basis (${basePortions}P)
+                      </button>
+                    </div>
+                  </div>
+                  <ul className="space-y-1.5">
+                    ${recipe.ingredients.map((ing, idx) => {
+                      const rawScaled = ing.amount * scaleFactor;
+                      const displayAmount = rawScaled >= 10 ? Math.round(rawScaled) : Math.round(rawScaled * 10) / 10;
+                      return html`
+                        <li key=${idx} className="flex items-center justify-between text-xs bg-slate-950/70 border border-slate-800/80 px-3 py-2 rounded-xl">
+                          <span className="text-slate-200 font-medium">${ing.name}</span>
+                          <span className="text-emerald-400 font-bold ml-2 whitespace-nowrap">${displayAmount} ${ing.unit}</span>
+                        </li>
+                      `;
+                    })}
+                  </ul>
+                </div>
+              ` : html`
+                <div className="space-y-2">
+                  ${recipe.steps.map((step, i) => html`
+                    <div key=${i} className="flex items-start gap-2.5 bg-slate-950/70 border border-slate-800/80 p-3 rounded-xl text-xs text-slate-200 leading-relaxed">
+                      <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center shrink-0 mt-0.5">${i + 1}</span>
+                      <p>${step}</p>
+                    </div>
+                  `)}
+                </div>
+              `}
+            </div>
+
+            <div className="p-3 bg-slate-950 border-t border-slate-800 shrink-0">
+              <button
+                onClick=${onClose}
+                className="w-full py-2.5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs transition"
+              >
+                Fertig mit Rezeptkarte
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     function App() {
       const [setupModalOpen, setSetupModalOpen] = useState(false);
       const [userApiKey, setUserApiKey] = useState(() => OfflineCacheEngine.getSyncItem('geminiApiKey', ''));
@@ -1257,12 +863,18 @@
       });
       const [currentCard, setCurrentCard] = useState(() => pickRandomRecipe(ALL_RECIPES));
       const [savedRecipes, setSavedRecipes] = useState(() => OfflineCacheEngine.getSyncItem('mealPlans', []));
-      const [activeView, setActiveView] = useState('swipe');
+
+      // Gespeicherte Wochenpläne für den neuen Reiter "MyPrep"
+      const [weeklyPlans, setWeeklyPlans] = useState(() => OfflineCacheEngine.getSyncItem('weeklyPlans', []));
+      const [newPlanName, setNewPlanName] = useState('');
+      const [selectedPlanId, setSelectedPlanId] = useState(null);
+      const [planSubView, setPlanSubView] = useState('schedule'); // 'schedule' | 'shopping'
+      const [planDayFilter, setPlanDayFilter] = useState('Alle');
+      const [cookingModalItem, setCookingModalItem] = useState(null);
+
+      const [activeView, setActiveView] = useState('swipe'); // 'swipe' | 'saved' | 'myprep'
       const [cardTab, setCardTab] = useState('ingredients');
-      const [portionPromptRecipeId, setPortionPromptRecipeId] = useState(null);
-      const [promptPortions, setPromptPortions] = useState(APP_CONFIG.DEFAULT_BASE_PORTIONS);
       const [weekdayFilter, setWeekdayFilter] = useState('Alle');
-      const [checkedItems, setCheckedItems] = useState(() => OfflineCacheEngine.getSyncItem('checkedItems', {}));
 
       const [dragX, setDragX] = useState(0);
       const [isDragging, setIsDragging] = useState(false);
@@ -1276,8 +888,10 @@
         (async () => {
           const cachedCustom = await OfflineCacheEngine.getItem('recipes', []);
           const cachedPlans = await OfflineCacheEngine.getItem('mealPlans', []);
+          const cachedWeeklyPlans = await OfflineCacheEngine.getItem('weeklyPlans', []);
           if (cachedCustom.length > 0) setRecipeDatabase((prev) => mergeRecipesIntoDatabase(prev, cachedCustom));
           if (cachedPlans.length > 0) setSavedRecipes((prev) => (prev.length === 0 ? cachedPlans : prev));
+          if (cachedWeeklyPlans.length > 0) setWeeklyPlans((prev) => (prev.length === 0 ? cachedWeeklyPlans : prev));
         })();
       }, []);
 
@@ -1300,6 +914,14 @@
         });
       }, []);
 
+      const updateWeeklyPlansWithPersistence = useCallback((updaterFn) => {
+        setWeeklyPlans((prev) => {
+          const updated = updaterFn(prev);
+          OfflineCacheEngine.setItem('weeklyPlans', updated);
+          return updated;
+        });
+      }, []);
+
       const addRecipesToDatabaseWithPersistence = useCallback((newRecipes) => {
         let updatedDb = [];
         setRecipeDatabase((prev) => {
@@ -1318,7 +940,7 @@
           if (decision === 'like') {
             updateSavedRecipesWithPersistence((prev) => {
               if (prev.some((item) => item.recipe.id === currentCard.id)) return prev;
-              return [...prev, { recipe: currentCard, portions: currentCard.basePortions || APP_CONFIG.DEFAULT_BASE_PORTIONS, inShoppingList: false, dayPortions: {} }];
+              return [...prev, { recipe: currentCard, portions: currentCard.basePortions || APP_CONFIG.DEFAULT_BASE_PORTIONS, dayPortions: {} }];
             });
           }
           setDragX(0);
@@ -1372,29 +994,87 @@
         } finally { setIsGenerating(false); }
       };
 
-      const handleToggleShoppingListClick = (item) => {
-        if (item.inShoppingList) {
-          updateSavedRecipesWithPersistence(prev => prev.map(e => e.recipe.id === item.recipe.id ? { ...e, inShoppingList: false } : e));
-          if (portionPromptRecipeId === item.recipe.id) setPortionPromptRecipeId(null);
-          return;
-        }
-        if (Object.keys(getDayPortions(item)).length > 0) {
-          updateSavedRecipesWithPersistence(prev => prev.map(e => e.recipe.id === item.recipe.id ? { ...e, inShoppingList: true, portions: getTotalPortions(item) } : e));
-        } else {
-          setPortionPromptRecipeId(item.recipe.id);
-          setPromptPortions(getTotalPortions(item));
-        }
+      // Speichert die aktuelle Merkliste als benannten Wochenplan für "MyPrep"
+      const handleSaveWeeklyPlan = () => {
+        if (savedRecipes.length === 0) return;
+        const defaultName = `Wochenplan #${weeklyPlans.length + 1} (${new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })})`;
+        const finalName = newPlanName.trim() || defaultName;
+        const newPlanId = `plan-${Date.now()}`;
+
+        const clonedItems = JSON.parse(JSON.stringify(savedRecipes));
+        const newPlan = {
+          id: newPlanId,
+          name: finalName,
+          createdAt: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+          items: clonedItems,
+          checkedItems: {}
+        };
+
+        updateWeeklyPlansWithPersistence((prev) => [newPlan, ...prev]);
+        setNewPlanName('');
+        setSelectedPlanId(newPlanId);
+        setPlanSubView('schedule');
+        setPlanDayFilter('Alle');
+        setActiveView('myprep');
+        showTemporaryStatus(`Wochenplan „${finalName}“ in MyPrep gespeichert!`);
       };
 
-      const activeShoppingRecipes = useMemo(() => savedRecipes.filter((i) => i.inShoppingList), [savedRecipes]);
-      const aggregatedShoppingList = useMemo(() => aggregateShoppingList(activeShoppingRecipes), [activeShoppingRecipes]);
-      const totalPlanStats = useMemo(() => calculatePlanStats(activeShoppingRecipes, savedRecipes), [activeShoppingRecipes, savedRecipes]);
+      const handleDeleteWeeklyPlan = (planId, e) => {
+        if (e) e.stopPropagation();
+        updateWeeklyPlansWithPersistence((prev) => prev.filter((p) => p.id !== planId));
+        if (selectedPlanId === planId) {
+          setSelectedPlanId(null);
+        }
+        showTemporaryStatus('Wochenplan gelöscht.');
+      };
 
-      const handleCopyShoppingList = async () => {
-        const text = formatShoppingListText(activeShoppingRecipes, aggregatedShoppingList, checkedItems);
+      const handleTogglePlanShoppingItem = (planId, itemId) => {
+        updateWeeklyPlansWithPersistence((prev) =>
+          prev.map((plan) => {
+            if (plan.id !== planId) return plan;
+            const currentChecked = plan.checkedItems || {};
+            return {
+              ...plan,
+              checkedItems: {
+                ...currentChecked,
+                [itemId]: !currentChecked[itemId]
+              }
+            };
+          })
+        );
+      };
+
+      const selectedPlan = useMemo(
+        () => weeklyPlans.find((p) => p.id === selectedPlanId) || null,
+        [weeklyPlans, selectedPlanId]
+      );
+
+      const selectedPlanShoppingList = useMemo(
+        () => (selectedPlan ? aggregateShoppingList(selectedPlan.items) : {}),
+        [selectedPlan]
+      );
+
+      const selectedPlanStats = useMemo(
+        () => (selectedPlan ? calculatePlanStats(selectedPlan.items) : { totalPortions: 0, avgCalories: 0, avgProtein: 0 }),
+        [selectedPlan]
+      );
+
+      const savedListStats = useMemo(
+        () => calculatePlanStats(savedRecipes),
+        [savedRecipes]
+      );
+
+      const handleCopyPlanShoppingList = async () => {
+        if (!selectedPlan) return;
+        const text = formatShoppingListText(
+          selectedPlan.name,
+          selectedPlan.items,
+          selectedPlanShoppingList,
+          selectedPlan.checkedItems || {}
+        );
         if (navigator.share) {
           try {
-            await navigator.share({ title: 'MealMate Einkaufsliste', text });
+            await navigator.share({ title: `Einkaufsliste – ${selectedPlan.name}`, text });
             return;
           } catch {}
         }
@@ -1421,6 +1101,7 @@
           <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-orange-500/10 rounded-full blur-[100px] pointer-events-none"></div>
           
           <${SetupModal} isOpen=${setupModalOpen} onClose=${() => setSetupModalOpen(false)} apiKey=${userApiKey} onSaveApiKey=${handleSaveApiKey} />
+          <${CookRecipeModal} item=${cookingModalItem} onClose=${() => setCookingModalItem(null)} />
 
           <div className="w-full max-w-[430px] flex flex-col min-h-[92vh] bg-slate-900/80 border border-slate-700/50 rounded-[32px] shadow-2xl overflow-hidden relative backdrop-blur-2xl z-10">
             
@@ -1442,7 +1123,7 @@
               <div className="grid grid-cols-3 gap-1 p-1 bg-slate-950/90 rounded-2xl border border-slate-800/80 text-xs font-semibold">
                 <button onClick=${() => setActiveView('swipe')} className=${`py-2 rounded-xl flex items-center justify-center gap-1.5 transition ${activeView === 'swipe' ? 'bg-cyan-500 text-slate-950 shadow-md font-bold' : 'text-slate-400'}`}><${Icons.Layers} className="w-3.5 h-3.5" /><span>Karten</span></button>
                 <button onClick=${() => setActiveView('saved')} className=${`py-2 rounded-xl flex items-center justify-center gap-1.5 transition ${activeView === 'saved' ? 'bg-cyan-500 text-slate-950 shadow-md font-bold' : 'text-slate-400'}`}><${Icons.Bookmark} className="w-3.5 h-3.5" /><span>Merkliste (${savedRecipes.length})</span></button>
-                <button onClick=${() => setActiveView('shopping')} className=${`py-2 rounded-xl flex items-center justify-center gap-1.5 transition ${activeView === 'shopping' ? 'bg-cyan-500 text-slate-950 shadow-md font-bold' : 'text-slate-400'}`}><${Icons.ShoppingBag} className="w-3.5 h-3.5" /><span>Einkauf (${activeShoppingRecipes.length})</span></button>
+                <button onClick=${() => setActiveView('myprep')} className=${`py-2 rounded-xl flex items-center justify-center gap-1.5 transition ${activeView === 'myprep' ? 'bg-cyan-500 text-slate-950 shadow-md font-bold' : 'text-slate-400'}`}><${Icons.Calendar} className="w-3.5 h-3.5" /><span>MyPrep (${weeklyPlans.length})</span></button>
               </div>
             </header>
 
@@ -1528,40 +1209,90 @@
               <main className="flex-1 flex flex-col p-4 overflow-y-auto ios-scroll space-y-4">
                 <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 space-y-3">
                   <div className="flex items-center justify-between">
-                    <div><h2 className="text-sm font-extrabold text-white flex items-center gap-1.5"><${Icons.Bookmark} className="w-4 h-4 text-emerald-400" /><span>Geparkte Rezepte</span></h2></div>
-                    <span className="px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-400 text-xs font-extrabold border border-emerald-500/30">${activeShoppingRecipes.length} / ${savedRecipes.length} aktiv</span>
+                    <div>
+                      <h2 className="text-sm font-extrabold text-white flex items-center gap-1.5">
+                        <${Icons.Bookmark} className="w-4 h-4 text-emerald-400" />
+                        <span>Merkzettel & Wochenplan-Baukasten</span>
+                      </h2>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Wochentage & Portionen zuweisen und als Wochenplan speichern
+                      </p>
+                    </div>
+                    <span className="px-2.5 py-1 rounded-xl bg-cyan-500/15 text-cyan-300 text-xs font-extrabold border border-cyan-500/30 shrink-0">
+                      ∑ ${savedListStats.totalPortions} Port.
+                    </span>
                   </div>
+
                   ${savedRecipes.length > 0 ? html`
-                    <div className="pt-2 border-t border-slate-800/80">
+                    <div className="pt-2 border-t border-slate-800/80 space-y-2">
                       <div className="grid grid-cols-7 gap-1">
                         ${WEEKDAYS.map((day) => {
                           const sum = savedRecipes.reduce((s, r) => s + (getDayPortions(r)[day.short] || 0), 0);
                           const isSelected = weekdayFilter === day.short;
-                          return html`<button key=${day.short} onClick=${() => setWeekdayFilter(weekdayFilter === day.short ? 'Alle' : day.short)} className=${`py-1.5 rounded-xl border text-center flex flex-col items-center justify-center ${isSelected ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-extrabold' : sum > 0 ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 font-bold' : 'bg-slate-900 border-slate-800 text-slate-400'}`}><span className="text-[11px]">${day.short}</span><span className=${`text-[9px] mt-0.5 ${isSelected ? 'text-slate-950' : sum > 0 ? 'text-emerald-400' : 'text-slate-600'}`}>${sum > 0 ? `${sum}P` : '–'}</span></button>`;
+                          return html`
+                            <button
+                              key=${day.short}
+                              onClick=${() => setWeekdayFilter(weekdayFilter === day.short ? 'Alle' : day.short)}
+                              className=${`py-1.5 rounded-xl border text-center flex flex-col items-center justify-center ${isSelected ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-extrabold' : sum > 0 ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 font-bold' : 'bg-slate-900 border-slate-800 text-slate-400'}`}
+                            >
+                              <span className="text-[11px]">${day.short}</span>
+                              <span className=${`text-[9px] mt-0.5 ${isSelected ? 'text-slate-950' : sum > 0 ? 'text-emerald-400' : 'text-slate-600'}`}>${sum > 0 ? `${sum}P` : '–'}</span>
+                            </button>
+                          `;
                         })}
+                      </div>
+
+                      <div className="pt-2.5 border-t border-slate-800/80 space-y-2">
+                        <label className="text-[11px] font-bold text-emerald-400 block">
+                          📅 Als Wochenplan in „MyPrep“ speichern:
+                        </label>
+                        <div className="flex gap-1.5">
+                          <input
+                            type="text"
+                            value=${newPlanName}
+                            onChange=${(e) => setNewPlanName(e.target.value)}
+                            onKeyDown=${(e) => e.key === 'Enter' && handleSaveWeeklyPlan()}
+                            placeholder="Name (z.B. KW 45 – Familienwoche)..."
+                            className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                          />
+                          <button
+                            onClick=${handleSaveWeeklyPlan}
+                            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 font-extrabold text-xs flex items-center gap-1 shadow-md shrink-0 active:scale-95 transition"
+                          >
+                            <${Icons.Check} className="w-3.5 h-3.5 stroke-[2.5]" />
+                            <span>Speichern</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ` : ''}
                 </div>
 
                 ${savedRecipes.length === 0 ? html`
-                  <div className="flex-1 flex flex-col items-center justify-center text-center py-12 px-4"><${Icons.ChefHat} className="w-12 h-12 text-slate-600 mb-3" /><p className="text-sm font-bold text-slate-300">Noch keine Rezepte gemerkt</p></div>
+                  <div className="flex-1 flex flex-col items-center justify-center text-center py-12 px-4">
+                    <${Icons.ChefHat} className="w-12 h-12 text-slate-600 mb-3" />
+                    <p className="text-sm font-bold text-slate-300">Noch keine Rezepte auf dem Merkzettel</p>
+                    <p className="text-xs text-slate-500 mt-1 mb-4">Swipe bei den Rezeptkarten nach rechts, um Gerichte für deinen nächsten Wochenplan zu sammeln.</p>
+                    <button onClick=${() => setActiveView('swipe')} className="px-4 py-2.5 rounded-2xl bg-cyan-500 text-slate-950 font-extrabold text-xs">Jetzt Rezepte swipen</button>
+                  </div>
                 ` : html`
                   <div className="space-y-3 pb-4">
                     ${savedRecipes.filter((item) => weekdayFilter === 'Alle' || (getDayPortions(item)[weekdayFilter] || 0) > 0).map((item) => {
-                      const { recipe, inShoppingList } = item;
+                      const { recipe } = item;
                       const dayPortions = getDayPortions(item);
                       const activeDays = WEEKDAYS.filter((d) => dayPortions[d.short] > 0);
                       const totalPortions = getTotalPortions(item);
-                      const isPromptOpen = portionPromptRecipeId === recipe.id;
 
                       return html`
-                        <div key=${recipe.id} className=${`bg-slate-950/90 border rounded-2xl p-3.5 space-y-3 ${inShoppingList ? 'border-emerald-500/60' : 'border-slate-800'}`}>
+                        <div key=${recipe.id} className="bg-slate-950/90 border border-slate-800 rounded-2xl p-3.5 space-y-3">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex items-center gap-2.5">
                               <span className="text-2xl">${recipe.emoji}</span>
                               <div>
-                                <span className="inline-block text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-900 text-cyan-300 border border-cyan-500/30 mb-0.5">ID: ${recipe.id}</span>
+                                <div className="flex items-center gap-1.5 mb-0.5">
+                                  <span className="inline-block text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-900 text-cyan-300 border border-cyan-500/30">ID: ${recipe.id}</span>
+                                  <span className="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">∑ ${totalPortions} Port.</span>
+                                </div>
                                 <h3 className="text-xs font-extrabold text-white">${recipe.title}</h3>
                               </div>
                             </div>
@@ -1569,13 +1300,27 @@
                           </div>
                           
                           <div className="bg-slate-900/90 p-2.5 rounded-xl border border-slate-800/90 space-y-2">
+                            <div className="text-[10px] text-slate-400 font-semibold flex items-center justify-between">
+                              <span>Wochentage antippen:</span>
+                              ${activeDays.length === 0 ? html`<span className="text-amber-300">Noch kein Tag gewählt</span>` : html`<span className="text-indigo-300">${formatDaySchedule(item)}</span>`}
+                            </div>
                             <div className="grid grid-cols-7 gap-1">
                               ${WEEKDAYS.map((day) => {
                                 const count = dayPortions[day.short] || 0;
                                 const active = count > 0;
-                                return html`<button key=${day.short} onClick=${() => updateSavedRecipesWithPersistence(prev => prev.map(e => e.recipe.id === recipe.id ? applyWeekdayToggle(e, day.short) : e))} className=${`py-1.5 rounded-lg text-[11px] font-bold flex flex-col items-center ${active ? 'bg-indigo-500 text-white' : 'bg-slate-950 text-slate-400'}`}><span>${day.short}</span>${active ? html`<span className="text-[9px] mt-0.5">${count}P</span>` : ''}</button>`;
+                                return html`
+                                  <button
+                                    key=${day.short}
+                                    onClick=${() => updateSavedRecipesWithPersistence(prev => prev.map(e => e.recipe.id === recipe.id ? applyWeekdayToggle(e, day.short) : e))}
+                                    className=${`py-1.5 rounded-lg text-[11px] font-bold flex flex-col items-center ${active ? 'bg-indigo-500 text-white' : 'bg-slate-950 text-slate-400'}`}
+                                  >
+                                    <span>${day.short}</span>
+                                    ${active ? html`<span className="text-[9px] mt-0.5">${count}P</span>` : ''}
+                                  </button>
+                                `;
                               })}
                             </div>
+
                             ${activeDays.length > 0 ? html`
                               <div className="pt-1.5 border-t border-slate-800/80 space-y-1.5">
                                 ${activeDays.map((day) => html`
@@ -1589,32 +1334,17 @@
                                   </div>
                                 `)}
                               </div>
-                            ` : ''}
-                          </div>
-                          
-                          ${(!inShoppingList && !isPromptOpen) ? html`<button onClick=${() => handleToggleShoppingListClick(item)} className="w-full py-2.5 px-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs font-bold flex items-center justify-between"><span className="flex items-center gap-2"><${Icons.ShoppingBag} className="w-3.5 h-3.5 text-emerald-400" /><span>Zur Einkaufsliste...</span></span><span className="text-[11px] px-2 py-0.5 rounded-lg bg-slate-800 text-slate-400">${activeDays.length > 0 ? formatDaySchedule(item) : 'Portionen wählen'}</span></button>` : ''}
-                          
-                          ${isPromptOpen ? html`
-                            <div className="bg-emerald-950/30 border border-emerald-500/50 rounded-xl p-3 space-y-2.5">
-                              <div className="flex items-center justify-between"><span className="text-xs font-extrabold text-emerald-300">Portionen einkaufen?</span><button onClick=${() => setPortionPromptRecipeId(null)} className="text-slate-400"><${Icons.X} className="w-3.5 h-3.5" /></button></div>
-                              <div className="flex items-center justify-between bg-slate-900 px-3 py-2 rounded-xl border border-slate-800">
-                                <span className="text-xs text-slate-300 font-semibold">Portionen:</span>
-                                <div className="flex items-center gap-3">
-                                  <button onClick=${() => setPromptPortions((p) => clamp(p - 1, APP_CONFIG.MIN_PORTIONS, APP_CONFIG.MAX_TOTAL_PORTIONS))} className="w-7 h-7 rounded-lg bg-slate-800 text-white flex items-center justify-center"><${Icons.Minus} className="w-3.5 h-3.5" /></button>
-                                  <span className="text-sm font-black text-emerald-400 w-14 text-center">${promptPortions} Port.</span>
-                                  <button onClick=${() => setPromptPortions((p) => clamp(p + 1, APP_CONFIG.MIN_PORTIONS, APP_CONFIG.MAX_TOTAL_PORTIONS))} className="w-7 h-7 rounded-lg bg-slate-800 text-white flex items-center justify-center"><${Icons.Plus} className="w-3.5 h-3.5" /></button>
+                            ` : html`
+                              <div className="pt-1.5 border-t border-slate-800/80 flex items-center justify-between bg-slate-950/60 px-2.5 py-1.5 rounded-lg">
+                                <span className="text-[11px] text-slate-300 font-medium">Portionen (ohne festen Tag):</span>
+                                <div className="flex items-center gap-2">
+                                  <button onClick=${() => updateSavedRecipesWithPersistence(prev => prev.map(e => e.recipe.id === recipe.id ? applyBasePortionDelta(e, -1) : e))} className="w-6 h-6 rounded-md bg-slate-800 text-white flex items-center justify-center"><${Icons.Minus} className="w-3 h-3" /></button>
+                                  <span className="text-xs font-black text-cyan-400 w-14 text-center">${totalPortions} Port.</span>
+                                  <button onClick=${() => updateSavedRecipesWithPersistence(prev => prev.map(e => e.recipe.id === recipe.id ? applyBasePortionDelta(e, 1) : e))} className="w-6 h-6 rounded-md bg-slate-800 text-white flex items-center justify-center"><${Icons.Plus} className="w-3 h-3" /></button>
                                 </div>
                               </div>
-                              <button onClick=${() => { updateSavedRecipesWithPersistence(prev => prev.map(e => e.recipe.id === recipe.id ? { ...e, inShoppingList: true, portions: promptPortions } : e)); setPortionPromptRecipeId(null); }} className="w-full py-2 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5"><${Icons.Check} className="w-4 h-4 stroke-[2.5]" /><span>Mit ${promptPortions} Portionen auf Einkaufsliste</span></button>
-                            </div>
-                          ` : ''}
-
-                          ${(inShoppingList && !isPromptOpen) ? html`
-                            <div className="flex items-center justify-between bg-emerald-500/10 px-3 py-2 rounded-xl border border-emerald-500/30">
-                              <button onClick=${() => handleToggleShoppingListClick(item)} className="flex items-center gap-2 text-left"><div className="w-4 h-4 rounded-md bg-emerald-500 text-slate-950 flex items-center justify-center"><${Icons.Check} className="w-3 h-3 stroke-[3]" /></div><div><span className="text-xs font-extrabold text-emerald-300 block">Auf der Einkaufsliste</span></div></button>
-                              <span className="text-xs font-black text-emerald-400 bg-slate-900/90 px-2.5 py-1 rounded-lg border border-emerald-500/30">∑ ${totalPortions} Port.</span>
-                            </div>
-                          ` : ''}
+                            `}
+                          </div>
                         </div>
                       `;
                     })}
@@ -1623,38 +1353,316 @@
               </main>
             ` : ''}
 
-            ${activeView === 'shopping' ? html`
+            ${activeView === 'myprep' ? html`
               <main className="flex-1 flex flex-col p-4 overflow-y-auto ios-scroll space-y-4">
-                <div className="flex items-center justify-between bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5">
-                  <div><h2 className="text-sm font-extrabold text-white">Smarte Einkaufsliste</h2><p className="text-[11px] text-slate-400">Summiert für ${totalPlanStats.totalPortions} Portionen</p></div>
-                  ${activeShoppingRecipes.length > 0 ? html`<button onClick=${handleCopyShoppingList} className="px-3 py-2 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 shadow-md"><${Icons.Copy} className="w-3.5 h-3.5" /><span>Kopieren</span></button>` : ''}
-                </div>
-
-                ${activeShoppingRecipes.length === 0 ? html`
-                  <div className="flex-1 flex flex-col items-center justify-center text-center py-12 px-4"><${Icons.ShoppingBag} className="w-12 h-12 text-slate-600 mb-3" /><p className="text-sm font-bold text-slate-300">Noch keine Rezepte auf der Einkaufsliste</p></div>
-                ` : html`
-                  <div className="space-y-4 pb-4">
-                    ${CATEGORY_ORDER.map(({ key, icon, badge }) => {
-                      const items = aggregatedShoppingList[key] || [];
-                      if (items.length === 0) return null;
-                      return html`
-                        <div key=${key} className="bg-slate-950/90 border border-slate-800/90 rounded-2xl p-3.5 space-y-2">
-                          <div className="flex items-center justify-between"><span className=${`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${badge}`}><span>${icon}</span><span>${key}</span></span></div>
-                          <div className="divide-y divide-slate-800/60">
-                            ${items.map((item) => {
-                              const isChecked = !!checkedItems[item.id];
-                              return html`
-                                <div key=${item.id} onClick=${() => { setCheckedItems(prev => { const n = {...prev, [item.id]: !prev[item.id]}; OfflineCacheEngine.setItem('checkedItems', n); return n; }); }} className="py-2 flex items-center justify-between gap-2 cursor-pointer">
-                                  <div className="flex items-center gap-2.5"><div className=${`w-4 h-4 rounded-md border flex items-center justify-center ${isChecked ? 'bg-emerald-500 border-emerald-500 text-slate-950' : 'border-slate-600'}`}>${isChecked ? html`<${Icons.Check} className="w-3 h-3 stroke-[3]" />` : ''}</div><div><div className=${`text-xs font-medium ${isChecked ? 'line-through text-slate-500' : 'text-slate-200'}`}>${item.name}</div><div className="text-[10px] text-slate-500 truncate max-w-[210px]">Für: ${item.sources.join(', ')}</div></div></div>
-                                  <span className=${`text-xs font-extrabold whitespace-nowrap ${isChecked ? 'line-through text-slate-600' : 'text-emerald-400'}`}>${item.amount} ${item.unit}</span>
-                                </div>
-                              `;
-                            })}
-                          </div>
-                        </div>
-                      `;
-                    })}
+                ${!selectedPlan ? html`
+                  <!-- ÜBERSICHT ALLER GESPEICHERTEN WOCHENPLÄNE IN MYPREP -->
+                  <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 flex items-center justify-between">
+                    <div>
+                      <h2 className="text-sm font-extrabold text-white flex items-center gap-1.5">
+                        <${Icons.Calendar} className="w-4 h-4 text-cyan-400" />
+                        <span>MyPrep – Meine Wochenpläne</span>
+                      </h2>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Wähle einen Plan zum Nachkochen oder für den Einkaufszettel
+                      </p>
+                    </div>
+                    <span className="px-2.5 py-1 rounded-xl bg-cyan-500/15 text-cyan-300 text-xs font-extrabold border border-cyan-500/30">
+                      ${weeklyPlans.length} Pläne
+                    </span>
                   </div>
+
+                  ${weeklyPlans.length === 0 ? html`
+                    <div className="flex-1 flex flex-col items-center justify-center text-center py-12 px-4">
+                      <${Icons.Calendar} className="w-12 h-12 text-slate-600 mb-3" />
+                      <p className="text-sm font-bold text-slate-300">Noch kein Wochenplan gespeichert</p>
+                      <p className="text-xs text-slate-500 mt-1 mb-4">
+                        Stelle dir in der Merkliste deine Gerichte und Wochentage zusammen und speichere sie unter einem Namen ab.
+                      </p>
+                      <button
+                        onClick=${() => setActiveView('saved')}
+                        className="px-4 py-2.5 rounded-2xl bg-emerald-500 text-slate-950 font-extrabold text-xs"
+                      >
+                        Zur Merkliste (${savedRecipes.length})
+                      </button>
+                    </div>
+                  ` : html`
+                    <div className="space-y-3 pb-4">
+                      ${weeklyPlans.map((plan) => {
+                        const stats = calculatePlanStats(plan.items);
+                        const checkedCount = Object.values(plan.checkedItems || {}).filter(Boolean).length;
+                        return html`
+                          <div
+                            key=${plan.id}
+                            onClick=${() => { setSelectedPlanId(plan.id); setPlanSubView('schedule'); setPlanDayFilter('Alle'); }}
+                            className="bg-slate-950/90 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-4 space-y-3 cursor-pointer transition shadow-lg"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                                    📅 ${plan.createdAt}
+                                  </span>
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                                    ∑ ${stats.totalPortions} Portionen
+                                  </span>
+                                </div>
+                                <h3 className="text-sm font-extrabold text-white mt-1.5">${plan.name}</h3>
+                                <p className="text-[11px] text-slate-400 mt-0.5">
+                                  ${plan.items.length} Gerichte • Ø ${stats.avgCalories} kcal • Ø ${stats.avgProtein}g Protein
+                                </p>
+                              </div>
+                              <button
+                                onClick=${(e) => handleDeleteWeeklyPlan(plan.id, e)}
+                                className="p-1.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-slate-900"
+                                title="Wochenplan löschen"
+                              >
+                                <${Icons.Trash2} className="w-4 h-4" />
+                              </button>
+                            </div>
+
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              ${plan.items.map((it) => {
+                                const sched = formatDaySchedule(it);
+                                return html`
+                                  <span key=${it.recipe.id} className="text-[10px] px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-200 flex items-center gap-1">
+                                    <span>${it.recipe.emoji}</span>
+                                    <span className="truncate max-w-[150px] font-medium">${it.recipe.title}</span>
+                                    ${sched ? html`<span className="text-indigo-300 font-bold">(${sched})</span>` : ''}
+                                  </span>
+                                `;
+                              })}
+                            </div>
+
+                            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                              <button
+                                onClick=${(e) => { e.stopPropagation(); setSelectedPlanId(plan.id); setPlanSubView('schedule'); }}
+                                className="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-cyan-300 text-xs font-bold flex items-center justify-center gap-1.5"
+                              >
+                                <${Icons.ChefHat} className="w-3.5 h-3.5" />
+                                <span>Tage & Rezepte</span>
+                              </button>
+                              <button
+                                onClick=${(e) => { e.stopPropagation(); setSelectedPlanId(plan.id); setPlanSubView('shopping'); }}
+                                className="flex-1 py-2 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center justify-center gap-1.5"
+                              >
+                                <${Icons.ShoppingBag} className="w-3.5 h-3.5" />
+                                <span>Einkaufszettel ${checkedCount > 0 ? `(${checkedCount} ✓)` : ''}</span>
+                              </button>
+                            </div>
+                          </div>
+                        `;
+                      })}
+                    </div>
+                  `}
+                ` : html`
+                  <!-- DETAILANSICHT EINES AUSGEWÄHLTEN WOCHENPLANS -->
+                  <div className="bg-slate-950/90 border border-slate-800 rounded-2xl p-3.5 space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <button
+                        onClick=${() => setSelectedPlanId(null)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-xs font-bold"
+                      >
+                        <${Icons.ArrowLeft} className="w-3.5 h-3.5" />
+                        <span>Alle Pläne</span>
+                      </button>
+                      <span className="text-[11px] font-bold text-cyan-300 bg-cyan-500/15 px-2.5 py-1 rounded-xl border border-cyan-500/30">
+                        ∑ ${selectedPlanStats.totalPortions} Portionen
+                      </span>
+                    </div>
+
+                    <div>
+                      <h2 className="text-base font-extrabold text-white">${selectedPlan.name}</h2>
+                      <p className="text-[11px] text-slate-400">
+                        Erstellt am ${selectedPlan.createdAt} • ${selectedPlan.items.length} Rezepte • Ø ${selectedPlanStats.avgProtein}g Protein
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-900 rounded-xl border border-slate-800 text-xs font-bold">
+                      <button
+                        onClick=${() => setPlanSubView('schedule')}
+                        className=${`py-2 rounded-lg flex items-center justify-center gap-1.5 transition ${planSubView === 'schedule' ? 'bg-cyan-500 text-slate-950 font-extrabold shadow' : 'text-slate-400'}`}
+                      >
+                        <${Icons.Calendar} className="w-3.5 h-3.5" />
+                        <span>Wochentage & Kochen</span>
+                      </button>
+                      <button
+                        onClick=${() => setPlanSubView('shopping')}
+                        className=${`py-2 rounded-lg flex items-center justify-center gap-1.5 transition ${planSubView === 'shopping' ? 'bg-emerald-500 text-slate-950 font-extrabold shadow' : 'text-slate-400'}`}
+                      >
+                        <${Icons.ShoppingBag} className="w-3.5 h-3.5" />
+                        <span>Einkaufszettel</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  ${planSubView === 'schedule' ? html`
+                    <!-- WOCHENTAGE & REZEPTKARTEN ZUM NACHKOCHEN -->
+                    <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 space-y-2">
+                      <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                        <span>Tag filtern (Tippe auf ein Gericht zum Nachkochen)</span>
+                        ${planDayFilter !== 'Alle' ? html`
+                          <button onClick=${() => setPlanDayFilter('Alle')} className="text-cyan-400 hover:underline">Alle Tage</button>
+                        ` : ''}
+                      </div>
+                      <div className="grid grid-cols-7 gap-1">
+                        ${WEEKDAYS.map((day) => {
+                          const sum = selectedPlan.items.reduce((s, r) => s + (getDayPortions(r)[day.short] || 0), 0);
+                          const isSelected = planDayFilter === day.short;
+                          return html`
+                            <button
+                              key=${day.short}
+                              onClick=${() => setPlanDayFilter(planDayFilter === day.short ? 'Alle' : day.short)}
+                              className=${`py-1.5 rounded-xl border text-center flex flex-col items-center justify-center ${isSelected ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-extrabold' : sum > 0 ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-200 font-bold' : 'bg-slate-900 border-slate-800 text-slate-500'}`}
+                            >
+                              <span className="text-[11px]">${day.short}</span>
+                              <span className="text-[9px] mt-0.5">${sum > 0 ? `${sum}P` : '–'}</span>
+                            </button>
+                          `;
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 pb-4">
+                      ${WEEKDAYS.filter((d) => planDayFilter === 'Alle' || planDayFilter === d.short).map((day) => {
+                        const dayMeals = selectedPlan.items.filter((it) => (getDayPortions(it)[day.short] || 0) > 0);
+                        if (dayMeals.length === 0) return null;
+                        return html`
+                          <div key=${day.short} className="bg-slate-950/90 border border-slate-800 rounded-2xl p-3.5 space-y-2.5">
+                            <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                              <span className="text-xs font-extrabold text-indigo-300 flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-indigo-400"></span>
+                                <span>${day.full}</span>
+                              </span>
+                              <span className="text-[11px] font-bold text-slate-400">
+                                ${dayMeals.reduce((acc, m) => acc + (getDayPortions(m)[day.short] || 0), 0)} Portionen
+                              </span>
+                            </div>
+                            <div className="space-y-2">
+                              ${dayMeals.map((item) => html`
+                                <div
+                                  key=${`${day.short}-${item.recipe.id}`}
+                                  onClick=${() => setCookingModalItem(item)}
+                                  className="flex items-center justify-between gap-2 bg-slate-900 hover:bg-slate-800/90 border border-slate-800 p-2.5 rounded-xl cursor-pointer transition"
+                                >
+                                  <div className="flex items-center gap-2.5">
+                                    <span className="text-2xl">${item.recipe.emoji}</span>
+                                    <div>
+                                      <span className="inline-block text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-950 text-cyan-300 border border-cyan-500/30 mb-0.5">
+                                        ID: ${item.recipe.id}
+                                      </span>
+                                      <h4 className="text-xs font-extrabold text-white leading-snug">${item.recipe.title}</h4>
+                                      <p className="text-[10px] text-emerald-400 font-semibold">
+                                        Für ${day.full}: ${getDayPortions(item)[day.short]} Port. (Gesamt: ${getTotalPortions(item)}P)
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <span className="px-2.5 py-1.5 rounded-xl bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 text-[11px] font-extrabold shrink-0 flex items-center gap-1">
+                                    <${Icons.ChefHat} className="w-3.5 h-3.5" />
+                                    <span>Kochen</span>
+                                  </span>
+                                </div>
+                              `)}
+                            </div>
+                          </div>
+                        `;
+                      })}
+
+                      ${planDayFilter === 'Alle' ? (() => {
+                        const unassignedMeals = selectedPlan.items.filter((it) => Object.keys(getDayPortions(it)).length === 0);
+                        if (unassignedMeals.length === 0) return null;
+                        return html`
+                          <div className="bg-slate-950/90 border border-slate-800 rounded-2xl p-3.5 space-y-2.5">
+                            <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                              <span className="text-xs font-extrabold text-amber-300">Flexibel eingeplante Gerichte (ohne festen Wochentag)</span>
+                            </div>
+                            <div className="space-y-2">
+                              ${unassignedMeals.map((item) => html`
+                                <div
+                                  key=${item.recipe.id}
+                                  onClick=${() => setCookingModalItem(item)}
+                                  className="flex items-center justify-between gap-2 bg-slate-900 hover:bg-slate-800/90 border border-slate-800 p-2.5 rounded-xl cursor-pointer transition"
+                                >
+                                  <div className="flex items-center gap-2.5">
+                                    <span className="text-2xl">${item.recipe.emoji}</span>
+                                    <div>
+                                      <span className="inline-block text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-950 text-cyan-300 border border-cyan-500/30 mb-0.5">
+                                        ID: ${item.recipe.id}
+                                      </span>
+                                      <h4 className="text-xs font-extrabold text-white leading-snug">${item.recipe.title}</h4>
+                                      <p className="text-[10px] text-emerald-400 font-semibold">${getTotalPortions(item)} Portionen eingeplant</p>
+                                    </div>
+                                  </div>
+                                  <span className="px-2.5 py-1.5 rounded-xl bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 text-[11px] font-extrabold shrink-0 flex items-center gap-1">
+                                    <${Icons.ChefHat} className="w-3.5 h-3.5" />
+                                    <span>Kochen</span>
+                                  </span>
+                                </div>
+                              `)}
+                            </div>
+                          </div>
+                        `;
+                      })() : ''}
+                    </div>
+                  ` : html`
+                    <!-- INDIVIDUELLER EINKAUFSZETTEL DES WOCHENPLANS (BEWÄHRTE ANSICHT) -->
+                    <div className="flex items-center justify-between bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5">
+                      <div>
+                        <h2 className="text-sm font-extrabold text-white">Smarte Einkaufsliste</h2>
+                        <p className="text-[11px] text-slate-400">Summiert für ${selectedPlanStats.totalPortions} Portionen (${selectedPlan.name})</p>
+                      </div>
+                      <button
+                        onClick=${handleCopyPlanShoppingList}
+                        className="px-3 py-2 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 shadow-md"
+                      >
+                        <${Icons.Copy} className="w-3.5 h-3.5" />
+                        <span>Kopieren</span>
+                      </button>
+                    </div>
+
+                    <div className="space-y-4 pb-4">
+                      ${CATEGORY_ORDER.map(({ key, icon, badge }) => {
+                        const items = selectedPlanShoppingList[key] || [];
+                        if (items.length === 0) return null;
+                        const planChecked = selectedPlan.checkedItems || {};
+                        return html`
+                          <div key=${key} className="bg-slate-950/90 border border-slate-800/90 rounded-2xl p-3.5 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className=${`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${badge}`}>
+                                <span>${icon}</span>
+                                <span>${key}</span>
+                              </span>
+                            </div>
+                            <div className="divide-y divide-slate-800/60">
+                              ${items.map((item) => {
+                                const isChecked = !!planChecked[item.id];
+                                return html`
+                                  <div
+                                    key=${item.id}
+                                    onClick=${() => handleTogglePlanShoppingItem(selectedPlan.id, item.id)}
+                                    className="py-2 flex items-center justify-between gap-2 cursor-pointer"
+                                  >
+                                    <div className="flex items-center gap-2.5">
+                                      <div className=${`w-4 h-4 rounded-md border flex items-center justify-center ${isChecked ? 'bg-emerald-500 border-emerald-500 text-slate-950' : 'border-slate-600'}`}>
+                                        ${isChecked ? html`<${Icons.Check} className="w-3 h-3 stroke-[3]" />` : ''}
+                                      </div>
+                                      <div>
+                                        <div className=${`text-xs font-medium ${isChecked ? 'line-through text-slate-500' : 'text-slate-200'}`}>${item.name}</div>
+                                        <div className="text-[10px] text-slate-500 truncate max-w-[210px]">Für: ${item.sources.join(', ')}</div>
+                                      </div>
+                                    </div>
+                                    <span className=${`text-xs font-extrabold whitespace-nowrap ${isChecked ? 'line-through text-slate-600' : 'text-emerald-400'}`}>
+                                      ${item.amount} ${item.unit}
+                                    </span>
+                                  </div>
+                                `;
+                              })}
+                            </div>
+                          </div>
+                        `;
+                      })}
+                    </div>
+                  `}
                 `}
               </main>
             ` : ''}
@@ -1663,7 +1671,6 @@
       `;
     }
 
-    // React in den DOM einhängen
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(html`<${App} />`);
   </script>
