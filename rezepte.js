@@ -4,20 +4,17 @@
  * Architektur-Regel für Titel & Untertitel:
  * - `title`: Extrem prägnant (max. 2–3 Wörter / unter 30 Zeichen), nennt nur das Kerngericht & Hauptprotein.
  * - `subtitle`: Enthält alle Beilagen (Reis, Kartoffeln, Spätzle etc.), Gemüse-Details und Soßen-Arten.
+ * - `accentColor`: Semantische Farbzuordnung nach Hauptzutat (Geflügel=Orange, Rind=Rot, Fisch=Blau, Veggie=Grün).
  *
  * Einbindung in index.html über: <script src="rezepte.js"></script>
  */
 (function () {
-  const ACCENT_GRADIENTS = [
-    'from-emerald-600 to-teal-700',
-    'from-amber-500 to-orange-600',
-    'from-rose-500 to-orange-600',
-    'from-cyan-600 to-blue-700',
-    'from-indigo-600 to-purple-700',
-    'from-teal-500 to-emerald-700',
-    'from-red-600 to-rose-700',
-    'from-orange-600 to-amber-700'
-  ];
+  const THEME_COLORS = {
+    POULTRY: 'from-amber-500 to-orange-600', // Hähnchen & Pute -> Orange
+    BEEF: 'from-red-600 to-rose-700',       // Rind -> Rot
+    FISH: 'from-cyan-600 to-blue-700',      // Lachs & Seelachs -> Blau
+    VEGGIE: 'from-emerald-600 to-teal-700'  // Linsen, Kichererbsen & Gemüse -> Grün
+  };
 
   // ============================================================================
   // 1. DIE 12 HANDVERLESENEN SIGNATURE-REZEPTE (rec-1 bis rec-12)
@@ -28,7 +25,7 @@
       title: 'Hähnchen-Frikassee',
       subtitle: 'Mit Basmatireis, süßlichen Erbsen & Möhren in leichter Frischkäse-Soße',
       emoji: '🍚',
-      accentColor: 'from-emerald-600 to-teal-700',
+      accentColor: THEME_COLORS.POULTRY,
       prepTimeActive: 15,
       prepTimePassive: 15,
       effortLevel: 'Minimal (TK-Gemüse)',
@@ -64,7 +61,7 @@
       title: 'Hähnchen-Kartoffel-Auflauf',
       subtitle: 'Vom Ofenblech mit weichen Brokkoli-Röschen & milder Hüttenkäse-Kruste',
       emoji: '🥘',
-      accentColor: 'from-amber-500 to-orange-600',
+      accentColor: THEME_COLORS.POULTRY,
       prepTimeActive: 15,
       prepTimePassive: 30,
       effortLevel: 'Sehr gering (Ofen-Job)',
@@ -99,7 +96,7 @@
       title: 'Ofen-Hähnchenfrikadellen',
       subtitle: 'Saftige Gemüse-Bratlinge vom Blech auf cremigem Süßkartoffel-Stampf',
       emoji: '🧆',
-      accentColor: 'from-rose-500 to-orange-600',
+      accentColor: THEME_COLORS.POULTRY,
       prepTimeActive: 20,
       prepTimePassive: 20,
       effortLevel: 'Mittel (Kein Braten am Herd)',
@@ -135,7 +132,7 @@
       title: 'Puten-Bolognese',
       subtitle: 'Mit Vollkorn-Spirelli & fein geraspelter Zucchini in milder Tomatensoße',
       emoji: '🍝',
-      accentColor: 'from-red-600 to-rose-700',
+      accentColor: THEME_COLORS.POULTRY,
       prepTimeActive: 15,
       prepTimePassive: 15,
       effortLevel: 'Gering (Klassiker)',
@@ -170,7 +167,7 @@
       title: 'Lachs-Kokos-Pfanne',
       subtitle: 'Mit lockerem Jasminreis, zartem Blattspinat & milder Kurkuma-Kokos-Soße',
       emoji: '🐟',
-      accentColor: 'from-cyan-600 to-blue-700',
+      accentColor: THEME_COLORS.FISH,
       prepTimeActive: 15,
       prepTimePassive: 10,
       effortLevel: 'Minimal (Schnellgericht)',
@@ -204,7 +201,7 @@
       title: 'Kichererbsen-Butter-Curry',
       subtitle: 'Auf lockerem Basmatireis mit mildem Blumenkohl in cremiger Tomaten-Skyr-Soße',
       emoji: '🍛',
-      accentColor: 'from-orange-600 to-amber-700',
+      accentColor: THEME_COLORS.VEGGIE,
       prepTimeActive: 15,
       prepTimePassive: 15,
       effortLevel: 'Minimal (One-Pot)',
@@ -239,7 +236,7 @@
       title: 'Puten-Schupfnudel-Pfanne',
       subtitle: 'Goldbraune Schupfnudeln mit süßem Mais, Erbsen & leichtem Kräuterquark-Dip',
       emoji: '🥟',
-      accentColor: 'from-teal-500 to-emerald-700',
+      accentColor: THEME_COLORS.POULTRY,
       prepTimeActive: 15,
       prepTimePassive: 5,
       effortLevel: 'Minimal (Kühlregal-Hit)',
@@ -274,7 +271,7 @@
       title: 'Rinder-Kartoffel-Gulasch',
       subtitle: 'Sämiger Familien-Eintopf mit weichen Kartoffelwürfeln, Karotten & Paprika',
       emoji: '🍲',
-      accentColor: 'from-amber-500 to-orange-600',
+      accentColor: THEME_COLORS.BEEF,
       prepTimeActive: 15,
       prepTimePassive: 20,
       effortLevel: 'Gering (Ein-Topf-Wunder)',
@@ -309,7 +306,7 @@
       title: 'Gnocchi-Hähnchen-Bake',
       subtitle: 'Direkt aus der Auflaufform mit süßen Kirschtomaten, Spinat & Mozzarella',
       emoji: '🍅',
-      accentColor: 'from-rose-500 to-orange-600',
+      accentColor: THEME_COLORS.POULTRY,
       prepTimeActive: 10,
       prepTimePassive: 25,
       effortLevel: 'Minimal (Kein Vorkochen)',
@@ -343,7 +340,7 @@
       title: 'Käsesspätzle mit Pute',
       subtitle: 'Saftiger Pfannen-Hit mit zarten Putenstreifen, Karotten & Hüttenkäse-Schmelz',
       emoji: '🧀',
-      accentColor: 'from-indigo-600 to-purple-700',
+      accentColor: THEME_COLORS.POULTRY,
       prepTimeActive: 15,
       prepTimePassive: 10,
       effortLevel: 'Gering (Familien-Liebling)',
@@ -378,7 +375,7 @@
       title: 'Seelachs-Reis-Gratin',
       subtitle: 'Saftiges Fischfilet auf lockerem Reisbett mit Rahm-Brokkoli aus dem Ofen',
       emoji: '🐟',
-      accentColor: 'from-cyan-600 to-blue-700',
+      accentColor: THEME_COLORS.FISH,
       prepTimeActive: 15,
       prepTimePassive: 20,
       effortLevel: 'Gering (Ofengericht)',
@@ -412,7 +409,7 @@
       title: 'Rote-Linsen-Lasagne',
       subtitle: 'Proteinreicher Familien-Auflauf ohne Vorkochen mit Zucchini & Hüttenkäse-Schicht',
       emoji: '🌱',
-      accentColor: 'from-emerald-600 to-teal-700',
+      accentColor: THEME_COLORS.VEGGIE,
       prepTimeActive: 15,
       prepTimePassive: 30,
       effortLevel: 'Gering (Vegetarisch)',
@@ -458,6 +455,7 @@
       unit: 'g',
       category: 'Fleisch & Frische',
       emoji: '🍗',
+      themeColor: THEME_COLORS.POULTRY,
       cal: 165,
       prot: 34,
       fat: 3,
@@ -470,6 +468,7 @@
       unit: 'g',
       category: 'Fleisch & Frische',
       emoji: '🦃',
+      themeColor: THEME_COLORS.POULTRY,
       cal: 160,
       prot: 35,
       fat: 2,
@@ -482,6 +481,7 @@
       unit: 'g',
       category: 'Fleisch & Frische',
       emoji: '🥩',
+      themeColor: THEME_COLORS.BEEF,
       cal: 195,
       prot: 31,
       fat: 8,
@@ -494,6 +494,7 @@
       unit: 'g',
       category: 'Fleisch & Frische',
       emoji: '🐟',
+      themeColor: THEME_COLORS.FISH,
       cal: 215,
       prot: 27,
       fat: 12,
@@ -506,6 +507,7 @@
       unit: 'g',
       category: 'Fleisch & Frische',
       emoji: '🐠',
+      themeColor: THEME_COLORS.FISH,
       cal: 135,
       prot: 29,
       fat: 2,
@@ -518,6 +520,7 @@
       unit: 'g',
       category: 'Vorratsschrank',
       emoji: '🌱',
+      themeColor: THEME_COLORS.VEGGIE,
       cal: 170,
       prot: 26,
       fat: 3,
@@ -749,7 +752,7 @@
           title: shortTitle,
           subtitle: fullSubtitle,
           emoji: prot.emoji,
-          accentColor: ACCENT_GRADIENTS[(currentIdNum - 1) % ACCENT_GRADIENTS.length],
+          accentColor: prot.themeColor,
           prepTimeActive: style.prepActive,
           prepTimePassive: style.prepPassive,
           effortLevel: style.effortLevel,
