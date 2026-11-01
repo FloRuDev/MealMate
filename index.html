@@ -192,16 +192,27 @@
       { short: 'So', full: 'Sonntag' }
     ];
 
-    const ACCENT_GRADIENTS = [
-      'from-emerald-600 to-teal-700',
-      'from-amber-500 to-orange-600',
-      'from-rose-500 to-orange-600',
-      'from-cyan-600 to-blue-700',
-      'from-indigo-600 to-purple-700',
-      'from-teal-500 to-emerald-700',
-      'from-red-600 to-rose-700',
-      'from-orange-600 to-amber-700'
-    ];
+    const RECIPE_THEME_COLORS = Object.freeze({
+      POULTRY: 'from-amber-500 to-orange-600', // Hähnchen & Pute -> Orange
+      BEEF: 'from-red-600 to-rose-700',       // Rind -> Rot
+      FISH: 'from-cyan-600 to-blue-700',      // Fisch -> Blau
+      VEGGIE: 'from-emerald-600 to-teal-700'  // Veggie / Viel Gemüse -> Grün
+    });
+
+    // Ermittelt automatisch die passende Kartenfarbe anhand von Titel & Zutaten
+    const determineSemanticRecipeColor = (title = '', ingredients = []) => {
+      const combinedText = `${title} ${(ingredients || []).map((i) => i?.name || '').join(' ')}`.toLowerCase();
+      if (/lachs|seelachs|kabeljau|fisch|thunfisch|forelle|garnele/.test(combinedText)) {
+        return RECIPE_THEME_COLORS.FISH;
+      }
+      if (/rind|rinder|tartar|bolognese vom rind|gulasch/.test(combinedText)) {
+        return RECIPE_THEME_COLORS.BEEF;
+      }
+      if (/hähnchen|huhn|hühner|pute|puten|geflügel|frikassee/.test(combinedText)) {
+        return RECIPE_THEME_COLORS.POULTRY;
+      }
+      return RECIPE_THEME_COLORS.VEGGIE;
+    };
 
     const BASE_SIGNATURE_RECIPES = [
       {
@@ -209,7 +220,7 @@
         title: 'Hähnchen-Frikassee',
         subtitle: 'Mit Basmatireis, süßlichen Erbsen & Möhren in leichter Frischkäse-Soße',
         emoji: '🍚',
-        accentColor: 'from-emerald-600 to-teal-700',
+        accentColor: RECIPE_THEME_COLORS.POULTRY,
         prepTimeActive: 15,
         prepTimePassive: 15,
         effortLevel: 'Minimal (TK-Gemüse)',
@@ -280,7 +291,7 @@
         title: 'Ofen-Hähnchenfrikadellen',
         subtitle: 'Auf cremigem Süßkartoffel-Stampf – ideal auch für kleine Hände',
         emoji: '🧆',
-        accentColor: 'from-rose-500 to-orange-600',
+        accentColor: RECIPE_THEME_COLORS.POULTRY,
         prepTimeActive: 20,
         prepTimePassive: 20,
         effortLevel: 'Mittel (Kein Braten am Herd)',
@@ -519,7 +530,7 @@
           title,
           subtitle,
           emoji: coerceNonEmptyString(raw.emoji, '🍲'),
-          accentColor: coerceNonEmptyString(raw.accentColor, ACCENT_GRADIENTS[index % ACCENT_GRADIENTS.length]),
+          accentColor: determineSemanticRecipeColor(title, sanitizedIngredients),
           prepTimeActive: Math.round(coercePositiveNumber(raw.prepTimeActive, 15, 5, 120)),
           prepTimePassive: Math.round(coercePositiveNumber(raw.prepTimePassive, 20, 0, 240)),
           effortLevel: coerceNonEmptyString(raw.effortLevel, 'Gering'),
@@ -730,6 +741,7 @@
         cloned.prepTimeActive = Math.max(10, (cloned.prepTimeActive || 15) - 5);
         cloned.effortLevel = 'Minimal (TK-Optimiert)';
       }
+      cloned.accentColor = determineSemanticRecipeColor(cloned.title, cloned.ingredients);
       return cloned;
     }
 
@@ -1212,7 +1224,7 @@
                       <div style=${{ opacity: swipeFeedback === 'like' ? 1 : likeOpacity }} className="pointer-events-none absolute top-6 left-5 z-30 border-4 border-orange-500 text-orange-500 font-black text-xl tracking-widest px-3 py-1 rounded-xl -rotate-12 bg-slate-950/80 shadow-lg">MERKEN ❤️</div>
                       <div style=${{ opacity: swipeFeedback === 'nope' ? 1 : nopeOpacity }} className="pointer-events-none absolute top-6 right-5 z-30 border-4 border-slate-500 text-slate-500 font-black text-xl tracking-widest px-3 py-1 rounded-xl rotate-12 bg-slate-950/80 shadow-lg">WEITER ✕</div>
 
-                      <div className=${`bg-gradient-to-br ${currentCard.accentColor} p-4 pb-3.5 relative`}>
+                      <div className=${`bg-gradient-to-br ${determineSemanticRecipeColor(currentCard.title, currentCard.ingredients)} p-4 pb-3.5 relative`}>
                         <div className="flex items-start justify-between gap-1.5 flex-wrap">
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-mono font-extrabold bg-slate-950/70 text-cyan-300 border border-cyan-400/40 backdrop-blur-md shadow-sm">
                             ID: ${currentCard.id}
