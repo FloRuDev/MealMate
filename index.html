@@ -25,7 +25,7 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 
-  <!-- Externe Datenbank-Datei mit 300 Standardrezepten (für GitHub Pages & lokal) -->
+  <!-- Externe Datenbank-Datei mit 50 Standardrezepten (für GitHub Pages & lokal) -->
   <script src="rezepte.js"></script>
 
   <style>
@@ -165,7 +165,7 @@
     };
 
     // ============================================================================
-    // KONFIGURATION & BASIS-DATENBANK (NOTFALL-FALLBACK MIT KURZEN TITELN)
+    // KONFIGURATION & BASIS-DATENBANK
     // ============================================================================
     const APP_CONFIG = Object.freeze({
       INITIAL_DECK_SIZE: 6,
@@ -195,13 +195,12 @@
     ];
 
     const RECIPE_THEME_COLORS = Object.freeze({
-      POULTRY: 'from-amber-500 to-orange-600', // Hähnchen & Pute -> Orange
-      BEEF: 'from-red-600 to-rose-700',       // Rind -> Rot
-      FISH: 'from-cyan-600 to-blue-700',      // Fisch -> Blau
-      VEGGIE: 'from-emerald-600 to-teal-700'  // Veggie / Viel Gemüse -> Grün
+      POULTRY: 'from-amber-500 to-orange-600',
+      BEEF: 'from-red-600 to-rose-700',
+      FISH: 'from-cyan-600 to-blue-700',
+      VEGGIE: 'from-emerald-600 to-teal-700'
     });
 
-    // Ermittelt automatisch die passende Kartenfarbe anhand von Titel & Zutaten
     const determineSemanticRecipeColor = (title = '', ingredients = []) => {
       const combinedText = `${title} ${(ingredients || []).map((i) => i?.name || '').join(' ')}`.toLowerCase();
       if (/lachs|seelachs|kabeljau|fisch|thunfisch|forelle|garnele/.test(combinedText)) {
@@ -252,77 +251,6 @@
           'Die Pfanne auf niedrige Stufe schalten, den Frischkäse Light mit einem Schneebesen glatt einrühren und die Soße mit einem Spritzer Zitronensaft sowie einer Prise Muskatnuss mild abschmecken.',
           'Den gegarten Reis unter das cremige Hähnchen-Frikassee heben oder direkt zusammen anrichten.'
         ]
-      },
-      {
-        id: 'rec-2',
-        title: 'Hähnchen-Kartoffel-Auflauf',
-        subtitle: 'Mit weichen Brokkoli-Röschen & proteinreicher Hüttenkäse-Kruste',
-        emoji: '🥘',
-        accentColor: 'from-amber-500 to-orange-600',
-        prepTimeActive: 15,
-        prepTimePassive: 30,
-        effortLevel: 'Sehr gering (Ofen-Job)',
-        fridgeDays: 4,
-        freezerMonths: 2,
-        toddlerNote: 'Butterweiche Kartoffelwürfel & milde Käsekruste',
-        calories: 520,
-        protein: 45,
-        carbs: 48,
-        fat: 14,
-        basePortions: 4,
-        ingredients: [
-          { name: 'Festkochende Kartoffeln (klein gewürfelt)', amount: 800, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Hähnchenbrustfilet (mundgerecht)', amount: 600, unit: 'g', category: 'Fleisch & Frische' },
-          { name: 'Brokkoli-Röschen (frisch oder TK)', amount: 500, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Körniger Frischkäse (Hüttenkäse light)', amount: 400, unit: 'g', category: 'Kühlregal' },
-          { name: 'Milde Gemüsebrühe', amount: 200, unit: 'ml', category: 'Vorratsschrank' },
-          { name: 'Geriebener Gouda / Mozzarella light', amount: 100, unit: 'g', category: 'Kühlregal' },
-          { name: 'Paprika edelsüß & milde Kräuter', amount: 1, unit: 'TL', category: 'Vorratsschrank' }
-        ],
-        steps: [
-          'Den Backofen auf 200 °C Umluft (220 °C Ober-/Unterhitze) vorheizen. Die Kartoffeln schälen und in kleine, gleichmäßige Würfel (ca. 1,5 cm) schneiden, damit sie im Ofen zuverlässig durchgaren.',
-          'Den Brokkoli in sehr kleine, mundgerechte Röschen teilen (TK-Brokkoli kurz antauen lassen) und das Hähnchenbrustfilet in etwa 2 cm große Stücke würfeln.',
-          'Kartoffelwürfel, Brokkoliröschen und rohe Hähnchenstücke direkt in einer großen Auflaufform gründlich miteinander vermischen.',
-          'Für den Guss den körnigen Frischkäse zusammen mit der warmen Gemüsebrühe, dem edelsüßen Paprikapulver und den milden Kräutern in einem hohen Gefäß kurz glatt pürieren oder kräftig verquirlen.',
-          'Die Hüttenkäse-Soße gleichmäßig über das Gemüse und Fleisch in der Form gießen und alles mit dem geriebenen Käse bestreuen.',
-          'Den Auflauf auf mittlerer Schiene ca. 30–35 Minuten goldbraun backen, bis die Kartoffelwürfel beim Einstechen mit einer Gabel butterweich sind.'
-        ]
-      },
-      {
-        id: 'rec-3',
-        title: 'Ofen-Hähnchenfrikadellen',
-        subtitle: 'Auf cremigem Süßkartoffel-Stampf – ideal auch für kleine Hände',
-        emoji: '🧆',
-        accentColor: RECIPE_THEME_COLORS.POULTRY,
-        prepTimeActive: 20,
-        prepTimePassive: 20,
-        effortLevel: 'Mittel (Kein Braten am Herd)',
-        fridgeDays: 3,
-        freezerMonths: 3,
-        toddlerNote: 'Perfektes Fingerfood, süßlicher Stampf ohne Schärfe',
-        calories: 495,
-        protein: 46,
-        carbs: 47,
-        fat: 12,
-        basePortions: 4,
-        ingredients: [
-          { name: 'Hähnchen- oder Putenhackfleisch (mager)', amount: 600, unit: 'g', category: 'Fleisch & Frische' },
-          { name: 'Zarte Haferflocken (als Bindung)', amount: 60, unit: 'g', category: 'Vorratsschrank' },
-          { name: 'Magerquark (macht die Frikadellen saftig)', amount: 150, unit: 'g', category: 'Kühlregal' },
-          { name: 'Ei (Größe M)', amount: 1, unit: 'Stück', category: 'Kühlregal' },
-          { name: 'Karotte (fein gerieben)', amount: 150, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Süßkartoffeln', amount: 450, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Mehligkochende Kartoffeln', amount: 450, unit: 'g', category: 'Obst & Gemüse' },
-          { name: 'Fettarme Milch für den Stampf', amount: 100, unit: 'ml', category: 'Kühlregal' }
-        ],
-        steps: [
-          'Den Backofen auf 200 °C Umluft vorheizen und ein Backblech mit Backpapier auslegen. Die Karotte schälen und auf einer feinen Reibe direkt in eine große Schüssel raspeln.',
-          'Das Hähnchenhackfleisch mit dem Magerquark, dem Ei, den zarten Haferflocken, den Karottenraspeln und milden Kräutern gründlich verkneten und 5 Minuten quellen lassen.',
-          'Mit leicht angefeuchteten Händen 12 flache, gleich große Frikadellen formen, auf das Backblech setzen und im heißen Ofen ca. 20 Minuten saftig backen, bis sie leicht gebräunt sind.',
-          'Parallel die Süßkartoffeln und die mehligkochenden Kartoffeln schälen, in grobe Würfel schneiden und in einem Topf mit leicht gesalzenem Wasser ca. 15 Minuten weich kochen.',
-          'Das Kochwasser abgießen, die Kartoffeln kurz ausdampfen lassen und die fettarme Milch leicht erwärmen.',
-          'Die warme Milch zu den Kartoffeln geben, alles mit einem Kartoffelstampfer zu einem feinen, cremigen Püree stampfen und zusammen mit den warmen Ofen-Frikadellen servieren.'
-        ]
       }
     ];
 
@@ -336,12 +264,10 @@
     const ALL_RECIPES = buildStandalone50Recipes();
 
     // ============================================================================
-    // REINE DOMÄNEN-FUNKTIONEN & HILFSFUNKTIONEN
+    // DOMÄNEN-FUNKTIONEN
     // ============================================================================
     const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
-    // Intelligente Laufzeit-Trennung von Hauptgericht (Titel) und Beilagen (Untertitel),
-    // falls ein Rezept in der Datenbank noch einen überlangen Titel besitzt.
     const extractConciseTitleAndSubtitle = (rawTitle = '', rawSubtitle = '') => {
       let title = String(rawTitle || '').trim();
       let subtitle = String(rawSubtitle || '').trim();
@@ -573,7 +499,7 @@
     };
 
     // ============================================================================
-    // OFFLINE CACHE (INDEXED DB + LOCALSTORAGE) & CUSTOM HOOK
+    // OFFLINE CACHE & HOOKS
     // ============================================================================
     const OfflineCacheEngine = (() => {
       const memoryFallback = {};
@@ -644,20 +570,18 @@
     }
 
     // ============================================================================
-    // API CALLS (GEMINI INTEGRATION MIT STRIKTER TITEL-KÜRZE)
+    // API CALLS
     // ============================================================================
     async function callGeminiRecipeAgent(userInstruction, currentRecipeContext, userApiKey) {
       if (!userApiKey) throw new Error('Kein API Key');
       const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
       const promptText = currentRecipeContext
-        ? `Wandle dieses Familien-Meal-Prep-Rezept nach folgendem Wunsch ab: "${userInstruction}". Bestehendes Rezept: ${JSON.stringify(currentRecipeContext)}. Behalte 4 Portionen und mindestens 35g Protein bei. WICHTIG: Halte "title" extrem kurz (maximal 30 Zeichen, nur das Hauptgericht/Hauptprotein) und packe alle Beilagen, Soßen und Details in "subtitle"!`
-        : `Erstelle ein neues Familien-Meal-Prep-Rezept (4 Portionen, mind. 35g Protein): "${userInstruction}". WICHTIG: Halte "title" extrem kurz (maximal 30 Zeichen, nur das Hauptgericht/Hauptprotein) und packe alle Beilagen in "subtitle"!`;
+        ? `Wandle dieses Familien-Meal-Prep-Rezept nach folgendem Wunsch ab: "${userInstruction}". Bestehendes Rezept: ${JSON.stringify(currentRecipeContext)}. Behalte 4 Portionen und mindestens 35g Protein bei.`
+        : `Erstelle ein neues Familien-Meal-Prep-Rezept (4 Portionen, mind. 35g Protein): "${userInstruction}".`;
       
       const payload = {
         systemInstruction: {
-          parts: [{
-            text: 'Du bist ein erfahrener Koch und Familien-Meal-Prep-Assistent. Erstelle milde, kindgerechte Rezepte für 4 Portionen mit mindestens 35g Protein pro Portion. STRIKTE REGEL FÜR TITEL: Das Feld "title" darf maximal 2 bis 4 Wörter (max. 30 Zeichen) lang sein und nennt NUR das Kerngericht bzw. Hauptprotein (z. B. "Hähnchen-Frikassee" oder "Lachs-Kokos-Curry"). Alle Beilagen, Gemüsearten und Soßen-Beschreibungen gehören zwingend in das Feld "subtitle"!'
-          }]
+          parts: [{ text: 'Du bist ein erfahrener Koch und Familien-Meal-Prep-Assistent. Erstelle milde, kindgerechte Rezepte für 4 Portionen mit mindestens 35g Protein pro Portion.' }]
         },
         contents: [{ parts: [{ text: promptText }] }],
         generationConfig: {
@@ -711,7 +635,6 @@
       return recipe;
     }
 
-    // Lokaler Offline-Umbau hält den Haupttitel kurz und verlagert Änderungen in den Untertitel
     function applyLocalRecipeVariation(recipe, instructionText) {
       const lower = (instructionText || '').toLowerCase();
       const cloned = structuredClone(recipe);
@@ -792,7 +715,7 @@
               </div>
               <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2">
                 <div className="font-bold text-emerald-400">🔑 Optionaler Gemini API-Key (Hybrider Modus)</div>
-                <p className="text-[11px] text-slate-400">MealMate hat <strong>50 abwechslungsreiche Fitness- & Familienrezepte</strong> aus der <code>rezepte.js</code> bereits offline an Bord! Einen API-Key benötigst du nur optional für Live-KI-Sonderwünsche.</p>
+                <p className="text-[11px] text-slate-400">MealMate hat <strong>50 abwechslungsreiche Rezepte</strong> aus der <code>rezepte.js</code> offline an Bord! Einen API-Key benötigst du nur optional für Live-KI-Sonderwünsche.</p>
                 <div className="flex gap-1.5">
                   <input type="password" value=${tempKey} onChange=${(e) => setTempKey(e.target.value)} placeholder="AIzaSy... (optional)" className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white" />
                   <button onClick=${() => { onSaveApiKey(tempKey.trim()); onClose(); }} className="px-3 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs">Speichern</button>
@@ -808,6 +731,7 @@
     function CookRecipeModal({ item, onClose }) {
       const [cookTab, setCookTab] = useState('steps');
       const [scaleToPlanned, setScaleToPlanned] = useState(true);
+      const [imgError, setImgError] = useState(false);
       if (!item || !item.recipe) return null;
 
       const { recipe } = item;
@@ -841,8 +765,15 @@
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-3xl shadow-inner shrink-0 border border-white/20">
-                  ${recipe.emoji}
+                <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-3xl shadow-inner shrink-0 border border-white/20 overflow-hidden">
+                  ${!imgError ? html`
+                    <img 
+                      src=${`img/${recipe.id}.jpg`} 
+                      alt=${displayTitle} 
+                      onError=${() => setImgError(true)} 
+                      className="w-full h-full object-cover" 
+                    />
+                  ` : recipe.emoji}
                 </div>
                 <div className="min-w-0 flex-1">
                   <h2 className="text-base font-extrabold text-white leading-snug line-clamp-2">${displayTitle}</h2>
@@ -941,8 +872,7 @@
     function SearchModal({ isOpen, onClose, database, favorites, onToggleFavorite, savedRecipes, onBookmark, onPreview }) {
       const [searchTerm, setSearchTerm] = useState('');
       const [activeFilters, setActiveFilters] = useState([]);
-
-      if (!isOpen) return null;
+      const [imgErrors, setImgErrors] = useState({});
 
       const FILTERS = [
         { id: 'fav', label: '⭐ Favoriten' },
@@ -958,7 +888,7 @@
           if (searchTerm) {
             const term = searchTerm.toLowerCase();
             const matchesText = recipe.title.toLowerCase().includes(term) ||
-                                recipe.subtitle.toLowerCase().includes(term) ||
+                                (recipe.subtitle || '').toLowerCase().includes(term) ||
                                 recipe.ingredients.some(i => i.name.toLowerCase().includes(term));
             if (!matchesText) return false;
           }
@@ -969,6 +899,12 @@
           return true;
         });
       }, [database, favorites, searchTerm, activeFilters]);
+
+      if (!isOpen) return null;
+
+      const handleImgError = (id) => {
+        setImgErrors(prev => ({ ...prev, [id]: true }));
+      };
 
       return html`
         <div className="fixed inset-0 z-50 bg-[#0B132B] flex flex-col ios-safe-container">
@@ -991,10 +927,20 @@
               const { title: shortTitle, subtitle: shortSub } = extractConciseTitleAndSubtitle(recipe.title, recipe.subtitle);
               const isFav = favorites.some(f => f.id === recipe.id);
               const isSaved = savedRecipes.some(s => s.recipe.id === recipe.id);
+              const hasImgError = imgErrors[recipe.id];
               return html`
                 <div key=${recipe.id} className="flex items-center justify-between bg-slate-900/80 p-3 rounded-2xl border border-slate-800 transition hover:border-slate-700">
                   <div className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" onClick=${() => onPreview(recipe)}>
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-slate-950 border border-slate-800/80">${recipe.emoji}</div>
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-slate-950 border border-slate-800/80 overflow-hidden">
+                      ${!hasImgError ? html`
+                        <img 
+                          src=${`img/${recipe.id}.jpg`} 
+                          alt=${shortTitle} 
+                          onError=${() => handleImgError(recipe.id)} 
+                          className="w-full h-full object-cover" 
+                        />
+                      ` : recipe.emoji}
+                    </div>
                     <div className="min-w-0 flex-1">
                       <h4 className="text-sm font-extrabold text-white truncate">${shortTitle}</h4>
                       <p className="text-[10px] text-slate-400 truncate">${shortSub}</p>
@@ -1032,6 +978,7 @@
         return cached.length > 0 ? mergeRecipesIntoDatabase(ALL_RECIPES, cached) : ALL_RECIPES;
       });
       const [currentCard, setCurrentCard] = useState(() => pickRandomRecipe(ALL_RECIPES));
+      const [currentCardImgError, setCurrentCardImgError] = useState(false);
       
       const [savedRecipes, setSavedRecipes] = usePersistedState('mealPlans', []);
       const [weeklyPlans, setWeeklyPlans] = usePersistedState('weeklyPlans', []);
@@ -1114,6 +1061,7 @@
           setDragX(0);
           setSwipeFeedback(null);
           setCardTab('ingredients');
+          setCurrentCardImgError(false);
           setCurrentCard((prevCard) => pickRandomRecipe(recipeDatabase, prevCard?.id));
         }, APP_CONFIG.SWIPE_ANIMATION_MS);
       };
@@ -1187,11 +1135,12 @@
 
         setWeeklyPlans((prev) => [newPlan, ...prev]);
         setNewPlanName('');
+        setSavedRecipes([]); // Korb automatisch leeren (UX Best Practice)
         setSelectedPlanId(newPlanId);
         setPlanSubView('schedule');
         setPlanDayFilter('Alle');
         setActiveView('myprep');
-        showTemporaryStatus(`Wochenplan „${finalName}“ in MyPrep gespeichert!`);
+        showTemporaryStatus(`Wochenplan „${finalName}“ gespeichert & Merkliste geleert!`);
       };
 
       const handleDeleteWeeklyPlan = (planId, e) => {
@@ -1341,7 +1290,16 @@
                           </div>
                         </div>
                         <div className="mt-3 flex items-center gap-3">
-                          <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-3xl shadow-inner shrink-0 border border-white/20">${currentCard.emoji}</div>
+                          <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-3xl shadow-inner shrink-0 border border-white/20 overflow-hidden">
+                            ${!currentCardImgError ? html`
+                              <img 
+                                src=${`img/${currentCard.id}.jpg`} 
+                                alt=${currentCardDisplay.title} 
+                                onError=${() => setCurrentCardImgError(true)} 
+                                className="w-full h-full object-cover" 
+                              />
+                            ` : currentCard.emoji}
+                          </div>
                           <div className="min-w-0 flex-1">
                             <h2 className="text-lg font-extrabold text-white leading-snug line-clamp-2">${currentCardDisplay.title}</h2>
                             <p className="text-xs text-white/90 mt-0.5 line-clamp-2">${currentCardDisplay.subtitle}</p>
@@ -1426,29 +1384,6 @@
                             </button>
                           `;
                         })}
-                      </div>
-
-                      <div className="pt-2.5 border-t border-slate-800/80 space-y-2">
-                        <label className="text-[11px] font-bold text-emerald-400 block">
-                          📅 Als Wochenplan in „MyPrep“ speichern:
-                        </label>
-                        <div className="flex gap-1.5">
-                          <input
-                            type="text"
-                            value=${newPlanName}
-                            onChange=${(e) => setNewPlanName(e.target.value)}
-                            onKeyDown=${(e) => e.key === 'Enter' && handleSaveWeeklyPlan()}
-                            placeholder="Name (z.B. KW 45 – Familienwoche)..."
-                            className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                          />
-                          <button
-                            onClick=${handleSaveWeeklyPlan}
-                            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 font-extrabold text-xs flex items-center gap-1 shadow-md shrink-0 active:scale-95 transition"
-                          >
-                            <${Icons.Check} className="w-3.5 h-3.5 stroke-[2.5]" />
-                            <span>Speichern</span>
-                          </button>
-                        </div>
                       </div>
                     </div>
                   ` : ''}
@@ -1537,6 +1472,30 @@
                       `;
                     })}
                   </div>
+
+                  <!-- STICKY BOTTOM CHECKOUT BEREICH (UX Best Practice) -->
+                  <div className="bg-slate-950/95 border border-emerald-500/30 rounded-2xl p-4 space-y-2.5 mt-4 sticky bottom-2 shadow-2xl backdrop-blur-md">
+                    <label className="text-xs font-extrabold text-emerald-400 flex items-center gap-1.5">
+                      <span>📅 Als Wochenplan in „MyPrep“ speichern:</span>
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value=${newPlanName}
+                        onChange=${(e) => setNewPlanName(e.target.value)}
+                        onKeyDown=${(e) => e.key === 'Enter' && handleSaveWeeklyPlan()}
+                        placeholder="Name (z.B. KW 45 – Familienwoche)..."
+                        className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                      />
+                      <button
+                        onClick=${handleSaveWeeklyPlan}
+                        className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 font-extrabold text-xs flex items-center gap-1 shadow-md shrink-0 active:scale-95 transition"
+                      >
+                        <${Icons.Check} className="w-4 h-4 stroke-[3]" />
+                        <span>Speichern & Leeren</span>
+                      </button>
+                    </div>
+                  </div>
                 `}
               </main>
             ` : ''}
@@ -1574,73 +1533,123 @@
                       </button>
                     </div>
                   ` : html`
-                    <div className="space-y-3 pb-4">
-                      ${weeklyPlans.map((plan) => {
-                        const stats = calculatePlanStats(plan.items);
-                        const checkedCount = Object.values(plan.checkedItems || {}).filter(Boolean).length;
-                        return html`
-                          <div
-                            key=${plan.id}
-                            onClick=${() => { setSelectedPlanId(plan.id); setPlanSubView('schedule'); setPlanDayFilter('Alle'); }}
-                            className="bg-slate-950/90 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-4 space-y-3 cursor-pointer transition shadow-lg"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
-                                    📅 ${plan.createdAt}
-                                  </span>
-                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                                    ∑ ${stats.totalPortions} Portionen
-                                  </span>
+                    <div className="space-y-4 pb-4">
+                      <!-- AKTUELLER PLAN (ERster Plan) -->
+                      ${weeklyPlans.length > 0 ? html`
+                        <div className="space-y-2">
+                          <div className="text-[11px] font-extrabold text-cyan-400 uppercase tracking-wider flex items-center gap-1">✨ Aktueller Wochenplan</div>
+                          ${(() => {
+                            const plan = weeklyPlans[0];
+                            const stats = calculatePlanStats(plan.items);
+                            const checkedCount = Object.values(plan.checkedItems || {}).filter(Boolean).length;
+                            return html`
+                              <div
+                                key=${plan.id}
+                                onClick=${() => { setSelectedPlanId(plan.id); setPlanSubView('schedule'); setPlanDayFilter('Alle'); }}
+                                className="bg-slate-950/95 border-2 border-cyan-500/50 rounded-2xl p-4 space-y-3 cursor-pointer transition shadow-xl"
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                                        📅 ${plan.createdAt}
+                                      </span>
+                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                                        ∑ ${stats.totalPortions} Portionen
+                                      </span>
+                                    </div>
+                                    <h3 className="text-sm font-extrabold text-white mt-1.5">${plan.name}</h3>
+                                    <p className="text-[11px] text-slate-400 mt-0.5">
+                                      ${plan.items.length} Gerichte • Ø ${stats.avgCalories} kcal • Ø ${stats.avgProtein}g Protein
+                                    </p>
+                                  </div>
+                                  <button
+                                    onClick=${(e) => handleDeleteWeeklyPlan(plan.id, e)}
+                                    className="p-1.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-slate-900"
+                                    title="Wochenplan löschen"
+                                  >
+                                    <${Icons.Trash2} className="w-4 h-4" />
+                                  </button>
                                 </div>
-                                <h3 className="text-sm font-extrabold text-white mt-1.5">${plan.name}</h3>
-                                <p className="text-[11px] text-slate-400 mt-0.5">
-                                  ${plan.items.length} Gerichte • Ø ${stats.avgCalories} kcal • Ø ${stats.avgProtein}g Protein
-                                </p>
+
+                                <div className="flex flex-wrap gap-1.5 pt-1">
+                                  ${plan.items.map((it) => {
+                                    const sched = formatDaySchedule(it);
+                                    const { title: shortItemTitle } = extractConciseTitleAndSubtitle(it.recipe.title, it.recipe.subtitle);
+                                    return html`
+                                      <span key=${it.recipe.id} className="text-[10px] px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-200 flex items-center gap-1">
+                                        <span>${it.recipe.emoji}</span>
+                                        <span className="truncate max-w-[140px] font-medium">${shortItemTitle}</span>
+                                        ${sched ? html`<span className="text-indigo-300 font-bold">(${sched})</span>` : ''}
+                                      </span>
+                                    `;
+                                  })}
+                                </div>
+
+                                <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                                  <button
+                                    onClick=${(e) => { e.stopPropagation(); setSelectedPlanId(plan.id); setPlanSubView('schedule'); }}
+                                    className="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-cyan-300 text-xs font-bold flex items-center justify-center gap-1.5"
+                                  >
+                                    <${Icons.ChefHat} className="w-3.5 h-3.5" />
+                                    <span>Tage & Rezepte</span>
+                                  </button>
+                                  <button
+                                    onClick=${(e) => { e.stopPropagation(); setSelectedPlanId(plan.id); setPlanSubView('shopping'); }}
+                                    className="flex-1 py-2 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center justify-center gap-1.5"
+                                  >
+                                    <${Icons.ShoppingBag} className="w-3.5 h-3.5" />
+                                    <span>Einkaufszettel ${checkedCount > 0 ? `(${checkedCount} ✓)` : ''}</span>
+                                  </button>
+                                </div>
                               </div>
-                              <button
-                                onClick=${(e) => handleDeleteWeeklyPlan(plan.id, e)}
-                                className="p-1.5 rounded-xl text-slate-500 hover:text-rose-400 hover:bg-slate-900"
-                                title="Wochenplan löschen"
-                              >
-                                <${Icons.Trash2} className="w-4 h-4" />
-                              </button>
-                            </div>
+                            `;
+                          })()}
+                        </div>
+                      ` : ''}
 
-                            <div className="flex flex-wrap gap-1.5 pt-1">
-                              ${plan.items.map((it) => {
-                                const sched = formatDaySchedule(it);
-                                const { title: shortItemTitle } = extractConciseTitleAndSubtitle(it.recipe.title, it.recipe.subtitle);
-                                return html`
-                                  <span key=${it.recipe.id} className="text-[10px] px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-200 flex items-center gap-1">
-                                    <span>${it.recipe.emoji}</span>
-                                    <span className="truncate max-w-[140px] font-medium">${shortItemTitle}</span>
-                                    ${sched ? html`<span className="text-indigo-300 font-bold">(${sched})</span>` : ''}
-                                  </span>
-                                `;
-                              })}
-                            </div>
-
-                            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
-                              <button
-                                onClick=${(e) => { e.stopPropagation(); setSelectedPlanId(plan.id); setPlanSubView('schedule'); }}
-                                className="flex-1 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-cyan-300 text-xs font-bold flex items-center justify-center gap-1.5"
+                      <!-- ARCHIV (WEITERE PLÄNE) -->
+                      ${weeklyPlans.length > 1 ? html`
+                        <div className="space-y-2 pt-2">
+                          <div className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1">🗄️ Archivierte Pläne</div>
+                          ${weeklyPlans.slice(1).map((plan) => {
+                            const stats = calculatePlanStats(plan.items);
+                            const checkedCount = Object.values(plan.checkedItems || {}).filter(Boolean).length;
+                            return html`
+                              <div
+                                key=${plan.id}
+                                onClick=${() => { setSelectedPlanId(plan.id); setPlanSubView('schedule'); setPlanDayFilter('Alle'); }}
+                                className="bg-slate-950/70 border border-slate-800/80 hover:border-slate-700 rounded-2xl p-3.5 space-y-2.5 cursor-pointer transition opacity-85 hover:opacity-100"
                               >
-                                <${Icons.ChefHat} className="w-3.5 h-3.5" />
-                                <span>Tage & Rezepte</span>
-                              </button>
-                              <button
-                                onClick=${(e) => { e.stopPropagation(); setSelectedPlanId(plan.id); setPlanSubView('shopping'); }}
-                                className="flex-1 py-2 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center justify-center gap-1.5"
-                              >
-                                <${Icons.ShoppingBag} className="w-3.5 h-3.5" />
-                                <span>Einkaufszettel ${checkedCount > 0 ? `(${checkedCount} ✓)` : ''}</span>
-                              </button>
-                            </div>
-                          </div>
-                        `;
-                      })}
+                                <div className="flex items-start justify-between gap-2">
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-900 text-slate-400 border border-slate-800">
+                                        📅 ${plan.createdAt}
+                                      </span>
+                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-900 text-slate-400 border border-slate-800">
+                                        ∑ ${stats.totalPortions} Port.
+                                      </span>
+                                    </div>
+                                    <h3 className="text-xs font-extrabold text-slate-200 mt-1">${plan.name}</h3>
+                                  </div>
+                                  <button
+                                    onClick=${(e) => handleDeleteWeeklyPlan(plan.id, e)}
+                                    className="p-1 rounded-lg text-slate-600 hover:text-rose-400"
+                                    title="Wochenplan löschen"
+                                  >
+                                    <${Icons.Trash2} className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-900">
+                                  <span>${plan.items.length} Gerichte • Ø ${stats.avgCalories} kcal</span>
+                                  <span className="text-cyan-400 font-bold">Öffnen →</span>
+                                </div>
+                              </div>
+                            `;
+                          })}
+                        </div>
+                      ` : ''}
                     </div>
                   `}
                 ` : html`
