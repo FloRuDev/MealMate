@@ -159,7 +159,9 @@
       ArrowLeft: (p) => html`<${IconBase} ...${p}><path d="m15 18-6-6 6-6" /><//>`,
       Layers: (p) => html`<${IconBase} ...${p}><polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" /><//>`,
       Database: (p) => html`<${IconBase} ...${p}><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M3 5V19A9 3 0 0 0 21 19V5" /><path d="M3 12A9 3 0 0 0 21 12" /><//>`,
-      Smartphone: (p) => html`<${IconBase} ...${p}><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /><path d="M12 18h.01" /><//>`
+      Smartphone: (p) => html`<${IconBase} ...${p}><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /><path d="M12 18h.01" /><//>`,
+      Search: (p) => html`<${IconBase} ...${p}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /><//>`,
+      Star: (p) => html`<${IconBase} ...${p}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /><//>`
     };
 
     // ============================================================================
@@ -936,6 +938,88 @@
       `;
     }
 
+    function SearchModal({ isOpen, onClose, database, favorites, onToggleFavorite, savedRecipes, onBookmark, onPreview }) {
+      const [searchTerm, setSearchTerm] = useState('');
+      const [activeFilters, setActiveFilters] = useState([]);
+
+      if (!isOpen) return null;
+
+      const FILTERS = [
+        { id: 'fav', label: '⭐ Favoriten' },
+        { id: 'veg', label: '🌱 Veggie' },
+        { id: 'fish', label: '🐟 Fisch' },
+        { id: 'fast', label: '⏱️ < 15 Min' }
+      ];
+
+      const toggleFilter = (id) => setActiveFilters(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
+
+      const results = useMemo(() => {
+        return database.filter(recipe => {
+          if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            const matchesText = recipe.title.toLowerCase().includes(term) ||
+                                recipe.subtitle.toLowerCase().includes(term) ||
+                                recipe.ingredients.some(i => i.name.toLowerCase().includes(term));
+            if (!matchesText) return false;
+          }
+          if (activeFilters.includes('fav') && !favorites.some(f => f.id === recipe.id)) return false;
+          if (activeFilters.includes('veg') && recipe.accentColor !== RECIPE_THEME_COLORS.VEGGIE) return false;
+          if (activeFilters.includes('fish') && recipe.accentColor !== RECIPE_THEME_COLORS.FISH) return false;
+          if (activeFilters.includes('fast') && recipe.prepTimeActive > 15) return false;
+          return true;
+        });
+      }, [database, favorites, searchTerm, activeFilters]);
+
+      return html`
+        <div className="fixed inset-0 z-50 bg-[#0B132B] flex flex-col ios-safe-container">
+          <div className="flex items-center gap-3 p-4 border-b border-slate-800 bg-slate-950/95 shrink-0">
+            <button onClick=${onClose} className="p-2 rounded-full bg-slate-900 text-slate-400 hover:text-white transition"><${Icons.ArrowLeft} className="w-5 h-5" /></button>
+            <div className="flex-1 relative">
+              <${Icons.Search} className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input type="text" value=${searchTerm} onChange=${(e) => setSearchTerm(e.target.value)} placeholder="Rezepte, Zutaten suchen..." className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500" />
+            </div>
+          </div>
+          <div className="flex gap-2 p-3 overflow-x-auto ios-scroll border-b border-slate-800 shrink-0 bg-slate-950/50">
+            ${FILTERS.map(f => {
+              const active = activeFilters.includes(f.id);
+              return html`<button key=${f.id} onClick=${() => toggleFilter(f.id)} className=${`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition ${active ? 'bg-cyan-500 text-slate-950' : 'bg-slate-900 text-slate-400 border border-slate-700'}`}>${f.label}</button>`;
+            })}
+          </div>
+          <div className="flex-1 overflow-y-auto ios-scroll p-4 space-y-3 bg-[#0B132B]">
+            ${results.length === 0 ? html`<div className="text-center text-slate-500 text-sm mt-10 font-medium">Keine Rezepte gefunden.</div>` : ''}
+            ${results.map(recipe => {
+              const { title: shortTitle, subtitle: shortSub } = extractConciseTitleAndSubtitle(recipe.title, recipe.subtitle);
+              const isFav = favorites.some(f => f.id === recipe.id);
+              const isSaved = savedRecipes.some(s => s.recipe.id === recipe.id);
+              return html`
+                <div key=${recipe.id} className="flex items-center justify-between bg-slate-900/80 p-3 rounded-2xl border border-slate-800 transition hover:border-slate-700">
+                  <div className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" onClick=${() => onPreview(recipe)}>
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-slate-950 border border-slate-800/80">${recipe.emoji}</div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="text-sm font-extrabold text-white truncate">${shortTitle}</h4>
+                      <p className="text-[10px] text-slate-400 truncate">${shortSub}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[9px] font-bold text-slate-500 flex items-center gap-0.5"><${Icons.Clock} className="w-2.5 h-2.5"/> ${recipe.prepTimeActive} Min.</span>
+                        <span className="text-[9px] font-bold text-emerald-400">${recipe.protein}g Protein</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                    <button onClick=${() => onToggleFavorite(recipe)} className="p-2 rounded-full bg-slate-950 text-slate-400 transition hover:text-amber-400 border border-slate-800">
+                       <${Icons.Star} className=${`w-4 h-4 ${isFav ? 'fill-amber-400 text-amber-400' : ''}`} />
+                    </button>
+                    <button onClick=${() => onBookmark(recipe)} disabled=${isSaved} className=${`px-2.5 py-1.5 rounded-xl text-xs font-bold transition ${isSaved ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-cyan-500 text-slate-950 shadow-sm'}`}>
+                       ${isSaved ? '✓ Plan' : '+ Merken'}
+                    </button>
+                  </div>
+                </div>
+              `;
+            })}
+          </div>
+        </div>
+      `;
+    }
+
     // ============================================================================
     // HAUPTKOMPONENTE (APP)
     // ============================================================================
@@ -951,6 +1035,8 @@
       
       const [savedRecipes, setSavedRecipes] = usePersistedState('mealPlans', []);
       const [weeklyPlans, setWeeklyPlans] = usePersistedState('weeklyPlans', []);
+      const [favorites, setFavorites] = usePersistedState('favorites', []);
+      const [searchModalOpen, setSearchModalOpen] = useState(false);
 
       const [newPlanName, setNewPlanName] = useState('');
       const [selectedPlanId, setSelectedPlanId] = useState(null);
@@ -988,6 +1074,21 @@
         setUserApiKey(newKey);
         showTemporaryStatus(newKey ? 'API-Key gespeichert!' : 'Offline-Modus aktiv!');
       };
+
+      const toggleFavorite = useCallback((recipe) => {
+        setFavorites(prev => {
+          if (prev.some(f => f.id === recipe.id)) return prev.filter(f => f.id !== recipe.id);
+          return [...prev, recipe];
+        });
+      }, [setFavorites]);
+
+      const handleBookmarkFromSearch = useCallback((recipe) => {
+        setSavedRecipes(prev => {
+          if (prev.some((item) => item.recipe.id === recipe.id)) return prev;
+          return [...prev, { recipe, portions: recipe.basePortions || APP_CONFIG.DEFAULT_BASE_PORTIONS, dayPortions: {} }];
+        });
+        showTemporaryStatus(`"${extractConciseTitleAndSubtitle(recipe.title, '').title}" gemerkt!`);
+      }, [setSavedRecipes, showTemporaryStatus]);
 
       const addRecipesToDatabaseWithPersistence = useCallback((newRecipes) => {
         let updatedDb = [];
@@ -1085,7 +1186,6 @@
         };
 
         setWeeklyPlans((prev) => [newPlan, ...prev]);
-        setSavedRecipes([]);
         setNewPlanName('');
         setSelectedPlanId(newPlanId);
         setPlanSubView('schedule');
@@ -1180,6 +1280,7 @@
           <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-orange-500/10 rounded-full blur-[100px] pointer-events-none"></div>
           
           <${SetupModal} isOpen=${setupModalOpen} onClose=${() => setSetupModalOpen(false)} apiKey=${userApiKey} onSaveApiKey=${handleSaveApiKey} />
+          <${SearchModal} isOpen=${searchModalOpen} onClose=${() => setSearchModalOpen(false)} database=${recipeDatabase} favorites=${favorites} onToggleFavorite=${toggleFavorite} savedRecipes=${savedRecipes} onBookmark=${handleBookmarkFromSearch} onPreview=${(recipe) => setCookingModalItem({ recipe, portions: recipe.basePortions, dayPortions: {} })} />
           <${CookRecipeModal} item=${cookingModalItem} onClose=${() => setCookingModalItem(null)} />
 
           <div className="w-full max-w-[430px] flex flex-col min-h-[92vh] bg-slate-900/80 border border-slate-700/50 rounded-[32px] shadow-2xl overflow-hidden relative backdrop-blur-2xl z-10">
@@ -1195,6 +1296,7 @@
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5">
+                  <button onClick=${() => setSearchModalOpen(true)} className="px-2.5 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/50 text-slate-300 hover:text-white transition shadow-sm"><${Icons.Search} className="w-3.5 h-3.5" /></button>
                   <button onClick=${() => setSetupModalOpen(true)} className="px-2.5 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/25 transition"><${Icons.Smartphone} className="w-3.5 h-3.5" /></button>
                 </div>
               </div>
@@ -1226,6 +1328,9 @@
                       <div style=${{ opacity: swipeFeedback === 'nope' ? 1 : nopeOpacity }} className="pointer-events-none absolute top-6 right-5 z-30 border-4 border-slate-500 text-slate-500 font-black text-xl tracking-widest px-3 py-1 rounded-xl rotate-12 bg-slate-950/80 shadow-lg">WEITER ✕</div>
 
                       <div className=${`bg-gradient-to-br ${determineSemanticRecipeColor(currentCard.title, currentCard.ingredients)} p-4 pb-3.5 relative`}>
+                        <button onClick=${() => toggleFavorite(currentCard)} className="absolute top-4 right-4 z-40 p-2 rounded-full bg-slate-950/40 border border-white/10 backdrop-blur-md text-white shadow-sm transition hover:scale-110">
+                          <${Icons.Star} className=${`w-4 h-4 ${favorites.some(f => f.id === currentCard.id) ? 'fill-amber-400 text-amber-400' : 'fill-none text-white'}`} />
+                        </button>
                         <div className="flex items-start justify-between gap-1.5 flex-wrap">
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-mono font-extrabold bg-slate-950/70 text-cyan-300 border border-cyan-400/40 backdrop-blur-md shadow-sm">
                             ID: ${currentCard.id}
@@ -1322,6 +1427,29 @@
                           `;
                         })}
                       </div>
+
+                      <div className="pt-2.5 border-t border-slate-800/80 space-y-2">
+                        <label className="text-[11px] font-bold text-emerald-400 block">
+                          📅 Als Wochenplan in „MyPrep“ speichern:
+                        </label>
+                        <div className="flex gap-1.5">
+                          <input
+                            type="text"
+                            value=${newPlanName}
+                            onChange=${(e) => setNewPlanName(e.target.value)}
+                            onKeyDown=${(e) => e.key === 'Enter' && handleSaveWeeklyPlan()}
+                            placeholder="Name (z.B. KW 45 – Familienwoche)..."
+                            className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                          />
+                          <button
+                            onClick=${handleSaveWeeklyPlan}
+                            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 font-extrabold text-xs flex items-center gap-1 shadow-md shrink-0 active:scale-95 transition"
+                          >
+                            <${Icons.Check} className="w-3.5 h-3.5 stroke-[2.5]" />
+                            <span>Speichern</span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   ` : ''}
                 </div>
@@ -1409,29 +1537,6 @@
                       `;
                     })}
                   </div>
-
-                  <div className="bg-slate-950/90 border border-emerald-500/30 rounded-2xl p-4 mt-2 shadow-lg mb-8">
-                    <label className="text-xs font-black text-emerald-400 block mb-2.5">
-                      📅 Als Wochenplan in „MyPrep“ speichern:
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value=${newPlanName}
-                        onChange=${(e) => setNewPlanName(e.target.value)}
-                        onKeyDown=${(e) => e.key === 'Enter' && handleSaveWeeklyPlan()}
-                        placeholder="Name (z.B. KW 45 – Familienwoche)..."
-                        className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                      />
-                      <button
-                        onClick=${handleSaveWeeklyPlan}
-                        className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 shadow-md shrink-0 active:scale-95 transition"
-                      >
-                        <${Icons.Check} className="w-4 h-4 stroke-[2.5]" />
-                        <span>Speichern</span>
-                      </button>
-                    </div>
-                  </div>
                 `}
               </main>
             ` : ''}
@@ -1470,17 +1575,14 @@
                     </div>
                   ` : html`
                     <div className="space-y-3 pb-4">
-                      ${weeklyPlans.map((plan, index) => {
+                      ${weeklyPlans.map((plan) => {
                         const stats = calculatePlanStats(plan.items);
                         const checkedCount = Object.values(plan.checkedItems || {}).filter(Boolean).length;
-                        const isCurrent = index === 0;
                         return html`
-                          ${isCurrent ? html`<h3 className="text-[11px] font-black text-emerald-400 uppercase tracking-wider mb-2 px-1 mt-1">✨ Aktueller Plan</h3>` : ''}
-                          ${index === 1 ? html`<h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 px-1 mt-5">🗄️ Archivierte Pläne</h3>` : ''}
                           <div
                             key=${plan.id}
                             onClick=${() => { setSelectedPlanId(plan.id); setPlanSubView('schedule'); setPlanDayFilter('Alle'); }}
-                            className=${`bg-slate-950/90 border hover:border-cyan-500/50 rounded-2xl p-4 space-y-3 cursor-pointer transition shadow-lg ${isCurrent ? 'border-emerald-500/40' : 'border-slate-800 opacity-90'}`}
+                            className="bg-slate-950/90 border border-slate-800 hover:border-cyan-500/50 rounded-2xl p-4 space-y-3 cursor-pointer transition shadow-lg"
                           >
                             <div className="flex items-start justify-between gap-2">
                               <div>
