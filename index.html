@@ -324,14 +324,14 @@
       }
     ];
 
-    const buildStandalone300Recipes = () => {
-      if (Array.isArray(window.MEALMATE_RECIPES) && window.MEALMATE_RECIPES.length >= 300) {
+    const buildStandalone50Recipes = () => {
+      if (Array.isArray(window.MEALMATE_RECIPES) && window.MEALMATE_RECIPES.length > 0) {
         return window.MEALMATE_RECIPES;
       }
       return BASE_SIGNATURE_RECIPES;
     };
 
-    const ALL_RECIPES = buildStandalone300Recipes();
+    const ALL_RECIPES = buildStandalone50Recipes();
 
     // ============================================================================
     // REINE DOMÄNEN-FUNKTIONEN & HILFSFUNKTIONEN
@@ -790,7 +790,7 @@
               </div>
               <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2">
                 <div className="font-bold text-emerald-400">🔑 Optionaler Gemini API-Key (Hybrider Modus)</div>
-                <p className="text-[11px] text-slate-400">MealMate hat <strong>300 feste Standardrezepte</strong> aus der <code>rezepte.js</code> bereits offline an Bord! Einen API-Key benötigst du nur optional für Live-KI-Sonderwünsche.</p>
+                <p className="text-[11px] text-slate-400">MealMate hat <strong>50 abwechslungsreiche Fitness- & Familienrezepte</strong> aus der <code>rezepte.js</code> bereits offline an Bord! Einen API-Key benötigst du nur optional für Live-KI-Sonderwünsche.</p>
                 <div className="flex gap-1.5">
                   <input type="password" value=${tempKey} onChange=${(e) => setTempKey(e.target.value)} placeholder="AIzaSy... (optional)" className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white" />
                   <button onClick=${() => { onSaveApiKey(tempKey.trim()); onClose(); }} className="px-3 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs">Speichern</button>
