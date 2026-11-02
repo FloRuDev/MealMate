@@ -673,24 +673,36 @@
     // ============================================================================
     // UI KOMPONENTEN
     // ============================================================================
-    function MacroBar({ calories, protein, carbs, fat }) {
+    function MacroBar({ calories, protein, carbs, fat, prepTimeActive, fridgeDays, freezerMonths }) {
       return html`
-        <div className="grid grid-cols-4 gap-1.5 px-3.5 py-2.5 bg-slate-950/90 border-b border-slate-800">
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-1.5 text-center">
-            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Kalorien</div>
-            <div className="text-sm font-extrabold text-white">${calories} <span className="text-[10px] font-normal text-slate-400">kcal</span></div>
+        <div className="bg-slate-950/90 border-b border-slate-800 flex flex-col">
+          <div className="flex items-center justify-between px-3.5 py-2 border-b border-slate-800/50">
+            <span className="flex items-center gap-1.5 text-[11px] font-bold text-slate-300">
+              <${Icons.Clock} className="w-3.5 h-3.5 text-emerald-400" />
+              ${prepTimeActive} Min. Zubereitung
+            </span>
+            <span className="flex items-center gap-1.5 text-[11px] font-bold text-slate-300">
+              <${Icons.Snowflake} className="w-3.5 h-3.5 text-sky-400" />
+              ${fridgeDays}T | ${freezerMonths}M TK
+            </span>
           </div>
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-1.5 text-center">
-            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold flex items-center justify-center gap-0.5"><${Icons.Dumbbell} className="w-2.5 h-2.5 text-emerald-400" /> Protein</div>
-            <div className="text-sm font-bold text-emerald-400">${protein} g</div>
-          </div>
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-1.5 text-center">
-            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold flex items-center justify-center gap-0.5"><${Icons.Zap} className="w-2.5 h-2.5 text-amber-300" /> Carbs</div>
-            <div className="text-sm font-bold text-amber-300">${carbs} g</div>
-          </div>
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-1.5 text-center">
-            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold flex items-center justify-center gap-0.5"><${Icons.Droplet} className="w-2.5 h-2.5 text-rose-300" /> Fett</div>
-            <div className="text-sm font-bold text-rose-300">${fat} g</div>
+          <div className="grid grid-cols-4 gap-1.5 px-3.5 py-2.5">
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-1.5 text-center">
+              <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Kalorien</div>
+              <div className="text-sm font-extrabold text-white">${calories} <span className="text-[10px] font-normal text-slate-400">kcal</span></div>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-1.5 text-center">
+              <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold flex items-center justify-center gap-0.5"><${Icons.Dumbbell} className="w-2.5 h-2.5 text-emerald-400" /> Protein</div>
+              <div className="text-sm font-bold text-emerald-400">${protein} g</div>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-1.5 text-center">
+              <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold flex items-center justify-center gap-0.5"><${Icons.Zap} className="w-2.5 h-2.5 text-amber-300" /> Carbs</div>
+              <div className="text-sm font-bold text-amber-300">${carbs} g</div>
+            </div>
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-1.5 text-center">
+              <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold flex items-center justify-center gap-0.5"><${Icons.Droplet} className="w-2.5 h-2.5 text-rose-300" /> Fett</div>
+              <div className="text-sm font-bold text-rose-300">${fat} g</div>
+            </div>
           </div>
         </div>
       `;
@@ -746,7 +758,7 @@
         <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3">
           <div className="w-full max-w-[415px] max-h-[90vh] bg-slate-900 border border-slate-700 rounded-[28px] shadow-2xl overflow-hidden flex flex-col">
             <div className=${`bg-gradient-to-br ${recipe.accentColor || 'from-emerald-600 to-teal-700'} p-4 pb-3.5 relative shrink-0`}>
-              <div className="flex items-center justify-between gap-2 mb-2.5">
+              <div className="flex items-start justify-between gap-2 mb-2.5">
                 <button
                   onClick=${onClose}
                   className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-950/75 text-white hover:bg-slate-950 border border-white/20 backdrop-blur-md transition"
@@ -754,14 +766,6 @@
                   <${Icons.ArrowLeft} className="w-3.5 h-3.5" />
                   <span>Zurück zum Plan</span>
                 </button>
-                <div className="flex items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-mono font-extrabold bg-slate-950/70 text-cyan-300 border border-cyan-400/40">
-                    ID: ${recipe.id}
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-950/45 text-white">
-                    <${Icons.Clock} className="w-3 h-3 text-emerald-300" />${recipe.prepTimeActive} Min.
-                  </span>
-                </div>
               </div>
 
               <div className="flex items-center gap-3">
@@ -794,7 +798,7 @@
               </div>
             </div>
 
-            <${MacroBar} calories=${recipe.calories} protein=${recipe.protein} carbs=${recipe.carbs} fat=${recipe.fat} />
+            <${MacroBar} calories=${recipe.calories} protein=${recipe.protein} carbs=${recipe.carbs} fat=${recipe.fat} prepTimeActive=${recipe.prepTimeActive} fridgeDays=${recipe.fridgeDays} freezerMonths=${recipe.freezerMonths} />
 
             <div className="flex items-center gap-1.5 px-3.5 pt-2.5 bg-slate-900 shrink-0">
               <button
@@ -1135,7 +1139,7 @@
 
         setWeeklyPlans((prev) => [newPlan, ...prev]);
         setNewPlanName('');
-        setSavedRecipes([]); // Korb automatisch leeren (UX Best Practice)
+        setSavedRecipes([]);
         setSelectedPlanId(newPlanId);
         setPlanSubView('schedule');
         setPlanDayFilter('Alle');
@@ -1267,6 +1271,9 @@
               <main className="flex-1 flex flex-col justify-between p-3.5 overflow-hidden">
                 <div className="flex items-center justify-between px-3 py-1.5 mb-2 rounded-2xl bg-slate-950/80 border border-slate-800/90 text-[11px]">
                   <div className="flex items-center gap-1.5 text-slate-300 font-semibold"><${Icons.Database} className="w-3.5 h-3.5 text-cyan-400" /><span>Datenbank: <strong className="text-white">${recipeDatabase.length}</strong> Rezepte</span></div>
+                  ${currentCard ? html`
+                    <span className="text-slate-500 font-mono font-bold tracking-wider">ID: ${currentCard.id}</span>
+                  ` : ''}
                 </div>
 
                 ${currentCard ? html`
@@ -1277,19 +1284,12 @@
                       <div style=${{ opacity: swipeFeedback === 'nope' ? 1 : nopeOpacity }} className="pointer-events-none absolute top-6 right-5 z-30 border-4 border-slate-500 text-slate-500 font-black text-xl tracking-widest px-3 py-1 rounded-xl rotate-12 bg-slate-950/80 shadow-lg">WEITER ✕</div>
 
                       <div className=${`bg-gradient-to-br ${determineSemanticRecipeColor(currentCard.title, currentCard.ingredients)} p-4 pb-3.5 relative`}>
-                        <button onClick=${() => toggleFavorite(currentCard)} className="absolute top-4 right-4 z-40 p-2 rounded-full bg-slate-950/40 border border-white/10 backdrop-blur-md text-white shadow-sm transition hover:scale-110">
-                          <${Icons.Star} className=${`w-4 h-4 ${favorites.some(f => f.id === currentCard.id) ? 'fill-amber-400 text-amber-400' : 'fill-none text-white'}`} />
-                        </button>
-                        <div className="flex items-start justify-between gap-1.5 flex-wrap">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-mono font-extrabold bg-slate-950/70 text-cyan-300 border border-cyan-400/40 backdrop-blur-md shadow-sm">
-                            ID: ${currentCard.id}
-                          </span>
-                          <div className="flex items-center gap-1.5">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-950/45 text-white backdrop-blur-md"><${Icons.Clock} className="w-3 h-3 text-emerald-300" />${currentCard.prepTimeActive} Min.</span>
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-950/45 text-white backdrop-blur-md"><${Icons.Snowflake} className="w-3 h-3 text-sky-300" />${currentCard.fridgeDays}T | ${currentCard.freezerMonths}M TK</span>
-                          </div>
+                        <div className="flex items-center justify-end z-40 relative">
+                          <button onClick=${() => toggleFavorite(currentCard)} className="p-2 rounded-full bg-slate-950/40 border border-white/10 backdrop-blur-md text-white shadow-sm transition hover:scale-110 shrink-0">
+                            <${Icons.Star} className=${`w-4 h-4 ${favorites.some(f => f.id === currentCard.id) ? 'fill-amber-400 text-amber-400' : 'fill-none text-white'}`} />
+                          </button>
                         </div>
-                        <div className="mt-3 flex items-center gap-3">
+                        <div className="mt-1 flex items-center gap-3">
                           <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-3xl shadow-inner shrink-0 border border-white/20 overflow-hidden">
                             ${!currentCardImgError ? html`
                               <img 
@@ -1307,7 +1307,7 @@
                         </div>
                       </div>
 
-                      <${MacroBar} calories=${currentCard.calories} protein=${currentCard.protein} carbs=${currentCard.carbs} fat=${currentCard.fat} />
+                      <${MacroBar} calories=${currentCard.calories} protein=${currentCard.protein} carbs=${currentCard.carbs} fat=${currentCard.fat} prepTimeActive=${currentCard.prepTimeActive} fridgeDays=${currentCard.fridgeDays} freezerMonths=${currentCard.freezerMonths} />
 
                       <div className="flex items-center gap-1 px-3.5 pt-2.5 bg-slate-900 no-drag">
                         <button onClick=${() => setCardTab('ingredients')} className=${`flex-1 py-1.5 rounded-xl text-xs font-bold transition ${cardTab === 'ingredients' ? 'bg-slate-800 text-emerald-400 border border-emerald-500/30' : 'text-slate-400'}`}>📋 Zutaten</button>
@@ -1412,7 +1412,6 @@
                               <span className="text-2xl shrink-0">${recipe.emoji}</span>
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-1.5 mb-0.5">
-                                  <span className="inline-block text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-900 text-cyan-300 border border-cyan-500/30">ID: ${recipe.id}</span>
                                   <span className="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">∑ ${totalPortions} Port.</span>
                                 </div>
                                 <h3 className="text-xs font-extrabold text-white truncate">${shortTitle}</h3>
@@ -1745,9 +1744,6 @@
                                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
                                       <span className="text-2xl shrink-0">${item.recipe.emoji}</span>
                                       <div className="min-w-0 flex-1">
-                                        <span className="inline-block text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-950 text-cyan-300 border border-cyan-500/30 mb-0.5">
-                                          ID: ${item.recipe.id}
-                                        </span>
                                         <h4 className="text-xs font-extrabold text-white truncate">${shortMealTitle}</h4>
                                         <p className="text-[10px] text-emerald-400 font-semibold">
                                           Für ${day.full}: ${getDayPortions(item)[day.short]} Port. (Gesamt: ${getTotalPortions(item)}P)
@@ -1786,9 +1782,6 @@
                                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
                                       <span className="text-2xl shrink-0">${item.recipe.emoji}</span>
                                       <div className="min-w-0 flex-1">
-                                        <span className="inline-block text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-950 text-cyan-300 border border-cyan-500/30 mb-0.5">
-                                          ID: ${item.recipe.id}
-                                        </span>
                                         <h4 className="text-xs font-extrabold text-white truncate">${shortMealTitle}</h4>
                                         <p className="text-[10px] text-emerald-400 font-semibold">${getTotalPortions(item)} Portionen eingeplant</p>
                                       </div>
