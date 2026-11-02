@@ -574,7 +574,7 @@
     // ============================================================================
     async function callGeminiRecipeAgent(userInstruction, currentRecipeContext, userApiKey) {
       if (!userApiKey) throw new Error('Kein API Key');
-      const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+      const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent';
       const promptText = currentRecipeContext
         ? `Wandle dieses Familien-Meal-Prep-Rezept nach folgendem Wunsch ab: "${userInstruction}". Bestehendes Rezept: ${JSON.stringify(currentRecipeContext)}. Behalte 4 Portionen und mindestens 35g Protein bei.`
         : `Erstelle ein neues Familien-Meal-Prep-Rezept (4 Portionen, mind. 35g Protein): "${userInstruction}".`;
