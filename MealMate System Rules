@@ -1,0 +1,47 @@
+# MealMate – System Rules & AI-Context
+
+## 0. Plan-Before-Code Protocol & Doc-Sync (MANDATORY)
+Bevor du Code schreibst, veränderst oder Dateien anlegst, MUSST du immer erst folgende Struktur als Antwort ausgeben und stoppen[cite: 3]:
+1. **Verständnis-Check:** Zusammenfassung meiner Anforderung in 1-2 Sätzen[cite: 3].
+2. **Action Plan:** Welche Dateien werden wie angefasst?[cite: 3]
+3. **Doc-Sync-Check:** Gibt es durch diese Änderung Anpassungsbedarf in der `prd.md` oder der `data-model-spec.md`? (Ja/Nein + kurze Begründung)[cite: 3].
+4. **Komplexitäts-Score:** (1 = Trivial/CSS bis 5 = Komplexe Architektur)[cite: 3].
+5. **Frage:** "Soll ich mit der Implementierung beginnen (und ggf. die Dokus aktualisieren) oder möchtest du den Plan anpassen?"[cite: 3]
+Warte IMMER auf mein "Go", bevor du echten Code generierst![cite: 3]
+
+## 1. Tech Stack & Architektur (Zero-Build)
+- **Framework:** React 18 (via CDN, kein lokaler Build-Step)[cite: 3].
+- **Templating:** `htm` (Hypertext Markup) statt JSX (z.B. `html'<div class="...">${var}</div>'`)[cite: 3].
+- **Styling:** Tailwind CSS (via CDN)[cite: 3].
+- **State Management:** React Hooks (`useState`, `useEffect`, `useMemo`, `useCallback`)[cite: 3].
+- **Icons:** Inline SVG Components (direkt in der Datei deklariert)[cite: 3].
+- **Datenbank:** Offline-First via IndexedDB (gewrappt im `OfflineCacheEngine`)[cite: 3].
+
+## 2. Struktur-Regeln
+- Es gibt KEINEN Build-Prozess (kein Webpack, Vite, Babel oder npm install)[cite: 3].
+- Alle UI-Komponenten und Domänen-Funktionen leben (vorerst) gebündelt in der `index.html`, sofern nicht explizit eine Aufteilung gewünscht wird[cite: 3].
+- Externe Rezepte werden über eine globale Variable (`window.MEALMATE_RECIPES`) aus der `rezepte.js` geladen[cite: 3].
+
+## 3. Styling & UI/UX (Tailwind)
+- **Theme:** Dark Mode by default (Klassen wie `bg-slate-900`, `text-slate-100`)[cite: 3].
+- **Farbpalette:** 
+  - Primär/Akzente: `cyan-500`, `emerald-500` (für Erfolg/Speichern), `indigo-500` (für Wochentage/Zeitpläne)[cite: 3].
+  - Semantische Rezeptfarben: Geflügel=Orange, Rind=Rot, Fisch=Blau, Veggie=Grün[cite: 3].
+- **Designsprache:** Modern, abgerundet (`rounded-2xl`, `rounded-3xl`), Glassmorphismus-Ansätze (`backdrop-blur-md`, `bg-slate-950/80`)[cite: 3].
+- Mobile-First & iOS Safe Areas (`env(safe-area-inset-...)`) zwingend beachten[cite: 3].
+
+## 4. Clean Code & Code-Qualität (MANDATORY)
+Wende bei jeder Code-Generierung oder jedem Refactoring strikt Clean-Code-Prinzipien an[cite: 3]:
+- **DRY (Don't Repeat Yourself):** Extrahiere wiederkehrende Logik in wiederverwendbare Hilfsfunktionen (z.B. im Bereich "DOMÄNEN-FUNKTIONEN")[cite: 3].
+- **Single Responsibility (KISS):** Funktionen und React-Komponenten dürfen nur eine klare Aufgabe haben[cite: 3]. Zerlege Komponenten, wenn sie zu komplex werden[cite: 3].
+- **Aussagekräftige Benennung:** Verwende präzise, englische Namen für Variablen und Funktionen (z.B. `calculatePlanStats` statt `calcStats`)[cite: 3]. Vermeide kryptische Abkürzungen[cite: 3].
+- **Self-Documenting Code:** Der Code soll durch gute Benennung selbsterklärend sein[cite: 3]. Kommentare erklären ausschließlich das "Warum" (Business Logic/Entscheidungen), niemals das offensichtliche "Was"[cite: 3].
+- **Kein toter Code:** Entferne auskommentierten Code, ungenutzte Variablen oder nicht mehr benötigte Imports/Funktionen sofort[cite: 3].
+
+## 5. Datenmodellierung
+- Halte dich strikt an die Datentypen und Schemas, die in der `data-model-spec.md` definiert sind[cite: 3].
+- Nutze Defensives Programmieren bei externen oder lokalen Daten (z.B. Fallbacks für Arrays: `(items || []).map(...)`)[cite: 3].
+
+## 6. Continuous Documentation (Docs-as-Code)
+- Du bist verantwortlich dafür, dass die Spezifikationen (PRD, Data Model) nicht veralten[cite: 3].
+- Wenn du ein neues Feature implementierst oder ein bestehendes Datenmodell erweiterst (z.B. ein neues Feld `isVegan` hinzufügst), aktualisiere UNGEFRAGT im selben Atemzug die `data-model-spec.md` und die `prd.md`[cite: 3].
