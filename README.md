@@ -32,17 +32,6 @@ KI-Schnittstelle: Google Gemini 3.8 API (Direkte REST-Aufrufe aus dem Client).
 
 Da es keinen Build-Prozess gibt, musst du das Projekt nicht "bauen". Lade einfach die Dateien herunter und starte einen simplen lokalen Webserver, um CORS-Probleme zu vermeiden.
 
-Mit Python:
-
-python -m http.server 8000
-# Danach im Browser öffnen: http://localhost:8000
-
-
-Mit Node.js (http-server):
-
-npx http-server
-# Danach im Browser öffnen: http://localhost:8080
-
 
 📁 Projektstruktur
 
