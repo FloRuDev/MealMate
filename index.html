@@ -161,7 +161,8 @@
       Database: (p) => html`<${IconBase} ...${p}><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M3 5V19A9 3 0 0 0 21 19V5" /><path d="M3 12A9 3 0 0 0 21 12" /><//>`,
       Smartphone: (p) => html`<${IconBase} ...${p}><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /><path d="M12 18h.01" /><//>`,
       Search: (p) => html`<${IconBase} ...${p}><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /><//>`,
-      Star: (p) => html`<${IconBase} ...${p}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /><//>`
+      Star: (p) => html`<${IconBase} ...${p}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /><//>`,
+      BookOpen: (p) => html`<${IconBase} ...${p}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /><//>`
     };
 
     // ============================================================================
@@ -201,6 +202,9 @@
       VEGGIE: 'from-emerald-600 to-teal-700'
     });
 
+    const EMOJI_PRESETS = ['🍲', '🥘', '🍝', '🍛', '🥗', '🍗', '🐟', '🥩', '🥦', '🥞', '🌮', '🍜'];
+    const UNIT_PRESETS = ['g', 'ml', 'Stück', 'EL', 'TL', 'Prise', 'Dose', 'Bund'];
+
     const determineSemanticRecipeColor = (title = '', ingredients = []) => {
       const combinedText = `${title} ${(ingredients || []).map((i) => i?.name || '').join(' ')}`.toLowerCase();
       if (/lachs|seelachs|kabeljau|fisch|thunfisch|forelle|garnele/.test(combinedText)) {
@@ -220,7 +224,7 @@
         id: 'rec-1',
         title: 'Hähnchen-Frikassee',
         subtitle: 'Mit Basmatireis, süßlichen Erbsen & Möhren in leichter Frischkäse-Soße',
-        emoji: '🍚',
+        emoji: '🍲',
         accentColor: RECIPE_THEME_COLORS.POULTRY,
         prepTimeActive: 15,
         prepTimePassive: 15,
@@ -262,11 +266,17 @@
     };
 
     const ALL_RECIPES = buildStandalone50Recipes();
+    const STATIC_RECIPE_IDS = new Set(ALL_RECIPES.map((r) => r.id));
 
     // ============================================================================
     // DOMÄNEN-FUNKTIONEN
     // ============================================================================
     const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+    const isCustomRecipe = (recipe) => {
+      if (!recipe) return false;
+      return Boolean(recipe.isCustom) || !STATIC_RECIPE_IDS.has(recipe.id);
+    };
 
     const extractConciseTitleAndSubtitle = (rawTitle = '', rawSubtitle = '') => {
       let title = String(rawTitle || '').trim();
@@ -450,15 +460,17 @@
 
       const rawSteps = Array.isArray(raw.steps) ? raw.steps.map((s) => coerceNonEmptyString(s, '')).filter(Boolean) : [];
       const shortStamp = String(Date.now()).slice(-4);
+      const ensuredId = coerceNonEmptyString(raw.id, `${fallbackIdPrefix}-${shortStamp}-${index + 1}`);
       
       return {
         valid: true,
         recipe: {
-          id: coerceNonEmptyString(raw.id, `${fallbackIdPrefix}-${shortStamp}-${index + 1}`),
+          id: ensuredId,
           title,
           subtitle,
           emoji: coerceNonEmptyString(raw.emoji, '🍲'),
           accentColor: determineSemanticRecipeColor(title, sanitizedIngredients),
+          isCustom: Boolean(raw.isCustom) || !STATIC_RECIPE_IDS.has(ensuredId),
           prepTimeActive: Math.round(coercePositiveNumber(raw.prepTimeActive, 15, 5, 120)),
           prepTimePassive: Math.round(coercePositiveNumber(raw.prepTimePassive, 20, 0, 240)),
           effortLevel: coerceNonEmptyString(raw.effortLevel, 'Gering'),
@@ -471,7 +483,7 @@
           fat: Math.round(coercePositiveNumber(raw.fat, 12, 1, 100)),
           basePortions: Math.round(coercePositiveNumber(raw.basePortions, APP_CONFIG.DEFAULT_BASE_PORTIONS, 1, 12)),
           ingredients: sanitizedIngredients,
-          steps: rawSteps.length > 0 ? rawSteps : ['Zutaten vorbereiten und kochen.']
+          steps: rawSteps.length > 0 ? rawSteps : ['Zutaten vorbereiten und schonend garen.']
         }
       };
     };
@@ -496,6 +508,60 @@
       const candidates = excludeId ? database.filter((r) => r?.id !== excludeId) : database;
       const pool = candidates.length > 0 ? candidates : database;
       return pool[Math.floor(rng() * pool.length)];
+    };
+
+    // Lokale Heuristik zur Schätzung von Makros & Haltbarkeit, falls kein API-Key vorhanden ist
+    const estimateLocalMacrosAndShelfLife = (ingredients = [], basePortions = 4) => {
+      const portions = Math.max(1, Number(basePortions) || 4);
+      let totalKcal = 0, totalProt = 0, totalCarbs = 0, totalFat = 0;
+      let minFridgeDays = 4;
+      let maxFreezerMonths = 3;
+
+      (ingredients || []).forEach((ing) => {
+        const name = (ing.name || '').toLowerCase();
+        const rawAmount = Number(ing.amount) || 0;
+        const unit = (ing.unit || 'g').toLowerCase();
+        const grams = unit === 'kg' || unit === 'l' ? rawAmount * 1000
+          : unit === 'el' ? rawAmount * 15
+          : unit === 'tl' ? rawAmount * 5
+          : unit === 'stück' ? rawAmount * 120
+          : rawAmount;
+        const factor = grams / 100;
+
+        if (/lachs|fisch|kabeljau|seelachs|garnele|thunfisch/.test(name)) {
+          totalKcal += factor * 160; totalProt += factor * 20; totalFat += factor * 8;
+          minFridgeDays = Math.min(minFridgeDays, 2);
+          maxFreezerMonths = Math.min(maxFreezerMonths, 2);
+        } else if (/hähnchen|pute|huhn|geflügel/.test(name)) {
+          totalKcal += factor * 115; totalProt += factor * 23; totalFat += factor * 2;
+          minFridgeDays = Math.min(minFridgeDays, 3);
+        } else if (/rind|hackfleisch|gulasch/.test(name)) {
+          totalKcal += factor * 210; totalProt += factor * 20; totalFat += factor * 14;
+          minFridgeDays = Math.min(minFridgeDays, 3);
+        } else if (/reis|nudel|pasta|spätzle|couscous|quinoa|haferflocken|mehl/.test(name)) {
+          totalKcal += factor * 350; totalProt += factor * 11; totalCarbs += factor * 72; totalFat += factor * 2;
+        } else if (/kartoffel|süßkartoffel|gnocchi/.test(name)) {
+          totalKcal += factor * 85; totalProt += factor * 2; totalCarbs += factor * 18;
+        } else if (/linsen|kichererbsen|bohnen|tofu/.test(name)) {
+          totalKcal += factor * 180; totalProt += factor * 12; totalCarbs += factor * 22; totalFat += factor * 3;
+        } else if (/quark|frischkäse|hüttenkäse|skyr|joghurt|mozzarella|käse|feta/.test(name)) {
+          totalKcal += factor * 140; totalProt += factor * 13; totalCarbs += factor * 4; totalFat += factor * 7;
+        } else if (/öl|butter|sahne|kokosmilch/.test(name)) {
+          totalKcal += factor * 450; totalFat += factor * 48;
+        } else {
+          totalKcal += factor * 35; totalProt += factor * 1.5; totalCarbs += factor * 5;
+        }
+      });
+
+      return {
+        calories: clamp(Math.round(totalKcal / portions), 220, 1200),
+        protein: clamp(Math.round(totalProt / portions), 10, 120),
+        carbs: clamp(Math.round(totalCarbs / portions), 5, 180),
+        fat: clamp(Math.round(totalFat / portions), 4, 80),
+        fridgeDays: minFridgeDays,
+        freezerMonths: maxFreezerMonths,
+        toddlerNote: 'Mild abschmecken und kindgerecht schneiden'
+      };
     };
 
     // ============================================================================
@@ -630,15 +696,64 @@
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const rawParsed = JSON.parse((await response.json())?.candidates?.[0]?.content?.parts?.[0]?.text);
       const baseId = currentRecipeContext?.id ? `${currentRecipeContext.id}-ki` : `ki-${String(Date.now()).slice(-4)}`;
-      const { valid, recipe } = validateAndSanitizeRecipe({ ...rawParsed, id: baseId }, 'ki');
+      const { valid, recipe } = validateAndSanitizeRecipe({ ...rawParsed, id: baseId, isCustom: true }, 'ki');
       if (!valid) throw new Error('Formatfehler');
       return recipe;
+    }
+
+    async function callGeminiMacroEstimator(title, basePortions, ingredients, userApiKey) {
+      if (!userApiKey) throw new Error('Kein API Key');
+      const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent';
+      const promptText = `Berechne die Makronährstoffe PRO PORTION (bei insgesamt ${basePortions} Portionen) sowie die realistische Haltbarkeit im Kühlschrank (Tage) und Tiefkühler (Monate) für das Gericht "${title}" anhand dieser Zutatenliste: ${JSON.stringify(ingredients)}. Gib außerdem einen kurzen Kleinkind-Hinweis (toddlerNote) an.`;
+
+      const payload = {
+        systemInstruction: {
+          parts: [{ text: 'Du bist ein präziser Ernährungswissenschaftler und Lebensmittelsicherheits-Experte für Familien-Meal-Prep. Berechne realistische Makronährstoffe pro Portion und sichere Haltbarkeitsangaben.' }]
+        },
+        contents: [{ parts: [{ text: promptText }] }],
+        generationConfig: {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: 'OBJECT',
+            properties: {
+              calories: { type: 'INTEGER' },
+              protein: { type: 'INTEGER' },
+              carbs: { type: 'INTEGER' },
+              fat: { type: 'INTEGER' },
+              fridgeDays: { type: 'INTEGER' },
+              freezerMonths: { type: 'INTEGER' },
+              toddlerNote: { type: 'STRING' }
+            }
+          }
+        }
+      };
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': userApiKey.trim()
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const rawParsed = JSON.parse((await response.json())?.candidates?.[0]?.content?.parts?.[0]?.text);
+      return {
+        calories: Math.round(coercePositiveNumber(rawParsed.calories, 500, 150, 1500)),
+        protein: Math.round(coercePositiveNumber(rawParsed.protein, 35, 5, 150)),
+        carbs: Math.round(coercePositiveNumber(rawParsed.carbs, 50, 0, 250)),
+        fat: Math.round(coercePositiveNumber(rawParsed.fat, 15, 1, 100)),
+        fridgeDays: Math.round(coercePositiveNumber(rawParsed.fridgeDays, 3, 1, 7)),
+        freezerMonths: Math.round(coercePositiveNumber(rawParsed.freezerMonths, 2, 0, 12)),
+        toddlerNote: coerceNonEmptyString(rawParsed.toddlerNote, 'Mild gewürzt & familienfreundlich')
+      };
     }
 
     function applyLocalRecipeVariation(recipe, instructionText) {
       const lower = (instructionText || '').toLowerCase();
       const cloned = structuredClone(recipe);
       cloned.id = `${recipe.id || 'rec'}-umbau`;
+      cloned.isCustom = true;
 
       const { title: baseShortTitle, subtitle: baseSub } = extractConciseTitleAndSubtitle(recipe.title, recipe.subtitle);
       cloned.title = baseShortTitle;
@@ -727,7 +842,7 @@
               </div>
               <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2">
                 <div className="font-bold text-emerald-400">🔑 Optionaler Gemini API-Key (Hybrider Modus)</div>
-                <p className="text-[11px] text-slate-400">MealMate hat <strong>50 abwechslungsreiche Rezepte</strong> aus der <code>rezepte.js</code> offline an Bord! Einen API-Key benötigst du nur optional für Live-KI-Sonderwünsche.</p>
+                <p className="text-[11px] text-slate-400">MealMate hat <strong>50 abwechslungsreiche Rezepte</strong> aus der <code>rezepte.js</code> offline an Bord! Den API-Key nutzt du für Live-KI-Umbauten und die automatische Makro- & Haltbarkeitsberechnung im Kochbuch.</p>
                 <div className="flex gap-1.5">
                   <input type="password" value=${tempKey} onChange=${(e) => setTempKey(e.target.value)} placeholder="AIzaSy... (optional)" className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white" />
                   <button onClick=${() => { onSaveApiKey(tempKey.trim()); onClose(); }} className="px-3 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs">Speichern</button>
@@ -764,8 +879,13 @@
                   className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold bg-slate-950/75 text-white hover:bg-slate-950 border border-white/20 backdrop-blur-md transition"
                 >
                   <${Icons.ArrowLeft} className="w-3.5 h-3.5" />
-                  <span>Zurück zum Plan</span>
+                  <span>Zurück</span>
                 </button>
+                ${isCustomRecipe(recipe) ? html`
+                  <span className="px-2 py-0.5 rounded-full bg-slate-950/60 border border-white/20 text-[10px] font-bold text-amber-300">
+                    👨‍🍳 Eigenes Rezept
+                  </span>
+                ` : ''}
               </div>
 
               <div className="flex items-center gap-3">
@@ -873,30 +993,37 @@
       `;
     }
 
-    function SearchModal({ isOpen, onClose, database, favorites, onToggleFavorite, savedRecipes, onBookmark, onPreview }) {
+    // ============================================================================
+    // MEIN KOCHBUCH: REZEPT-BROWSER ("Meine Rezeptkarten")
+    // ============================================================================
+    function CookbookBrowser({ database, favorites, onToggleFavorite, savedRecipes, onBookmark, onPreview, onSwitchToCreate }) {
       const [searchTerm, setSearchTerm] = useState('');
       const [activeFilters, setActiveFilters] = useState([]);
       const [imgErrors, setImgErrors] = useState({});
 
       const FILTERS = [
+        { id: 'custom', label: '👨‍🍳 Eigene Rezepte' },
         { id: 'fav', label: '⭐ Favoriten' },
         { id: 'veg', label: '🌱 Veggie' },
         { id: 'fish', label: '🐟 Fisch' },
         { id: 'fast', label: '⏱️ < 15 Min' }
       ];
 
-      const toggleFilter = (id) => setActiveFilters(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
+      const toggleFilter = (id) =>
+        setActiveFilters((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]));
 
       const results = useMemo(() => {
-        return database.filter(recipe => {
+        return database.filter((recipe) => {
           if (searchTerm) {
             const term = searchTerm.toLowerCase();
-            const matchesText = recipe.title.toLowerCase().includes(term) ||
-                                (recipe.subtitle || '').toLowerCase().includes(term) ||
-                                recipe.ingredients.some(i => i.name.toLowerCase().includes(term));
+            const matchesText =
+              recipe.title.toLowerCase().includes(term) ||
+              (recipe.subtitle || '').toLowerCase().includes(term) ||
+              recipe.ingredients.some((i) => i.name.toLowerCase().includes(term));
             if (!matchesText) return false;
           }
-          if (activeFilters.includes('fav') && !favorites.some(f => f.id === recipe.id)) return false;
+          if (activeFilters.includes('custom') && !isCustomRecipe(recipe)) return false;
+          if (activeFilters.includes('fav') && !favorites.some((f) => f.id === recipe.id)) return false;
           if (activeFilters.includes('veg') && recipe.accentColor !== RECIPE_THEME_COLORS.VEGGIE) return false;
           if (activeFilters.includes('fish') && recipe.accentColor !== RECIPE_THEME_COLORS.FISH) return false;
           if (activeFilters.includes('fast') && recipe.prepTimeActive > 15) return false;
@@ -904,68 +1031,704 @@
         });
       }, [database, favorites, searchTerm, activeFilters]);
 
-      if (!isOpen) return null;
-
       const handleImgError = (id) => {
-        setImgErrors(prev => ({ ...prev, [id]: true }));
+        setImgErrors((prev) => ({ ...prev, [id]: true }));
       };
 
       return html`
-        <div className="fixed inset-0 z-50 bg-[#0B132B] flex flex-col ios-safe-container">
-          <div className="flex items-center gap-3 p-4 border-b border-slate-800 bg-slate-950/95 shrink-0">
-            <button onClick=${onClose} className="p-2 rounded-full bg-slate-900 text-slate-400 hover:text-white transition"><${Icons.ArrowLeft} className="w-5 h-5" /></button>
-            <div className="flex-1 relative">
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="px-3.5 pt-2 pb-2.5 space-y-2.5 border-b border-slate-800/80 bg-slate-950/60 shrink-0">
+            <div className="relative">
               <${Icons.Search} className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input type="text" value=${searchTerm} onChange=${(e) => setSearchTerm(e.target.value)} placeholder="Rezepte, Zutaten suchen..." className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500" />
+              <input
+                type="text"
+                value=${searchTerm}
+                onChange=${(e) => setSearchTerm(e.target.value)}
+                placeholder="Rezepte oder Zutaten durchsuchen..."
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+            <div className="flex gap-1.5 overflow-x-auto ios-scroll pb-0.5">
+              ${FILTERS.map((f) => {
+                const active = activeFilters.includes(f.id);
+                return html`
+                  <button
+                    key=${f.id}
+                    onClick=${() => toggleFilter(f.id)}
+                    className=${`px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap transition ${
+                      active
+                        ? 'bg-cyan-500 text-slate-950 shadow-sm'
+                        : 'bg-slate-900 text-slate-400 border border-slate-700/80 hover:text-slate-200'
+                    }`}
+                  >
+                    ${f.label}
+                  </button>
+                `;
+              })}
             </div>
           </div>
-          <div className="flex gap-2 p-3 overflow-x-auto ios-scroll border-b border-slate-800 shrink-0 bg-slate-950/50">
-            ${FILTERS.map(f => {
-              const active = activeFilters.includes(f.id);
-              return html`<button key=${f.id} onClick=${() => toggleFilter(f.id)} className=${`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition ${active ? 'bg-cyan-500 text-slate-950' : 'bg-slate-900 text-slate-400 border border-slate-700'}`}>${f.label}</button>`;
-            })}
-          </div>
-          <div className="flex-1 overflow-y-auto ios-scroll p-4 space-y-3 bg-[#0B132B]">
-            ${results.length === 0 ? html`<div className="text-center text-slate-500 text-sm mt-10 font-medium">Keine Rezepte gefunden.</div>` : ''}
-            ${results.map(recipe => {
+
+          <div className="flex-1 overflow-y-auto ios-scroll p-3.5 space-y-2.5">
+            ${results.length === 0 ? html`
+              <div className="text-center py-10 px-4 space-y-3 bg-slate-950/50 border border-slate-800/80 rounded-2xl">
+                <p className="text-xs font-bold text-slate-300">Keine passenden Rezeptkarten gefunden.</p>
+                ${activeFilters.includes('custom') ? html`
+                  <p className="text-[11px] text-slate-500">Du hast noch keine eigenen Rezeptkarten erstellt.</p>
+                  <button
+                    onClick=${onSwitchToCreate}
+                    className="px-3.5 py-2 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs inline-flex items-center gap-1.5"
+                  >
+                    <${Icons.Plus} className="w-3.5 h-3.5" />
+                    <span>Jetzt erste Rezeptkarte erstellen</span>
+                  </button>
+                ` : ''}
+              </div>
+            ` : ''}
+
+            ${results.map((recipe) => {
               const { title: shortTitle, subtitle: shortSub } = extractConciseTitleAndSubtitle(recipe.title, recipe.subtitle);
-              const isFav = favorites.some(f => f.id === recipe.id);
-              const isSaved = savedRecipes.some(s => s.recipe.id === recipe.id);
+              const isFav = favorites.some((f) => f.id === recipe.id);
+              const isSaved = savedRecipes.some((s) => s.recipe.id === recipe.id);
               const hasImgError = imgErrors[recipe.id];
+              const customFlag = isCustomRecipe(recipe);
+
               return html`
-                <div key=${recipe.id} className="flex items-center justify-between bg-slate-900/80 p-3 rounded-2xl border border-slate-800 transition hover:border-slate-700">
+                <div key=${recipe.id} className="flex items-center justify-between bg-slate-950/85 p-3 rounded-2xl border border-slate-800 transition hover:border-slate-700">
                   <div className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" onClick=${() => onPreview(recipe)}>
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-slate-950 border border-slate-800/80 overflow-hidden">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 bg-slate-900 border border-slate-800/80 overflow-hidden">
                       ${!hasImgError ? html`
-                        <img 
-                          src=${`img/${recipe.id}.jpg`} 
-                          alt=${shortTitle} 
-                          onError=${() => handleImgError(recipe.id)} 
-                          className="w-full h-full object-cover" 
+                        <img
+                          src=${`img/${recipe.id}.jpg`}
+                          alt=${shortTitle}
+                          onError=${() => handleImgError(recipe.id)}
+                          className="w-full h-full object-cover"
                         />
                       ` : recipe.emoji}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-extrabold text-white truncate">${shortTitle}</h4>
-                      <p className="text-[10px] text-slate-400 truncate">${shortSub}</p>
+                      <div className="flex items-center gap-1.5">
+                        <h4 className="text-xs font-extrabold text-white truncate">${shortTitle}</h4>
+                        ${customFlag ? html`
+                          <span className="px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[9px] font-bold shrink-0">
+                            Eigenes
+                          </span>
+                        ` : ''}
+                      </div>
+                      <p className="text-[10px] text-slate-400 truncate mt-0.5">${shortSub}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[9px] font-bold text-slate-500 flex items-center gap-0.5"><${Icons.Clock} className="w-2.5 h-2.5"/> ${recipe.prepTimeActive} Min.</span>
+                        <span className="text-[9px] font-bold text-slate-500 flex items-center gap-0.5">
+                          <${Icons.Clock} className="w-2.5 h-2.5" /> ${recipe.prepTimeActive} Min.
+                        </span>
                         <span className="text-[9px] font-bold text-emerald-400">${recipe.protein}g Protein</span>
+                        <span className="text-[9px] font-bold text-slate-500">${recipe.calories} kcal</span>
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                    <button onClick=${() => onToggleFavorite(recipe)} className="p-2 rounded-full bg-slate-950 text-slate-400 transition hover:text-amber-400 border border-slate-800">
-                       <${Icons.Star} className=${`w-4 h-4 ${isFav ? 'fill-amber-400 text-amber-400' : ''}`} />
+                    <button
+                      onClick=${() => onToggleFavorite(recipe)}
+                      className="p-2 rounded-full bg-slate-900 text-slate-400 transition hover:text-amber-400 border border-slate-800"
+                    >
+                      <${Icons.Star} className=${`w-3.5 h-3.5 ${isFav ? 'fill-amber-400 text-amber-400' : ''}`} />
                     </button>
-                    <button onClick=${() => onBookmark(recipe)} disabled=${isSaved} className=${`px-2.5 py-1.5 rounded-xl text-xs font-bold transition ${isSaved ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-cyan-500 text-slate-950 shadow-sm'}`}>
-                       ${isSaved ? '✓ Plan' : '+ Merken'}
+                    <button
+                      onClick=${() => onBookmark(recipe)}
+                      disabled=${isSaved}
+                      className=${`px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition ${
+                        isSaved
+                          ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                          : 'bg-cyan-500 text-slate-950 shadow-sm'
+                      }`}
+                    >
+                      ${isSaved ? '✓ Plan' : '+ Merken'}
                     </button>
                   </div>
                 </div>
               `;
             })}
           </div>
+        </div>
+      `;
+    }
+
+    // ============================================================================
+    // MEIN KOCHBUCH: GEFÜHRTER REZEPT-ASSISTENT ("Neue Rezeptkarte erstellen")
+    // ============================================================================
+    function RecipeCreatorWizard({ userApiKey, onOpenSetup, onSaveCustomRecipe, showTemporaryStatus }) {
+      const [wizardStep, setWizardStep] = useState(1);
+      const [title, setTitle] = useState('');
+      const [subtitle, setSubtitle] = useState('');
+      const [emoji, setEmoji] = useState('🍲');
+      const [basePortions, setBasePortions] = useState(4);
+      const [prepTimeActive, setPrepTimeActive] = useState(15);
+      const [prepTimePassive, setPrepTimePassive] = useState(15);
+      const [effortLevel, setEffortLevel] = useState('Gering (Familien-Alltag)');
+
+      const [ingredients, setIngredients] = useState([
+        { name: 'Hähnchenbrustfilet', amount: 500, unit: 'g', category: 'Fleisch & Frische' },
+        { name: 'Basmatireis (ungekocht)', amount: 250, unit: 'g', category: 'Vorratsschrank' },
+        { name: 'Brokkoli-Röschen', amount: 400, unit: 'g', category: 'Obst & Gemüse' }
+      ]);
+      const [ingName, setIngName] = useState('');
+      const [ingAmount, setIngAmount] = useState('');
+      const [ingUnit, setIngUnit] = useState('g');
+      const [ingCategory, setIngCategory] = useState('Obst & Gemüse');
+
+      const [steps, setSteps] = useState([
+        'Zutaten waschen, schneiden und bereitstellen.',
+        'Hauptzutaten in einer großen Pfanne oder im Topf schonend garen und mild abschmecken.'
+      ]);
+      const [stepInput, setStepInput] = useState('');
+
+      const [calories, setCalories] = useState(520);
+      const [protein, setProtein] = useState(42);
+      const [carbs, setCarbs] = useState(54);
+      const [fat, setFat] = useState(12);
+      const [fridgeDays, setFridgeDays] = useState(3);
+      const [freezerMonths, setFreezerMonths] = useState(2);
+      const [toddlerNote, setToddlerNote] = useState('Mild gewürzt & familienfreundlich');
+      const [isCalculatingAi, setIsCalculatingAi] = useState(false);
+
+      const handleAddIngredient = () => {
+        const cleanName = ingName.trim();
+        const numAmount = coercePositiveNumber(ingAmount, 100, 0.1, 5000);
+        if (!cleanName) return;
+        setIngredients((prev) => [
+          ...prev,
+          { name: cleanName, amount: numAmount, unit: ingUnit, category: ingCategory }
+        ]);
+        setIngName('');
+        setIngAmount('');
+      };
+
+      const handleRemoveIngredient = (idx) => {
+        setIngredients((prev) => prev.filter((_, i) => i !== idx));
+      };
+
+      const handleAddStep = () => {
+        const cleanStep = stepInput.trim();
+        if (!cleanStep) return;
+        setSteps((prev) => [...prev, cleanStep]);
+        setStepInput('');
+      };
+
+      const handleRemoveStep = (idx) => {
+        setSteps((prev) => prev.filter((_, i) => i !== idx));
+      };
+
+      const handleCalculateMacrosWithAi = async () => {
+        if (ingredients.length === 0) {
+          showTemporaryStatus('Bitte füge zuerst mindestens eine Zutat hinzu.');
+          return;
+        }
+        setIsCalculatingAi(true);
+        try {
+          if (userApiKey) {
+            const estimated = await callGeminiMacroEstimator(
+              title || 'Familien-Gericht',
+              basePortions,
+              ingredients,
+              userApiKey
+            );
+            setCalories(estimated.calories);
+            setProtein(estimated.protein);
+            setCarbs(estimated.carbs);
+            setFat(estimated.fat);
+            setFridgeDays(estimated.fridgeDays);
+            setFreezerMonths(estimated.freezerMonths);
+            setToddlerNote(estimated.toddlerNote);
+            showTemporaryStatus('Makros & Haltbarkeit per Gemini-KI berechnet!');
+          } else {
+            const localEst = estimateLocalMacrosAndShelfLife(ingredients, basePortions);
+            setCalories(localEst.calories);
+            setProtein(localEst.protein);
+            setCarbs(localEst.carbs);
+            setFat(localEst.fat);
+            setFridgeDays(localEst.fridgeDays);
+            setFreezerMonths(localEst.freezerMonths);
+            setToddlerNote(localEst.toddlerNote);
+            showTemporaryStatus('Kein API-Key hinterlegt: Werte lokal aus Zutaten geschätzt!');
+          }
+        } catch {
+          const fallbackEst = estimateLocalMacrosAndShelfLife(ingredients, basePortions);
+          setCalories(fallbackEst.calories);
+          setProtein(fallbackEst.protein);
+          setCarbs(fallbackEst.carbs);
+          setFat(fallbackEst.fat);
+          setFridgeDays(fallbackEst.fridgeDays);
+          setFreezerMonths(fallbackEst.freezerMonths);
+          showTemporaryStatus('API-Fehler: Werte wurden lokal geschätzt.');
+        } finally {
+          setIsCalculatingAi(false);
+        }
+      };
+
+      const handleSaveRecipeCard = () => {
+        if (!title.trim()) {
+          setWizardStep(1);
+          showTemporaryStatus('Bitte gib deiner Rezeptkarte noch einen Titel.');
+          return;
+        }
+        const customId = `custom-${Date.now().toString().slice(-5)}`;
+        const rawRecipe = {
+          id: customId,
+          title: title.trim(),
+          subtitle: subtitle.trim() || 'Eigenes Familien-Rezept aus meinem Kochbuch',
+          emoji,
+          isCustom: true,
+          prepTimeActive,
+          prepTimePassive,
+          effortLevel,
+          fridgeDays,
+          freezerMonths,
+          toddlerNote,
+          calories,
+          protein,
+          carbs,
+          fat,
+          basePortions,
+          ingredients,
+          steps
+        };
+        const { valid, recipe } = validateAndSanitizeRecipe(rawRecipe, 'custom');
+        if (!valid || !recipe) {
+          showTemporaryStatus('Bitte überprüfe deine Eingaben.');
+          return;
+        }
+        onSaveCustomRecipe(recipe);
+      };
+
+      const previewColor = determineSemanticRecipeColor(title, ingredients);
+
+      return html`
+        <div className="flex-1 overflow-y-auto ios-scroll p-3.5 space-y-3.5">
+          <!-- Fortschrittsanzeige (4 Schritte) -->
+          <div className="bg-slate-950/90 border border-slate-800 rounded-2xl p-3 space-y-2">
+            <div className="flex items-center justify-between text-[11px] font-bold">
+              <span className="text-cyan-400">Schritt ${wizardStep} von 4</span>
+              <span className="text-slate-400">
+                ${wizardStep === 1 ? '1. Basis & Zeiten' : wizardStep === 2 ? '2. Zutatenliste' : wizardStep === 3 ? '3. Zubereitung' : '4. KI-Makros & Vorschau'}
+              </span>
+            </div>
+            <div className="grid grid-cols-4 gap-1.5">
+              ${[1, 2, 3, 4].map((s) => html`
+                <button
+                  key=${s}
+                  onClick=${() => setWizardStep(s)}
+                  className=${`h-2 rounded-full transition ${
+                    wizardStep === s ? 'bg-cyan-400' : wizardStep > s ? 'bg-emerald-500/70' : 'bg-slate-800'
+                  }`}
+                />
+              `)}
+            </div>
+          </div>
+
+          <!-- SCHRITT 1: BASIS-INFOS -->
+          ${wizardStep === 1 ? html`
+            <div className="bg-slate-950/90 border border-slate-800 rounded-2xl p-4 space-y-3.5">
+              <div>
+                <h3 className="text-sm font-extrabold text-white">Wie heißt dein Gericht?</h3>
+                <p className="text-[11px] text-slate-400">Wir legen die Karte automatisch im MealMate-Format an.</p>
+              </div>
+
+              <div className="space-y-2.5 text-xs">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Rezept-Titel *</label>
+                  <input
+                    type="text"
+                    value=${title}
+                    onChange=${(e) => setTitle(e.target.value)}
+                    placeholder="z.B. Omas Linsen-Dal oder Lachs-Nudelpfanne"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Untertitel / Beilage</label>
+                  <input
+                    type="text"
+                    value=${subtitle}
+                    onChange=${(e) => setSubtitle(e.target.value)}
+                    placeholder="z.B. Mit Basmatireis und milder Kokosmilch"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Passendes Emoji wählen</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    ${EMOJI_PRESETS.map((em) => html`
+                      <button
+                        key=${em}
+                        type="button"
+                        onClick=${() => setEmoji(em)}
+                        className=${`w-9 h-9 rounded-xl text-lg flex items-center justify-center border transition ${
+                          emoji === em ? 'bg-cyan-500/20 border-cyan-400 scale-105' : 'bg-slate-900 border-slate-800'
+                        }`}
+                      >
+                        ${em}
+                      </button>
+                    `)}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-2.5">
+                    <label className="block text-[10px] font-bold text-slate-400">Basis-Portionen</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="12"
+                      value=${basePortions}
+                      onChange=${(e) => setBasePortions(coercePositiveNumber(e.target.value, 4, 1, 12))}
+                      className="w-full bg-transparent text-sm font-extrabold text-cyan-400 mt-1 focus:outline-none"
+                    />
+                  </div>
+                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-2.5">
+                    <label className="block text-[10px] font-bold text-slate-400">Aktiv (Min.)</label>
+                    <input
+                      type="number"
+                      min="5"
+                      max="120"
+                      value=${prepTimeActive}
+                      onChange=${(e) => setPrepTimeActive(coercePositiveNumber(e.target.value, 15, 5, 120))}
+                      className="w-full bg-transparent text-sm font-extrabold text-emerald-400 mt-1 focus:outline-none"
+                    />
+                  </div>
+                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-2.5">
+                    <label className="block text-[10px] font-bold text-slate-400">Kochzeit (Min.)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="240"
+                      value=${prepTimePassive}
+                      onChange=${(e) => setPrepTimePassive(coercePositiveNumber(e.target.value, 15, 0, 240))}
+                      className="w-full bg-transparent text-sm font-extrabold text-amber-300 mt-1 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick=${() => {
+                  if (!title.trim()) {
+                    showTemporaryStatus('Bitte gib zuerst einen Rezept-Titel ein.');
+                    return;
+                  }
+                  setWizardStep(2);
+                }}
+                className="w-full py-2.5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 transition"
+              >
+                <span>Weiter zu den Zutaten</span>
+                <${Icons.ChevronRight} className="w-4 h-4" />
+              </button>
+            </div>
+          ` : ''}
+
+          <!-- SCHRITT 2: ZUTATEN -->
+          ${wizardStep === 2 ? html`
+            <div className="bg-slate-950/90 border border-slate-800 rounded-2xl p-4 space-y-3.5">
+              <div>
+                <h3 className="text-sm font-extrabold text-white">Zutaten für ${basePortions} Portionen</h3>
+                <p className="text-[11px] text-slate-400">Ordne jede Zutat einem Supermarkt-Regal für die smarte Einkaufsliste zu.</p>
+              </div>
+
+              <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 space-y-2.5 text-xs">
+                <input
+                  type="text"
+                  value=${ingName}
+                  onChange=${(e) => setIngName(e.target.value)}
+                  onKeyDown=${(e) => e.key === 'Enter' && handleAddIngredient()}
+                  placeholder="Zutat (z.B. Lachsfilet, Rote Linsen)..."
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+                />
+                <div className="grid grid-cols-3 gap-2">
+                  <input
+                    type="number"
+                    value=${ingAmount}
+                    onChange=${(e) => setIngAmount(e.target.value)}
+                    placeholder="Menge (z.B. 300)"
+                    className="bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-white focus:outline-none focus:border-cyan-500"
+                  />
+                  <select
+                    value=${ingUnit}
+                    onChange=${(e) => setIngUnit(e.target.value)}
+                    className="bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-2 text-white focus:outline-none"
+                  >
+                    ${UNIT_PRESETS.map((u) => html`<option key=${u} value=${u}>${u}</option>`)}
+                  </select>
+                  <button
+                    type="button"
+                    onClick=${handleAddIngredient}
+                    className="rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1"
+                  >
+                    <${Icons.Plus} className="w-3.5 h-3.5" /> Hinzufügen
+                  </button>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 mb-1">Supermarkt-Kategorie:</label>
+                  <div className="flex flex-wrap gap-1">
+                    ${CATEGORY_ORDER.map((cat) => html`
+                      <button
+                        key=${cat.key}
+                        type="button"
+                        onClick=${() => setIngCategory(cat.key)}
+                        className=${`px-2 py-1 rounded-lg text-[10px] font-bold border transition ${
+                          ingCategory === cat.key ? cat.badge : 'bg-slate-950 border-slate-800 text-slate-400'
+                        }`}
+                      >
+                        ${cat.icon} ${cat.key}
+                      </button>
+                    `)}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1.5 max-h-52 overflow-y-auto ios-scroll">
+                ${ingredients.map((ing, idx) => html`
+                  <div key=${idx} className="flex items-center justify-between bg-slate-900 border border-slate-800 px-3 py-2 rounded-xl text-xs">
+                    <div className="min-w-0 flex-1">
+                      <span className="font-bold text-white">${ing.name}</span>
+                      <span className="text-[10px] text-slate-400 ml-1.5">(${ing.category})</span>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-emerald-400 font-bold">${ing.amount} ${ing.unit}</span>
+                      <button onClick=${() => handleRemoveIngredient(idx)} className="text-slate-500 hover:text-rose-400">
+                        <${Icons.Trash2} className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                `)}
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick=${() => setWizardStep(1)}
+                  className="px-4 py-2.5 rounded-2xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-xs"
+                >
+                  Zurück
+                </button>
+                <button
+                  onClick=${() => setWizardStep(3)}
+                  className="flex-1 py-2.5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 transition"
+                >
+                  <span>Weiter zum Ablauf</span>
+                  <${Icons.ChevronRight} className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- SCHRITT 3: ZUBEREITUNG -->
+          ${wizardStep === 3 ? html`
+            <div className="bg-slate-950/90 border border-slate-800 rounded-2xl p-4 space-y-3.5">
+              <div>
+                <h3 className="text-sm font-extrabold text-white">Zubereitungsschritte</h3>
+                <p className="text-[11px] text-slate-400">Halte die Schritte kurz und prägnant für den späteren Kochmodus.</p>
+              </div>
+
+              <div className="flex gap-1.5">
+                <input
+                  type="text"
+                  value=${stepInput}
+                  onChange=${(e) => setStepInput(e.target.value)}
+                  onKeyDown=${(e) => e.key === 'Enter' && handleAddStep()}
+                  placeholder="Neuen Zubereitungsschritt eingeben..."
+                  className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
+                />
+                <button
+                  type="button"
+                  onClick=${handleAddStep}
+                  className="px-3 py-2 rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs shrink-0"
+                >
+                  + Schritt
+                </button>
+              </div>
+
+              <div className="space-y-2 max-h-56 overflow-y-auto ios-scroll">
+                ${steps.map((st, idx) => html`
+                  <div key=${idx} className="flex items-start justify-between gap-2 bg-slate-900 border border-slate-800 p-2.5 rounded-xl text-xs">
+                    <div className="flex items-start gap-2">
+                      <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center shrink-0 mt-0.5">
+                        ${idx + 1}
+                      </span>
+                      <p className="text-slate-200 leading-relaxed">${st}</p>
+                    </div>
+                    <button onClick=${() => handleRemoveStep(idx)} className="text-slate-500 hover:text-rose-400 shrink-0 mt-0.5">
+                      <${Icons.Trash2} className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                `)}
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick=${() => setWizardStep(2)}
+                  className="px-4 py-2.5 rounded-2xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-xs"
+                >
+                  Zurück
+                </button>
+                <button
+                  onClick=${() => setWizardStep(4)}
+                  className="flex-1 py-2.5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 transition"
+                >
+                  <span>Weiter zu Makros & Haltbarkeit</span>
+                  <${Icons.ChevronRight} className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- SCHRITT 4: KI-MAKROS, HALTBARKEIT & KARTE SPEICHERN -->
+          ${wizardStep === 4 ? html`
+            <div className="bg-slate-950/90 border border-slate-800 rounded-2xl p-4 space-y-3.5">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">Makros & Haltbarkeit</h3>
+                  <p className="text-[11px] text-slate-400">Lass die Werte per KI aus deinen ${ingredients.length} Zutaten berechnen oder passe sie manuell an.</p>
+                </div>
+                ${!userApiKey ? html`
+                  <button
+                    onClick=${onOpenSetup}
+                    className="text-[10px] px-2 py-1 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 font-bold shrink-0"
+                  >
+                    🔑 API-Key setzen
+                  </button>
+                ` : ''}
+              </div>
+
+              <!-- KI-Generator Button -->
+              <button
+                type="button"
+                disabled=${isCalculatingAi}
+                onClick=${handleCalculateMacrosWithAi}
+                className="w-full py-2.5 px-3 rounded-2xl bg-gradient-to-r from-indigo-500 to-cyan-500 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg active:scale-95 transition disabled:opacity-50"
+              >
+                ${isCalculatingAi
+                  ? html`<${Icons.RefreshCw} className="w-4 h-4 animate-spin" /><span>Berechne aus Zutaten...</span>`
+                  : html`<${Icons.Sparkles} className="w-4 h-4" /><span>✨ Makros & Haltbarkeit aus Zutaten generieren ${userApiKey ? '(Gemini KI)' : '(Lokale Schätzung)'}</span>`}
+              </button>
+
+              <!-- Makro-Inputs -->
+              <div className="grid grid-cols-4 gap-2 text-xs">
+                <div className="bg-slate-900 border border-slate-800 rounded-xl p-2 text-center">
+                  <label className="block text-[9px] uppercase text-slate-400 font-bold">Kalorien</label>
+                  <input
+                    type="number"
+                    value=${calories}
+                    onChange=${(e) => setCalories(coercePositiveNumber(e.target.value, 500, 150, 1500))}
+                    className="w-full bg-transparent text-center font-extrabold text-white mt-0.5 focus:outline-none"
+                  />
+                  <span className="text-[9px] text-slate-500">kcal</span>
+                </div>
+                <div className="bg-slate-900 border border-slate-800 rounded-xl p-2 text-center">
+                  <label className="block text-[9px] uppercase text-emerald-400 font-bold">Protein</label>
+                  <input
+                    type="number"
+                    value=${protein}
+                    onChange=${(e) => setProtein(coercePositiveNumber(e.target.value, 40, 5, 150))}
+                    className="w-full bg-transparent text-center font-extrabold text-emerald-400 mt-0.5 focus:outline-none"
+                  />
+                  <span className="text-[9px] text-slate-500">g</span>
+                </div>
+                <div className="bg-slate-900 border border-slate-800 rounded-xl p-2 text-center">
+                  <label className="block text-[9px] uppercase text-amber-300 font-bold">Carbs</label>
+                  <input
+                    type="number"
+                    value=${carbs}
+                    onChange=${(e) => setCarbs(coercePositiveNumber(e.target.value, 50, 0, 250))}
+                    className="w-full bg-transparent text-center font-extrabold text-amber-300 mt-0.5 focus:outline-none"
+                  />
+                  <span className="text-[9px] text-slate-500">g</span>
+                </div>
+                <div className="bg-slate-900 border border-slate-800 rounded-xl p-2 text-center">
+                  <label className="block text-[9px] uppercase text-rose-300 font-bold">Fett</label>
+                  <input
+                    type="number"
+                    value=${fat}
+                    onChange=${(e) => setFat(coercePositiveNumber(e.target.value, 12, 1, 100))}
+                    className="w-full bg-transparent text-center font-extrabold text-rose-300 mt-0.5 focus:outline-none"
+                  />
+                  <span className="text-[9px] text-slate-500">g</span>
+                </div>
+              </div>
+
+              <!-- Haltbarkeit & Kleinkind-Hinweis -->
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-slate-900 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-300 font-semibold">❄️ Kühlschrank (Tage)</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="7"
+                    value=${fridgeDays}
+                    onChange=${(e) => setFridgeDays(coercePositiveNumber(e.target.value, 3, 1, 7))}
+                    className="w-12 bg-slate-950 border border-slate-700 rounded-lg py-1 text-center font-extrabold text-sky-400"
+                  />
+                </div>
+                <div className="bg-slate-900 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-300 font-semibold">🧊 Tiefkühler (Monate)</span>
+                  <input
+                    type="number"
+                    min="0"
+                    max="12"
+                    value=${freezerMonths}
+                    onChange=${(e) => setFreezerMonths(coercePositiveNumber(e.target.value, 2, 0, 12))}
+                    className="w-12 bg-slate-950 border border-slate-700 rounded-lg py-1 text-center font-extrabold text-sky-400"
+                  />
+                </div>
+              </div>
+
+              <div className="text-xs">
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">Kleinkind- & Familien-Hinweis</label>
+                <input
+                  type="text"
+                  value=${toddlerNote}
+                  onChange=${(e) => setToddlerNote(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500"
+                />
+              </div>
+
+              <!-- Live-Karten-Vorschau -->
+              <div className="rounded-2xl overflow-hidden border border-slate-700 shadow-lg">
+                <div className=${`bg-gradient-to-br ${previewColor} p-3 flex items-center gap-3`}>
+                  <div className="w-11 h-11 rounded-xl bg-white/15 backdrop-blur-md flex items-center justify-center text-2xl border border-white/20">
+                    ${emoji}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-white/80">Vorschau deiner Rezeptkarte</div>
+                    <div className="text-sm font-extrabold text-white truncate">${title || 'Unbenanntes Rezept'}</div>
+                    <div className="text-[11px] text-white/90 truncate">${subtitle || 'Eigenes Familien-Rezept'}</div>
+                  </div>
+                </div>
+                <${MacroBar}
+                  calories=${calories}
+                  protein=${protein}
+                  carbs=${carbs}
+                  fat=${fat}
+                  prepTimeActive=${prepTimeActive}
+                  fridgeDays=${fridgeDays}
+                  freezerMonths=${freezerMonths}
+                />
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick=${() => setWizardStep(3)}
+                  className="px-4 py-2.5 rounded-2xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-xs"
+                >
+                  Zurück
+                </button>
+                <button
+                  onClick=${handleSaveRecipeCard}
+                  className="flex-1 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition"
+                >
+                  <${Icons.Check} className="w-4 h-4 stroke-[3]" />
+                  <span>Rezeptkarte im Kochbuch speichern</span>
+                </button>
+              </div>
+            </div>
+          ` : ''}
         </div>
       `;
     }
@@ -987,7 +1750,6 @@
       const [savedRecipes, setSavedRecipes] = usePersistedState('mealPlans', []);
       const [weeklyPlans, setWeeklyPlans] = usePersistedState('weeklyPlans', []);
       const [favorites, setFavorites] = usePersistedState('favorites', []);
-      const [searchModalOpen, setSearchModalOpen] = useState(false);
 
       const [newPlanName, setNewPlanName] = useState('');
       const [selectedPlanId, setSelectedPlanId] = useState(null);
@@ -996,6 +1758,7 @@
       const [cookingModalItem, setCookingModalItem] = useState(null);
 
       const [activeView, setActiveView] = useState('swipe');
+      const [cookbookTab, setCookbookTab] = useState('browse');
       const [cardTab, setCardTab] = useState('ingredients');
       const [weekdayFilter, setWeekdayFilter] = useState('Alle');
 
@@ -1051,6 +1814,13 @@
         });
         return updatedDb;
       }, []);
+
+      const handleSaveCustomRecipe = useCallback((customRecipe) => {
+        addRecipesToDatabaseWithPersistence([customRecipe]);
+        setCurrentCard(customRecipe);
+        setCookbookTab('browse');
+        showTemporaryStatus(`Rezeptkarte „${customRecipe.title}“ im Kochbuch gespeichert!`);
+      }, [addRecipesToDatabaseWithPersistence, showTemporaryStatus]);
 
       const triggerDecision = (decision) => {
         if (!currentCard || isGenerating) return;
@@ -1190,6 +1960,11 @@
         [savedRecipes]
       );
 
+      const customRecipesCount = useMemo(
+        () => recipeDatabase.filter((r) => isCustomRecipe(r)).length,
+        [recipeDatabase]
+      );
+
       const handleCopyPlanShoppingList = async () => {
         if (!selectedPlan) return;
         const text = formatShoppingListText(
@@ -1233,7 +2008,6 @@
           <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-orange-500/10 rounded-full blur-[100px] pointer-events-none"></div>
           
           <${SetupModal} isOpen=${setupModalOpen} onClose=${() => setSetupModalOpen(false)} apiKey=${userApiKey} onSaveApiKey=${handleSaveApiKey} />
-          <${SearchModal} isOpen=${searchModalOpen} onClose=${() => setSearchModalOpen(false)} database=${recipeDatabase} favorites=${favorites} onToggleFavorite=${toggleFavorite} savedRecipes=${savedRecipes} onBookmark=${handleBookmarkFromSearch} onPreview=${(recipe) => setCookingModalItem({ recipe, portions: recipe.basePortions, dayPortions: {} })} />
           <${CookRecipeModal} item=${cookingModalItem} onClose=${() => setCookingModalItem(null)} />
 
           <div className="w-full max-w-[430px] flex flex-col min-h-[92vh] bg-slate-900/80 border border-slate-700/50 rounded-[32px] shadow-2xl overflow-hidden relative backdrop-blur-2xl z-10">
@@ -1249,14 +2023,50 @@
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <button onClick=${() => setSearchModalOpen(true)} className="px-2.5 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/50 text-slate-300 hover:text-white transition shadow-sm"><${Icons.Search} className="w-3.5 h-3.5" /></button>
-                  <button onClick=${() => setSetupModalOpen(true)} className="px-2.5 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/25 transition"><${Icons.Smartphone} className="w-3.5 h-3.5" /></button>
+                  <button
+                    onClick=${() => { setActiveView('cookbook'); setCookbookTab('browse'); }}
+                    title="Rezepte durchsuchen"
+                    className="px-2.5 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/50 text-slate-300 hover:text-white transition shadow-sm"
+                  >
+                    <${Icons.Search} className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick=${() => setSetupModalOpen(true)}
+                    title="Einstellungen & API-Key"
+                    className="px-2.5 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/25 transition"
+                  >
+                    <${Icons.Smartphone} className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
+
+              <!-- Hauptreiter -->
               <div className="grid grid-cols-3 gap-1 p-1 bg-slate-950/90 rounded-2xl border border-slate-800/80 text-xs font-semibold">
                 <button onClick=${() => setActiveView('swipe')} className=${`py-2 rounded-xl flex items-center justify-center gap-1.5 transition ${activeView === 'swipe' ? 'bg-cyan-500 text-slate-950 shadow-md font-bold' : 'text-slate-400'}`}><${Icons.Layers} className="w-3.5 h-3.5" /><span>Karten</span></button>
                 <button onClick=${() => setActiveView('saved')} className=${`py-2 rounded-xl flex items-center justify-center gap-1.5 transition ${activeView === 'saved' ? 'bg-cyan-500 text-slate-950 shadow-md font-bold' : 'text-slate-400'}`}><${Icons.Bookmark} className="w-3.5 h-3.5" /><span>Merkliste (${savedRecipes.length})</span></button>
                 <button onClick=${() => setActiveView('myprep')} className=${`py-2 rounded-xl flex items-center justify-center gap-1.5 transition ${activeView === 'myprep' ? 'bg-cyan-500 text-slate-950 shadow-md font-bold' : 'text-slate-400'}`}><${Icons.Calendar} className="w-3.5 h-3.5" /><span>MyPrep (${weeklyPlans.length})</span></button>
+              </div>
+
+              <!-- Zentrierter Button "Mein Kochbuch" unterhalb der Reiter -->
+              <div className="mt-2.5 flex justify-center">
+                <button
+                  onClick=${() => setActiveView('cookbook')}
+                  className=${`px-5 py-1.5 rounded-full text-xs font-extrabold flex items-center gap-2 transition border shadow-md ${
+                    activeView === 'cookbook'
+                      ? 'bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 border-emerald-300'
+                      : 'bg-slate-900/95 text-cyan-300 border-cyan-500/40 hover:bg-slate-800'
+                  }`}
+                >
+                  <${Icons.BookOpen} className="w-3.5 h-3.5" />
+                  <span>Mein Kochbuch</span>
+                  ${customRecipesCount > 0 ? html`
+                    <span className=${`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                      activeView === 'cookbook' ? 'bg-slate-950/20 text-slate-950' : 'bg-cyan-500/20 text-cyan-300'
+                    }`}>
+                      +${customRecipesCount}
+                    </span>
+                  ` : ''}
+                </button>
               </div>
             </header>
 
@@ -1265,6 +2075,57 @@
                 ${isGenerating ? html`<${Icons.RefreshCw} className="w-3.5 h-3.5 animate-spin shrink-0" />` : html`<${Icons.CheckCircle2} className="w-3.5 h-3.5 shrink-0" />`}
                 <span>${aiStatusMessage}</span>
               </div>
+            ` : ''}
+
+            <!-- ANSICHT: MEIN KOCHBUCH -->
+            ${activeView === 'cookbook' ? html`
+              <main className="flex-1 flex flex-col overflow-hidden">
+                <div className="px-3.5 pt-3 pb-2 bg-slate-950/80 border-b border-slate-800/80 shrink-0">
+                  <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-900 rounded-2xl border border-slate-800 text-xs font-bold">
+                    <button
+                      onClick=${() => setCookbookTab('create')}
+                      className=${`py-2 rounded-xl flex items-center justify-center gap-1.5 transition ${
+                        cookbookTab === 'create'
+                          ? 'bg-emerald-500 text-slate-950 font-extrabold shadow'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <${Icons.Plus} className="w-3.5 h-3.5" />
+                      <span>Neue Rezeptkarte erstellen</span>
+                    </button>
+                    <button
+                      onClick=${() => setCookbookTab('browse')}
+                      className=${`py-2 rounded-xl flex items-center justify-center gap-1.5 transition ${
+                        cookbookTab === 'browse'
+                          ? 'bg-cyan-500 text-slate-950 font-extrabold shadow'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <${Icons.Search} className="w-3.5 h-3.5" />
+                      <span>Meine Rezeptkarten (${recipeDatabase.length})</span>
+                    </button>
+                  </div>
+                </div>
+
+                ${cookbookTab === 'create' ? html`
+                  <${RecipeCreatorWizard}
+                    userApiKey=${userApiKey}
+                    onOpenSetup=${() => setSetupModalOpen(true)}
+                    onSaveCustomRecipe=${handleSaveCustomRecipe}
+                    showTemporaryStatus=${showTemporaryStatus}
+                  />
+                ` : html`
+                  <${CookbookBrowser}
+                    database=${recipeDatabase}
+                    favorites=${favorites}
+                    onToggleFavorite=${toggleFavorite}
+                    savedRecipes=${savedRecipes}
+                    onBookmark=${handleBookmarkFromSearch}
+                    onPreview=${(recipe) => setCookingModalItem({ recipe, portions: recipe.basePortions, dayPortions: {} })}
+                    onSwitchToCreate=${() => setCookbookTab('create')}
+                  />
+                `}
+              </main>
             ` : ''}
 
             ${activeView === 'swipe' ? html`
@@ -1284,7 +2145,14 @@
                       <div style=${{ opacity: swipeFeedback === 'nope' ? 1 : nopeOpacity }} className="pointer-events-none absolute top-6 right-5 z-30 border-4 border-slate-500 text-slate-500 font-black text-xl tracking-widest px-3 py-1 rounded-xl rotate-12 bg-slate-950/80 shadow-lg">WEITER ✕</div>
 
                       <div className=${`bg-gradient-to-br ${determineSemanticRecipeColor(currentCard.title, currentCard.ingredients)} p-4 pb-3.5 relative`}>
-                        <div className="flex items-center justify-end z-40 relative">
+                        <div className="flex items-center justify-between z-40 relative">
+                          <div>
+                            ${isCustomRecipe(currentCard) ? html`
+                              <span className="px-2 py-0.5 rounded-full bg-slate-950/50 border border-white/20 text-[10px] font-bold text-amber-300">
+                                👨‍🍳 Eigenes Rezept
+                              </span>
+                            ` : ''}
+                          </div>
                           <button onClick=${() => toggleFavorite(currentCard)} className="p-2 rounded-full bg-slate-950/40 border border-white/10 backdrop-blur-md text-white shadow-sm transition hover:scale-110 shrink-0">
                             <${Icons.Star} className=${`w-4 h-4 ${favorites.some(f => f.id === currentCard.id) ? 'fill-amber-400 text-amber-400' : 'fill-none text-white'}`} />
                           </button>
@@ -1533,7 +2401,7 @@
                     </div>
                   ` : html`
                     <div className="space-y-4 pb-4">
-                      <!-- AKTUELLER PLAN (ERster Plan) -->
+                      <!-- AKTUELLER PLAN (ERSTER PLAN) -->
                       ${weeklyPlans.length > 0 ? html`
                         <div className="space-y-2">
                           <div className="text-[11px] font-extrabold text-cyan-400 uppercase tracking-wider flex items-center gap-1">✨ Aktueller Wochenplan</div>
@@ -1610,10 +2478,9 @@
                       <!-- ARCHIV (WEITERE PLÄNE) -->
                       ${weeklyPlans.length > 1 ? html`
                         <div className="space-y-2 pt-2">
-                          <div className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1">🗄️ Archivierte Pläne</div>
+                          <div className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1">🗂️ Archivierte Pläne</div>
                           ${weeklyPlans.slice(1).map((plan) => {
                             const stats = calculatePlanStats(plan.items);
-                            const checkedCount = Object.values(plan.checkedItems || {}).filter(Boolean).length;
                             return html`
                               <div
                                 key=${plan.id}
